@@ -12,7 +12,7 @@ import simulation.world.PlantGrid.PlantBox;
 
 public class Creature implements Evolutionizable{
 	private final Body body;
-    private final Brain brain = new Brain(Consts.CREATURE.BRAIN.NUMBER_OF_INPUTCELLS, Consts.CREATURE.BRAIN.NUMBER_OF_INTERCELLS, Consts.CREATURE.BRAIN.NUMBER_OF_OUTPUTCELLS);
+    private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Consts.CREATURE.BRAIN.NUMBER_OF_INTERCELLS, Consts.CREATURE.BRAIN.NUMBER_OF_OUTPUTCELLS);
     private DNA dna;
     private final int id;
     private boolean eatingActive;

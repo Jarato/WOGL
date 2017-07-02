@@ -4,25 +4,28 @@ import javafx.scene.paint.Color;
 import pdf.ai.nnetwork.IOINeuralNet;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
-import simulation.Consts;
 
 public class Brain extends IOINeuralNet {
+	//CONSTS
+	public static final int NUMBER_OF_SIGHT_AREAS = 5;
+	public static final double SIGHT_RANGE = 200;
+	public static final int NUMBER_OF_INPUTS = 23;
+	
 	class InputMask {
     	/**
     	 * X: distance<br>
     	 * Y: color
     	 */
-    	final Pair<Double, Color>[] eyesInputs = new Pair[Consts.CREATURE.NUMBER_OF_SIGHT_AREAS];
-    	/**
-         * 0 = front<br>
-         * 1 = right<br>
-         * 2 = back<br>
-         * 3 = left
-         */
-    	final boolean[] sidesTouched = new boolean[] {false,false,false,false};
+    	final Pair<Double, Color>[] eyesInputs = new Pair[NUMBER_OF_SIGHT_AREAS];
         boolean gotHurt = false;
         double stomachPercent = 1.0;
         double lifePercent = 1.0;
+        
+        private InputMask() {
+        	for (int i = 0; i < eyesInputs.length; i++) {
+        		eyesInputs[i] = new Pair<Double, Color>();
+        	}
+        }
     }
 
 	private final InputMask inputMask = new InputMask();
@@ -40,16 +43,13 @@ public class Brain extends IOINeuralNet {
 		for (int i = 0; i < inputMask.eyesInputs.length; i++) {
 			//distance
 			pos= i*4;
-			setInputValue(0+pos, Math.pow(Consts.CREATURE.SIGHT_RANGE-inputMask.eyesInputs[i].getX()/Consts.CREATURE.SIGHT_RANGE, 2.0));
+			double temp = (SIGHT_RANGE-inputMask.eyesInputs[i].getX())/SIGHT_RANGE;
+			setInputValue(0+pos, temp*temp);
 	        setInputValue(1+pos, 1.0-inputMask.eyesInputs[i].getY().getRed());
 	        setInputValue(2+pos, 1.0-inputMask.eyesInputs[i].getY().getGreen());
 	        setInputValue(3+pos, 1.0-inputMask.eyesInputs[i].getY().getBlue());
 		}
 	    pos = getInputMask().eyesInputs.length*4;
-	    for (int i = 0; i < getInputMask().sidesTouched.length; i++) {
-	        setInputValue(pos+i,(inputMask.sidesTouched[i]?1.0:0.0));
-	    }
-	    pos = pos+getInputMask().sidesTouched.length;
 	    setInputValue(pos, 1.0-inputMask.stomachPercent);
 	    setInputValue(pos+1, 1.0-inputMask.lifePercent);
 	    setInputValue(pos+2, (inputMask.gotHurt?1.0:0.0));

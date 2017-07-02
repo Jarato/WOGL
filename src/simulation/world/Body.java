@@ -127,7 +127,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     @Override
     public void compoundDNA() {
         //Color
-        double[] rgb = this.dna.getSequence(0, 3).normTo(0.0, 1.0);
+        double[] rgb = this.dna.normTo(0.0, 1.0);
         this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));     
     }
 
