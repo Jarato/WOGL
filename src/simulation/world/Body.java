@@ -11,6 +11,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	//CONSTS
 	public static final double MAX_STOMACH = 100;
 	public static final double MAX_LIFE = 100;
+	public static final int NUMBER_OF_GENES = 3;
 	
 	
 	//ATTRIBUTES
@@ -101,7 +102,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 
     @Override
     public int getNumberOfNeededGenes() {
-        return Consts.CREATURE.BODY.NUMBER_OF_BODYGENES;
+        return NUMBER_OF_GENES;
     }
 
     @Override
@@ -125,24 +126,9 @@ public class Body extends CollisionCircle implements Evolutionizable{
 
     @Override
     public void compoundDNA() {
-    	//Size
-        setRadius(this.dna.getNormedGene(0, Consts.CREATURE.BODY.SIZE_MINIMUM, Consts.CREATURE.BODY.SIZE_MAXIMUM));
-        double maxValue = this.dna.getNormedGene(0, Consts.CREATURE.BODY.STOMACHSIZE_MINIMUM, Consts.CREATURE.BODY.STOMACHSIZE_MAXIMUM);
-        stomach.set(maxValue, maxValue);
-        life.set(maxValue, maxValue);
         //Color
-        double[] rgb = this.dna.getSequence(1, 3).normTo(0.0, 1.0);
-        this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));
-        //utilization efficiency
-        double effValue = this.dna.getNormedGene(4, 0.0, 1.0);
-        if (effValue > Consts.CREATURE.BODY.EFFICIENCY_THRESHOLD) {
-        	this.efficiency.set(0.0, Consts.CREATURE.BODY.VORE_EFFICIENCY);
-        } else if (1.0-effValue > Consts.CREATURE.BODY.EFFICIENCY_THRESHOLD){
-        	this.efficiency.set(Consts.CREATURE.BODY.VORE_EFFICIENCY, 0.0);
-        } else {
-        	this.efficiency.set(1-effValue, effValue);
-        }
-        //
+        double[] rgb = this.dna.getSequence(0, 3).normTo(0.0, 1.0);
+        this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));     
     }
 
 }
