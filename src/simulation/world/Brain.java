@@ -9,7 +9,11 @@ public class Brain extends IOINeuralNet {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 5;
 	public static final double SIGHT_RANGE = 200;
+	public static final double SIGHT_MAXANGLE = 180;
+	public static final double SIGHT_AREA_WIDTH = SIGHT_MAXANGLE/NUMBER_OF_SIGHT_AREAS;
 	public static final int NUMBER_OF_INPUTS = 23;
+	public static final int NUMBER_OF_INTERCELLS = 25;
+	public static final int NUMBER_OF_OUTPUTS = 9;
 	
 	class InputMask {
     	/**

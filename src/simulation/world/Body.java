@@ -12,6 +12,11 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double MAX_STOMACH = 100;
 	public static final double MAX_LIFE = 100;
 	public static final int NUMBER_OF_GENES = 3;
+	public static final double RADIUS = 5.0;
+	public static final double MOVE_BREAK_PERCENT = 0.999;
+	public static final double MOVE_ACCELERATION_BASE = 0.01;
+	public static final double ROTATE_BREAK_PERCENT = 0.99;
+	public static final double ROTATE_ACCELERATION_BASE = 0.05;
 	
 	
 	//ATTRIBUTES
@@ -30,6 +35,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
      * 0 - 360
      */
     private double rotationAngle;
+    private double rotationVelocity;
     private Color color;
 
     //METHODS
@@ -39,6 +45,8 @@ public class Body extends CollisionCircle implements Evolutionizable{
         velocity = new Pair<Double,Double>(0.0,0.0);
         stomach = new Pair<Double,Double>(0.0,MAX_STOMACH);
         life = new Pair<Double,Double>(0.0,MAX_LIFE);
+        rotationVelocity = 0;
+        rotationAngle = 0;
     }
 
     public Pair<Double,Double> getLife() {
@@ -53,8 +61,12 @@ public class Body extends CollisionCircle implements Evolutionizable{
     	return this.velocity;
     }
 
-    public void rotate(double angle) {
-    	this.rotationAngle = UtilMethods.rotate360(rotationAngle+angle);
+    public void accelerateRotationDirect(double angleAcc) {
+    	this.rotationVelocity += angleAcc;
+    }
+    
+    public void accelerateRotationPercent(double anglePercent) {
+    	this.rotationVelocity *= anglePercent;
     }
 
     public void acceleratePercent(double accPercent) {
