@@ -28,7 +28,7 @@ public class Creature implements Evolutionizable{
 
     public Creature(int newID, DNA newDNA, double xPosition, double yPosition) {
         this.id = newID;
-        this.body = new Body(5.0, xPosition, yPosition);
+        this.body = new Body(Body.RADIUS, xPosition, yPosition);
         compoundDNA(newDNA);
     }
 
@@ -91,7 +91,7 @@ public class Creature implements Evolutionizable{
                     if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(grid[i][j].getPlant());
                         if (brain.getInputMask().eyesInputs[whichEye].getX() > distance) {
-                        	brain.getInputMask().eyesInputs[whichEye].set(distance, grid[i][j].getPlant().getColor());
+                        	brain.getInputMask().eyesInputs[whichEye].set(distance, Plant.COLOR);
                         }
                     }
                 }

@@ -3,11 +3,10 @@ package simulation.world;
 import java.util.Random;
 
 import pdf.util.Pair;
-import simulation.Consts;
 
 public class PlantGrid {
+	
 	class PlantBox {
-		public final static double PLANTBOX_SIZE = Consts.WORLD_SIZE/Consts.PLANTGRID_SIZE;
 		private final Pair<Double,Double> upperLeftCorner;
 		private double growth;
 		private Plant plant;
@@ -25,7 +24,7 @@ public class PlantGrid {
 		 */
 		public boolean grow(double growthValue){
 			this.growth += growthValue;
-			if (this.growth > Consts.PLANT.GROWTH_TIME) {
+			if (this.growth > Plant.BASE_GROW_TIME) {
 				growPlant();
 				this.growth = 0;
 				return true;
@@ -42,20 +41,21 @@ public class PlantGrid {
 
 		public void growPlant() {
 			Random rnd = new Random();
-			this.plant = new Plant(Consts.PLANT.SIZE, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE);
+			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE);
 		}
 
 	}
-	private final static int HALF_NUMBER_OF_PLANTS = (Consts.PLANTGRID_SIZE*Consts.PLANTGRID_SIZE)/2;
+	public static final int AXIS_PLANTBOX_AMOUNT = 40;
+	public final static double PLANTBOX_SIZE = World.SIZE/AXIS_PLANTBOX_AMOUNT;
 	private PlantBox[][] grid;
 	private int numberOfLivingPlants;
 
 	public PlantGrid(){
-		grid = new PlantBox[Consts.PLANTGRID_SIZE][];
+		grid = new PlantBox[AXIS_PLANTBOX_AMOUNT][];
 		for (int i = 0; i < grid.length; i++){
-			grid[i] = new PlantBox[Consts.PLANTGRID_SIZE];
+			grid[i] = new PlantBox[AXIS_PLANTBOX_AMOUNT];
 			for (int k = 0; k < grid[i].length; k++) {
-				grid[i][k] = new PlantBox(i*PlantBox.PLANTBOX_SIZE, k*PlantBox.PLANTBOX_SIZE);
+				grid[i][k] = new PlantBox(i*PLANTBOX_SIZE, k*PLANTBOX_SIZE);
 			}
 		}
 	}
@@ -70,6 +70,7 @@ public class PlantGrid {
 			for (int k = 0; i < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
 					grid[i][k].grow(numberOfNeighbors(i, k));
+					if (grid[i][k].getPlant() != null) numberOfLivingPlants++;
 				}
 			}
 		}
