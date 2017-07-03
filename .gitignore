@@ -1,0 +1,8 @@
+bin\
+bin\gui\WorldWindow.fxml
+
+*.class
+*.prefs
+*.classpath
+*.project
+bin/
