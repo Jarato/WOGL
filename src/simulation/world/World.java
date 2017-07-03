@@ -1,6 +1,7 @@
 package simulation.world;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import javafx.scene.paint.Color;
 
@@ -13,12 +14,31 @@ public class World {
 	//ATTRIBUTES
 	private final ArrayList<Creature> creatures;
 	private final PlantGrid plants;
+	private final Random rnd;
+	private final long worldSeed;
 
 	public World() {
+		worldSeed = new Random().nextLong();
+		rnd = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
 		plants = new PlantGrid();
 	}
 
+	public World(long seed) {
+		worldSeed = seed;
+		rnd = new Random(worldSeed);
+		creatures = new ArrayList<Creature>();
+		plants = new PlantGrid();
+	}
+	
+	private void initilize() {
+		
+	}
+	
+	public long getWorldSeed() {
+		return worldSeed;
+	}
+	
 	public PlantGrid getPlantGrid() {
 		return this.plants;
 	}
