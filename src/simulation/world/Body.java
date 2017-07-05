@@ -60,6 +60,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public Pair<Double,Double> getVelocity() {
     	return this.velocity;
     }
+    
+    public double getRotationVelocity() {
+    	return rotationVelocity;
+    }
+    
+    public void rotate(double rVelocity) {
+    	this.rotationAngle = UtilMethods.rotate360(rotationAngle+rVelocity);
+    }
 
     public void accelerateRotationDirect(double angleAcc) {
     	this.rotationVelocity += angleAcc;

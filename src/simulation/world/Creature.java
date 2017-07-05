@@ -1,12 +1,14 @@
 package simulation.world;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import javafx.scene.paint.Color;
 import pdf.ai.dna.DNA;
 import pdf.ai.dna.Evolutionizable;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
+import simulation.world.Brain.InputMask;
 import simulation.world.PlantGrid.PlantBox;
 
 public class Creature implements Evolutionizable{
@@ -18,11 +20,11 @@ public class Creature implements Evolutionizable{
     private boolean attackingActive;
     private boolean splittingActive;
 
-    public Creature(int newID, double xPosition, double yPosition) {
+    public Creature(int newID, double xPosition, double yPosition, Random rnd) {
         this.id = newID;
         this.body = new Body(Body.RADIUS, xPosition, yPosition);
         this.dna = new DNA(getNumberOfNeededGenes());
-        this.dna.setRandom();
+        this.dna.setRandom(rnd);
         compoundDNA();
     }
 
@@ -53,6 +55,10 @@ public class Creature implements Evolutionizable{
     public boolean splits() {
     	return splittingActive;
     }
+    
+    public Body getBody() {
+    	return body;
+    }
 
     @Override
     public void compoundDNA(DNA newDNA) {
@@ -78,20 +84,21 @@ public class Creature implements Evolutionizable{
     }
 
     private void workEyes(World theWorld) {
+    	InputMask mask = brain.getInputMask();
         //Setting everything to "seeing nothing"
     	for (int i = 0; i < brain.getInputMask().eyesInputs.length; i++) {
-    		brain.getInputMask().eyesInputs[i].set(Brain.SIGHT_RANGE, World.NOTHING_COLOR);
+    		mask.eyesInputs[i].set(Brain.SIGHT_RANGE, World.NOTHING_COLOR);
         }
         //Seeing plants
         PlantBox[][] grid = theWorld.getPlantGrid().getGrid();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
-                if (this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE)) {
+                if (grid[i][j].getPlant() != null && this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE)) {
                     int whichEye = getViewArea(this.body.angleTo(grid[i][j].getPlant()));
                     if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(grid[i][j].getPlant());
-                        if (brain.getInputMask().eyesInputs[whichEye].getX() > distance) {
-                        	brain.getInputMask().eyesInputs[whichEye].set(distance, Plant.COLOR);
+                        if (mask.eyesInputs[whichEye].getX() > distance) {
+                        	mask.eyesInputs[whichEye].set(distance, Plant.COLOR);
                         }
                     }
                 }
@@ -105,8 +112,8 @@ public class Creature implements Evolutionizable{
                     int whichEye = getViewArea(this.body.angleTo(crt.body));
                     if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(crt.body);
-                        if (brain.getInputMask().eyesInputs[whichEye].getX() > distance) {
-                        	brain.getInputMask().eyesInputs[whichEye].set(distance, crt.body.getColor());
+                        if (mask.eyesInputs[whichEye].getX() > distance) {
+                        	mask.eyesInputs[whichEye].set(distance, crt.body.getColor());
                         }
                     }
                 }
@@ -141,8 +148,8 @@ public class Creature implements Evolutionizable{
             	distance = Math.min(tempYDistance*tempYDistance+distanceX*distanceX, distanceY*distanceY+tempXDistance*tempXDistance);
             	distance = Math.sqrt(distance);
             }
-            if (brain.getInputMask().eyesInputs[i].getX() > distance) {
-            	brain.getInputMask().eyesInputs[i].set(distance, World.WALL_COLOR);
+            if (mask.eyesInputs[i].getX() > distance) {
+            	mask.eyesInputs[i].set(distance, World.WALL_COLOR);
             }
         }
     }
@@ -153,8 +160,8 @@ public class Creature implements Evolutionizable{
 
     public void workBody(World theWorld) {
     	int[] interpretedOutput = this.brain.interpretOutput();
+    	//MOVE
     	this.body.acceleratePercent(Body.MOVE_BREAK_PERCENT);
-    	this.body.accelerateRotationPercent(Body.ROTATE_BREAK_PERCENT);
     	switch(interpretedOutput[0]) {
     		case 1: body.accelerateAngle(body.getRotationAngle(), Body.MOVE_ACCELERATION_BASE);
     			break;
@@ -167,14 +174,24 @@ public class Creature implements Evolutionizable{
 		case 2:body.accelerateAngle(body.getRotationAngle()+270.0, Body.MOVE_ACCELERATION_BASE);
 			break;
     	}
+    	//ROTATE
+    	this.body.accelerateRotationPercent(Body.ROTATE_BREAK_PERCENT);
     	switch(interpretedOutput[2]) {
 		case 1:	body.accelerateRotationDirect(-Body.ROTATE_ACCELERATION_BASE);
 			break;
 		case 2: body.accelerateRotationDirect(Body.ROTATE_ACCELERATION_BASE);
 			break;
     	}
+    	//ACTIONS
     	eatingActive = (interpretedOutput[3] == 1?true:false);
     	attackingActive = (interpretedOutput[4] == 1?true:false);
     	splittingActive = (interpretedOutput[5] == 1?true:false);
     }
+    
+    public void move() {
+    	Pair<Double,Double> moveVel = body.getVelocity();
+    	body.move(moveVel.getX(), moveVel.getY());
+    	body.rotate(body.getRotationVelocity());
+    }
+    
 }

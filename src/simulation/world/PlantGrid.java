@@ -5,6 +5,7 @@ import java.util.Random;
 import pdf.util.Pair;
 
 public class PlantGrid {
+	private final Random rnd;
 	
 	class PlantBox {
 		private final Pair<Double,Double> upperLeftCorner;
@@ -38,9 +39,12 @@ public class PlantGrid {
 		public Plant getPlant(){
 			return this.plant;
 		}
+		
+		private void removePlant() {
+			plant = null;
+		}
 
 		public void growPlant() {
-			Random rnd = new Random();
 			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE);
 		}
 
@@ -50,7 +54,8 @@ public class PlantGrid {
 	private PlantBox[][] grid;
 	private int numberOfLivingPlants;
 
-	public PlantGrid(){
+	public PlantGrid(Random newRnd){
+		rnd = newRnd;
 		grid = new PlantBox[AXIS_PLANTBOX_AMOUNT][];
 		for (int i = 0; i < grid.length; i++){
 			grid[i] = new PlantBox[AXIS_PLANTBOX_AMOUNT];
@@ -63,17 +68,27 @@ public class PlantGrid {
 	public PlantBox[][] getGrid(){
 		return grid;
 	}
+	
+	public void removePlant(int x, int y) {
+		if (grid[x][y].plant != null) {
+			grid[x][y].removePlant();
+			numberOfLivingPlants--;
+		}
+	}
 
 	public void calculateGrowth(){
 		//calculating the non-plants
 		for (int i = 0; i < grid.length; i++){
 			for (int k = 0; i < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
-					grid[i][k].grow(numberOfNeighbors(i, k));
-					if (grid[i][k].getPlant() != null) numberOfLivingPlants++;
+					if (grid[i][k].grow(numberOfNeighbors(i, k))) numberOfLivingPlants++;
 				}
 			}
 		}
+	}
+	
+	public Pair<Integer,Integer> getRandomGridPosition(){
+		return new Pair<Integer,Integer>(rnd.nextInt(AXIS_PLANTBOX_AMOUNT), rnd.nextInt(AXIS_PLANTBOX_AMOUNT));
 	}
 
 	private int numberOfNeighbors(int x, int y){
