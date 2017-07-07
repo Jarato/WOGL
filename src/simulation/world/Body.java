@@ -13,10 +13,11 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double MAX_LIFE = 100;
 	public static final int NUMBER_OF_GENES = 3;
 	public static final double RADIUS = 5.0;
-	public static final double MOVE_BREAK_PERCENT = 0.999;
+	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
-	public static final double ROTATE_BREAK_PERCENT = 0.99;
-	public static final double ROTATE_ACCELERATION_BASE = 0.05;
+	public static final double ROTATE_BREAK_PERCENT = 0.8;
+	public static final double ROTATE_ACCELERATION_BASE = 2;
+	public static final double SPIKE_LENGTH = 1.0;
 	
 	
 	//ATTRIBUTES
@@ -117,7 +118,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     }
 
     public double getRotationAngle() {
-    	return this.rotationAngle;
+    	return rotationAngle;
     }
 
     @Override

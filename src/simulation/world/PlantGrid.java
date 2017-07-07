@@ -7,7 +7,7 @@ import pdf.util.Pair;
 public class PlantGrid {
 	private final Random rnd;
 	
-	class PlantBox {
+	public class PlantBox {
 		private final Pair<Double,Double> upperLeftCorner;
 		private double growth;
 		private Plant plant;
@@ -45,7 +45,7 @@ public class PlantGrid {
 		}
 
 		public void growPlant() {
-			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE);
+			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getY()+rnd.nextDouble()*PLANTBOX_SIZE);
 		}
 
 	}

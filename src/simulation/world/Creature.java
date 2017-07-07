@@ -56,6 +56,10 @@ public class Creature implements Evolutionizable{
     	return splittingActive;
     }
     
+    public int getId() {
+    	return id;
+    }
+    
     public Body getBody() {
     	return body;
     }
@@ -64,6 +68,10 @@ public class Creature implements Evolutionizable{
     public void compoundDNA(DNA newDNA) {
         this.dna = newDNA;
         compoundDNA();
+    }
+    
+    public Brain getBrain() {
+    	return brain;
     }
 
     @Override
@@ -108,7 +116,7 @@ public class Creature implements Evolutionizable{
         ArrayList<Creature> creatureList = theWorld.getCreatures();
         for(Creature crt : creatureList) {
             if (crt.id != this.id) {
-                if (this.body.inRangeOf(crt.body, Brain.SIGHT_RANGE)) {
+                if (this.body.inRangeOf(crt.body, Brain.SIGHT_RANGE+this.getBody().getRadius()+crt.getBody().getRadius())) {
                     int whichEye = getViewArea(this.body.angleTo(crt.body));
                     if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(crt.body);
@@ -155,7 +163,19 @@ public class Creature implements Evolutionizable{
     }
 
     private int getViewArea(double angle) {
-        return (int)((angle-(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0))/Brain.SIGHT_AREA_WIDTH);
+    	int res = (int)(Math.floor((angle-(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0))/Brain.SIGHT_AREA_WIDTH+360.0/Brain.SIGHT_AREA_WIDTH)%(360.0/Brain.SIGHT_AREA_WIDTH));
+    	/*if (res == -1) {
+    		System.out.println("angle: "+angle+"\trotation: "+this.body.getRotationAngle());
+    		System.out.println("rotation-MAX_ANGLE/2: "+(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0));
+    		System.out.println("angle - (rotation-MAX_ANGLE/2): "+(angle-(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0)));
+    		try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}*/
+        return res;
     }
 
     public void workBody(World theWorld) {
@@ -186,6 +206,7 @@ public class Creature implements Evolutionizable{
     	eatingActive = (interpretedOutput[3] == 1?true:false);
     	attackingActive = (interpretedOutput[4] == 1?true:false);
     	splittingActive = (interpretedOutput[5] == 1?true:false);
+    //if (id == 0) System.out.println(body.getRotationAngle()+"\t"+body.getRotationVelocity());
     }
     
     public void move() {

@@ -8,9 +8,19 @@ public class WorldWindowCtrl extends Control {
 
 	@FXML
 	private Pane worldCanvasPane;
+	
+	private WorldCanvas wCanvas;
 
 	public Pane getWorldCanvasPane() {
 		return worldCanvasPane;
+	}
+	
+	public void setWorldCanvas(WorldCanvas theWorldCanvas) {
+		wCanvas = theWorldCanvas;
+	}
+	
+	public WorldCanvas getWorldCanvas() {
+		return wCanvas;
 	}
 	
 	

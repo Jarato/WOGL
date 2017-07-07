@@ -15,15 +15,15 @@ public class Brain extends IOINeuralNet {
 	public static final int NUMBER_OF_INTERCELLS = 25;
 	public static final int NUMBER_OF_OUTPUTS = 9;
 	
-	class InputMask {
+	public class InputMask {
     	/**
     	 * X: distance<br>
     	 * Y: color
     	 */
-    	final Pair<Double, Color>[] eyesInputs = new Pair[NUMBER_OF_SIGHT_AREAS];
-        boolean gotHurt = false;
-        double stomachPercent = 1.0;
-        double lifePercent = 1.0;
+    	public final Pair<Double, Color>[] eyesInputs = new Pair[NUMBER_OF_SIGHT_AREAS];
+        public boolean gotHurt = false;
+        public double stomachPercent = 1.0;
+        public double lifePercent = 1.0;
         
         private InputMask() {
         	for (int i = 0; i < eyesInputs.length; i++) {
