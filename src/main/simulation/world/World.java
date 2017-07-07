@@ -12,7 +12,7 @@ public class World {
 	//CONSTS
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final Color WALL_COLOR = Color.GRAY;
-	public static final double SIZE = 500;
+	public static final double SIZE = 800;
 	public static final int NUMBER_OF_STARTING_CREATURES = 50;
 	public static final int NUMBER_OF_STARTING_PLANTS = 600;
 	//ATTRIBUTES
@@ -102,6 +102,7 @@ public class World {
 			Creature c = creatures.get(i);
 			c.workBrain(this);
 			c.workBody(this);
+			c.doAge();
 		}
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {

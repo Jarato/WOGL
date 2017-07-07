@@ -17,8 +17,16 @@ public class WorldWindowCtrl extends Control {
 	
 	public void setWorldCanvas(WorldCanvas theWorldCanvas) {
 		wCanvas = theWorldCanvas;
+		wCanvas.setOnMouseClicked(e -> {
+			int foundId = wCanvas.getIdOfPosition(e.getX(),e.getY());
+			wCanvas.setSelectedId(foundId);
+			
+			/*System.out.println("screen: ("+e.getScreenX()+","+e.getScreenY()+")");
+			System.out.println("scene: ("+e.getSceneX()+","+e.getSceneY()+")");
+			System.out.println("nil: ("+e.getX()+","+e.getY()+")");*/
+		});
 	}
-	
+
 	public WorldCanvas getWorldCanvas() {
 		return wCanvas;
 	}

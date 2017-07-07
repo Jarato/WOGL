@@ -14,22 +14,23 @@ import pdf.util.UtilMethods;
 
 public class Creature implements Evolutionizable{
 	public static final int SPLIT_BASETIME = 500;
-	public static final int SPLIT_TIMER_GOBACK = 3;
+	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
 	public static final double MUTATION_RATE = 0.05;
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_LOSS_BASE = 0.01;
-	public static final double ENERGY_LOSS_ACC = 0.005;
-	public static final double ENERGY_LOSS_ROTATE = 0.002;
-	public static final double ENERGY_LOSS_HEAL = 0.01;
-	public static final double LIFE_HEAL_AMOUNT = 0.01;
-	public static final double LIFE_LOSS_NO_ENERGY = 0.1;
+	public static final double ENERGY_LOSS_ACC = 0.01;
+	public static final double ENERGY_LOSS_ROTATE = 0.005;
+	public static final double ENERGY_LOSS_HEAL = 0.015;
+	public static final double LIFE_HEAL_AMOUNT = 0.015;
+	public static final double LIFE_LOSS_NO_ENERGY = 0.5;
 	
 	
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
     private DNA dna;
     private int id;
+    private long age;
     private boolean eatingActive;
     private boolean attackingActive;
     private boolean splittingActive;
@@ -52,9 +53,18 @@ public class Creature implements Evolutionizable{
         initTimer();
     }
     
+    public void doAge() {
+    	age++;
+    }
+    
+    public long getAge() {
+    	return age;
+    }
+    
     private void initTimer() {
     	splitTimer = SPLIT_BASETIME;
     	attackCooldownTimer = 0;
+    	age = 0;
     }
     
     public int getSplitTimer() {

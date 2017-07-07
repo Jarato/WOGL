@@ -14,18 +14,34 @@ import main.simulation.world.World;
 import main.simulation.world.Brain.InputMask;
 import main.simulation.world.PlantGrid.PlantBox;
 import pdf.simulation.CollisionCircle;
+import pdf.simulation.Point2D;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class WorldCanvas extends ResizableCanvas {
 	//CONSTS
-	public static final double Z = 2;
+	public static final double Z = 1.2;
 	
 	//ATTRIBUTES
 	private World world;
+	private int selectedId = -1;
 	
 	public void setWorld(World newWorld) {
 		world = newWorld;
+	}
+	
+	public int getIdOfPosition(double x, double y) {
+		ArrayList<Creature> creatures = world.getCreatures();	
+		for (int i = 0; i < creatures.size(); i++) {
+			if (creatures.get(i).getId() != selectedId && creatures.get(i).getBody().distanceTo(new Point2D(x/Z, y/Z))<creatures.get(i).getBody().getRadius()) {
+				return creatures.get(i).getId();
+			}
+		}
+		return -1;
+	}
+	
+	public void setSelectedId(int newId) {
+		selectedId = newId;
 	}
 	
 	@Override
@@ -50,7 +66,7 @@ public class WorldCanvas extends ResizableCanvas {
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
 			Body b = c.getBody();
-			if (c.getId()==0) {	
+			if (c.getId()==selectedId) {	
 				//Vision-Test
 				InputMask mask = c.getBrain().getInputMask();
 				for (int e = 0; e < mask.eyesInputs.length; e++) {
@@ -63,8 +79,18 @@ public class WorldCanvas extends ResizableCanvas {
 				//	}
 					//mask.eyesInputs[e].getX()
 				}
-				gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", World.SIZE*Z+3, 15);
-				gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", World.SIZE*Z+3, 30);
+				int ypos = 15;
+				gc.strokeText("id: "+String.valueOf(c.getId()), World.SIZE*Z+3, ypos);
+				ypos += 15;
+				gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", World.SIZE*Z+3, ypos);
+				ypos += 15;
+				gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", World.SIZE*Z+3, ypos);
+				ypos += 15;
+				gc.strokeText("age: "+String.valueOf(c.getAge()), World.SIZE*Z+3, ypos);
+				if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
+					ypos += 15;
+					gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), World.SIZE*Z+3, ypos);
+				}				
 				//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
 				//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
 				
@@ -89,9 +115,6 @@ public class WorldCanvas extends ResizableCanvas {
 			double length = b.getRadius();
 			if (c.attacks()) length += Body.SPIKE_LENGTH;
 			gc.strokeLine(b.getXCoordinate()*Z, b.getYCoordinate()*Z, (b.getXCoordinate()+Math.cos(rotationRadians)*length)*Z, (b.getYCoordinate()+Math.sin(rotationRadians)*length)*Z);
-			if (c.getSplitTimer() != Creature.SPLIT_BASETIME) {
-				gc.strokeText(String.valueOf(c.getSplitTimer()), b.getXCoordinate()*Z+3*Z, b.getYCoordinate()*Z+7*Z);
-			}
 			
 		}
 		}
