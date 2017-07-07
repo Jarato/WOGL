@@ -1,21 +1,21 @@
-package gui;
+package main.gui;
 
 import java.util.ArrayList;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
+import main.simulation.world.Body;
+import main.simulation.world.Brain;
+import main.simulation.world.Creature;
+import main.simulation.world.Plant;
+import main.simulation.world.PlantGrid;
+import main.simulation.world.World;
+import main.simulation.world.Brain.InputMask;
+import main.simulation.world.PlantGrid.PlantBox;
 import pdf.simulation.CollisionCircle;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
-import simulation.world.Body;
-import simulation.world.Brain;
-import simulation.world.Brain.InputMask;
-import simulation.world.Creature;
-import simulation.world.Plant;
-import simulation.world.PlantGrid;
-import simulation.world.PlantGrid.PlantBox;
-import simulation.world.World;
 
 public class WorldCanvas extends ResizableCanvas {
 	//CONSTS
@@ -54,14 +54,17 @@ public class WorldCanvas extends ResizableCanvas {
 				//Vision-Test
 				InputMask mask = c.getBrain().getInputMask();
 				for (int e = 0; e < mask.eyesInputs.length; e++) {
+				//	if (mask.eyesInputs[e].getX() != null && b != null) {
 					double length = mask.eyesInputs[e].getX()+b.getRadius();
 					gc.setFill(mask.eyesInputs[e].getY());
 					double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
 					gc.fillArc((b.getXCoordinate()-length)*Z, (b.getYCoordinate()-length)*Z, length*2*Z, length*2*Z, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.ROUND);
 					gc.strokeArc((b.getXCoordinate()-length)*Z, (b.getYCoordinate()-length)*Z, length*2*Z, length*2*Z, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.OPEN);
+				//	}
 					//mask.eyesInputs[e].getX()
 				}
-				gc.strokeText("rotation: "+b.getRotationAngle(), World.SIZE*Z+3, 15);
+				gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", World.SIZE*Z+3, 15);
+				gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", World.SIZE*Z+3, 30);
 				//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
 				//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
 				
@@ -83,7 +86,13 @@ public class WorldCanvas extends ResizableCanvas {
 			
 			fillCircle(gc,b,b.getColor());
 			double rotationRadians = Math.toRadians(b.getRotationAngle());
-			gc.strokeLine(b.getXCoordinate()*Z, b.getYCoordinate()*Z, (b.getXCoordinate()+Math.cos(rotationRadians)*b.getRadius())*Z, (b.getYCoordinate()+Math.sin(rotationRadians)*b.getRadius())*Z);
+			double length = b.getRadius();
+			if (c.attacks()) length += Body.SPIKE_LENGTH;
+			gc.strokeLine(b.getXCoordinate()*Z, b.getYCoordinate()*Z, (b.getXCoordinate()+Math.cos(rotationRadians)*length)*Z, (b.getYCoordinate()+Math.sin(rotationRadians)*length)*Z);
+			if (c.getSplitTimer() != Creature.SPLIT_BASETIME) {
+				gc.strokeText(String.valueOf(c.getSplitTimer()), b.getXCoordinate()*Z+3*Z, b.getYCoordinate()*Z+7*Z);
+			}
+			
 		}
 		}
 	}

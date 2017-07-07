@@ -1,6 +1,7 @@
-package simulation.world;
+package main.simulation.world;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 
 import javafx.scene.paint.Color;
@@ -16,13 +17,15 @@ public class World {
 	public static final int NUMBER_OF_STARTING_PLANTS = 600;
 	//ATTRIBUTES
 	private final ArrayList<Creature> creatures;
+	private final HashSet<Creature> newCreatures;
 	private final PlantGrid plantGrid;
 	private final Random rnd;
 	private final long worldSeed;
 	private int nextId;
-
+	
 	public World() {
 		worldSeed = new Random().nextLong();
+		newCreatures = new HashSet<Creature>();
 		rnd = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(rnd);
@@ -31,6 +34,7 @@ public class World {
 
 	public World(long seed) {
 		worldSeed = seed;
+		newCreatures = new HashSet<Creature>();
 		rnd = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(rnd);
@@ -38,11 +42,14 @@ public class World {
 	}
 	
 	private void initilize() {
+		
 		nextId = 0;
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
 			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.RADIUS);
 			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), rnd);
 			c.getBody().rotate(rnd.nextDouble()*360);
+			c.getBody().getLife().setX(c.getBody().getLife().getY());
+			c.getBody().getStomach().setX(c.getBody().getStomach().getY());
 			creatures.add(c);
 		}
 		for (int i = 0; i < NUMBER_OF_STARTING_PLANTS; i++) {
@@ -82,7 +89,14 @@ public class World {
 		return res;
 	}
 	
-	public void step() {
+	public void splitCreature(Creature c) throws IllegalAccessException {
+		Creature newC = c.split();
+		newC.setId(getNextId());
+		newCreatures.add(newC);
+	}
+	
+	public void step() throws IllegalAccessException {
+		newCreatures.clear();
 		//Input & Output
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
@@ -144,7 +158,15 @@ public class World {
 					}
 				}
 			}
-			
 		}
+		HashSet<Creature> deadCreatures = new HashSet<Creature>();
+		for (int i = 0; i < creatures.size(); i++) {
+			if (!creatures.get(i).isAlive()) {
+				deadCreatures.add(creatures.get(i));
+			}
+		}
+		creatures.removeAll(deadCreatures);
+		creatures.addAll(newCreatures);
+		plantGrid.calculateGrowth();
 	}
 }

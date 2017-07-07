@@ -1,4 +1,4 @@
-package gui;
+package main.gui;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Control;
@@ -22,7 +22,4 @@ public class WorldWindowCtrl extends Control {
 	public WorldCanvas getWorldCanvas() {
 		return wCanvas;
 	}
-	
-	
-	
 }

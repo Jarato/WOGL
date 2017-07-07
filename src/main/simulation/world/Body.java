@@ -1,4 +1,4 @@
-package simulation.world;
+package main.simulation.world;
 
 import javafx.scene.paint.Color;
 import pdf.ai.dna.DNA;
@@ -17,7 +17,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
 	public static final double ROTATE_BREAK_PERCENT = 0.8;
 	public static final double ROTATE_ACCELERATION_BASE = 2;
-	public static final double SPIKE_LENGTH = 1.0;
+	public static final double SPIKE_LENGTH = 3.0;
 	
 	
 	//ATTRIBUTES
@@ -49,7 +49,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
         rotationVelocity = 0;
         rotationAngle = 0;
     }
-
+    
     public Pair<Double,Double> getLife() {
     	return this.life;
     }
@@ -91,30 +91,28 @@ public class Body extends CollisionCircle implements Evolutionizable{
 		velocity.set(velocity.getX()+length*Math.cos(radians), velocity.getY()+length*Math.sin(radians));
     }
 
-    public boolean isAlive() {
-    	return this.life.getX() > 0;
-    }
-
-    public boolean isStarving() {
-    	return this.stomach.getX() == 0;
-    }
-
     public void changeStomachContent(double value) {
-    	double newValue = this.stomach.getX()+value;
-    	if (newValue < 0.0) {
-    		this.stomach.setX(0.0);
-    	} else if(newValue > this.stomach.getY()) {
-    		this.stomach.setX(this.stomach.getY());
-    	} else this.stomach.setX(newValue);
+    	stomach.setX(stomach.getX()+value);	
     }
 
     public void changeLife(double value) {
-    	double newValue = this.life.getX()+value;
-    	if (newValue < 0.0) {
-    		this.life.setX(0.0);
-    	} else if(newValue > this.life.getY()) {
-    		this.life.setX(this.life.getY());
-    	} else this.life.setX(newValue);
+    	life.setX(life.getX()+value);
+    }
+    
+    public void checkStomachBounds() {
+    	if (stomach.getX() < 0.0) {
+    		stomach.setX(0.0);
+    	} else if(stomach.getX() > stomach.getY()) {
+    		stomach.setX(stomach.getY());
+    	}
+    }
+    
+    public void checkLifeBounds() {
+    	if (life.getX() < 0.0) {
+    		life.setX(0.0);
+    	} else if(life.getX() > life.getY()) {
+    		life.setX(life.getY());
+    	}
     }
 
     public double getRotationAngle() {
@@ -133,6 +131,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 
     @Override
     public void compoundDNA(DNA newDNA) {
+    	if (newDNA.getNumberOfGenes() != this.getNumberOfNeededGenes()) throw new IllegalArgumentException("number of genes in the given DNA-Object does not match the number of needed genes of this creature");
         this.dna = newDNA;
         compoundDNA();
     }

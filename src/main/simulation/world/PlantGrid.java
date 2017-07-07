@@ -1,4 +1,4 @@
-package simulation.world;
+package main.simulation.world;
 
 import java.util.Random;
 
@@ -23,17 +23,29 @@ public class PlantGrid {
 		 * @return true, if a new plant grown<br>
 		 * false, else
 		 */
-		public boolean grow(double growthValue){
-			this.growth += growthValue;
-			if (this.growth > Plant.BASE_GROW_TIME) {
+		public void growTimer(double growthValue){
+			if (growthValue>0) {
+				this.growth -= growthValue;
+			} else {
+				this.growth++;
+			}	
+		}
+		
+		public boolean checkGrowth() {
+			if (this.growth < 0) {
 				growPlant();
-				this.growth = 0;
+				this.growth = Plant.BASE_GROW_TIME;
 				return true;
 			} else return false;
+		}
+		
+		public void initTimer() {
+			this.growth = Plant.BASE_GROW_TIME;
 		}
 
 		public void plantEaten(){
 			this.plant = null;
+			initTimer();
 		}
 
 		public Plant getPlant(){
@@ -61,8 +73,13 @@ public class PlantGrid {
 			grid[i] = new PlantBox[AXIS_PLANTBOX_AMOUNT];
 			for (int k = 0; k < grid[i].length; k++) {
 				grid[i][k] = new PlantBox(i*PLANTBOX_SIZE, k*PLANTBOX_SIZE);
+				grid[i][k].initTimer();
 			}
 		}
+	}
+	
+	public int getNumberOfLivingPlants() {
+		return numberOfLivingPlants;
 	}
 
 	public PlantBox[][] getGrid(){
@@ -79,12 +96,20 @@ public class PlantGrid {
 	public void calculateGrowth(){
 		//calculating the non-plants
 		for (int i = 0; i < grid.length; i++){
-			for (int k = 0; i < grid[i].length; k++){
+			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
-					if (grid[i][k].grow(numberOfNeighbors(i, k))) numberOfLivingPlants++;
+					grid[i][k].growTimer(numberOfNeighbors(i, k));
 				}
 			}
 		}
+		for (int i = 0; i < grid.length; i++){
+			for (int k = 0; k < grid[i].length; k++){
+				if (grid[i][k].getPlant() == null){
+					if (grid[i][k].checkGrowth()) numberOfLivingPlants++;
+				}
+			}
+		}
+		
 	}
 	
 	public Pair<Integer,Integer> getRandomGridPosition(){

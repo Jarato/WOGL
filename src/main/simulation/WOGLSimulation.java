@@ -1,10 +1,10 @@
-package simulation;
+package main.simulation;
 
 import java.util.Timer;
 
-import gui.WorldWindowCtrl;
 import javafx.application.Platform;
-import simulation.world.World;
+import main.gui.WorldWindowCtrl;
+import main.simulation.world.World;
 
 public class WOGLSimulation {
 	private World world;

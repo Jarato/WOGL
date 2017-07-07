@@ -1,4 +1,4 @@
-package simulation.world;
+package main.simulation.world;
 
 import javafx.scene.paint.Color;
 import pdf.ai.nnetwork.IOINeuralNet;
@@ -11,7 +11,7 @@ public class Brain extends IOINeuralNet {
 	public static final double SIGHT_RANGE = 200;
 	public static final double SIGHT_MAXANGLE = 180;
 	public static final double SIGHT_AREA_WIDTH = SIGHT_MAXANGLE/NUMBER_OF_SIGHT_AREAS;
-	public static final int NUMBER_OF_INPUTS = 23;
+	public static final int NUMBER_OF_INPUTS = 4*NUMBER_OF_SIGHT_AREAS+3;
 	public static final int NUMBER_OF_INTERCELLS = 25;
 	public static final int NUMBER_OF_OUTPUTS = 9;
 	
@@ -27,7 +27,7 @@ public class Brain extends IOINeuralNet {
         
         private InputMask() {
         	for (int i = 0; i < eyesInputs.length; i++) {
-        		eyesInputs[i] = new Pair<Double, Color>();
+        		eyesInputs[i] = new Pair<Double, Color>(0.0,Color.WHITE);
         	}
         }
     }

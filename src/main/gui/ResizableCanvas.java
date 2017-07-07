@@ -1,4 +1,4 @@
-package gui;
+package main.gui;
 
 import javafx.scene.canvas.Canvas;
 
@@ -26,4 +26,3 @@ public abstract class ResizableCanvas extends Canvas{
 		return getHeight();
 	}
 }
-

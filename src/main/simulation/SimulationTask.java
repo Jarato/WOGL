@@ -1,11 +1,11 @@
-package simulation;
+package main.simulation;
 
 import java.util.TimerTask;
 
-import gui.WorldCanvas;
-import gui.WorldWindowCtrl;
 import javafx.application.Platform;
-import simulation.world.World;
+import main.gui.WorldCanvas;
+import main.gui.WorldWindowCtrl;
+import main.simulation.world.World;
 
 public class SimulationTask extends TimerTask{
 
@@ -23,7 +23,11 @@ public class SimulationTask extends TimerTask{
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				world.step();
+				try {
+					world.step();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
 				control.getWorldCanvas().draw();
 			}
 				

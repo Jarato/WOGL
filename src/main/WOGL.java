@@ -1,4 +1,4 @@
-package gui;
+package main;
 
 import java.io.IOException;
 
@@ -9,10 +9,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import main.gui.WorldCanvas;
+import main.gui.WorldWindowCtrl;
+import main.simulation.WOGLSimulation;
+import main.simulation.world.Brain;
+import main.simulation.world.World;
 import pdf.util.UtilMethods;
-import simulation.WOGLSimulation;
-import simulation.world.Brain;
-import simulation.world.World;
 
 public class WOGL extends Application{
 	
@@ -21,14 +23,14 @@ public class WOGL extends Application{
 	
 	public static void main(String[] args) {
 		//angle: 184.98035719800836	rotation: 308.67898113218735
-		double angle = 0;
+		/*double angle = 0;
 		double rotation = 359.99;
 		System.out.println(UtilMethods.rotate360(359.99));
 		for (int i = 0; i < 361; i++) {
 			angle = i;
 			int viewArea = (int)(Math.floor((angle-(rotation-Brain.SIGHT_MAXANGLE/2.0))/Brain.SIGHT_AREA_WIDTH+360.0/Brain.SIGHT_AREA_WIDTH)%(360.0/Brain.SIGHT_AREA_WIDTH));
 			System.out.println("angle: "+i+" => viewArea: "+viewArea);
-		}
+		}*/
 		
 		WOGL.launch(args);
 	}
@@ -40,14 +42,14 @@ public class WOGL extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		guiInitialize(stage);
-		simulation = new WOGLSimulation(control);
+		simulation = new WOGLSimulation(5223604287820547857L,control);//5223604287820547857
 		simulation.startSimulation();
 	}
 	
 	public void guiInitialize(Stage stage) {
 		try {
 
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("WorldWindow.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("gui/WorldWindow.fxml"));
 			Parent root;
 
 			root = (Parent) loader.load();

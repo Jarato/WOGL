@@ -1,24 +1,40 @@
-package simulation.world;
+package main.simulation.world;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import javafx.scene.paint.Color;
+import main.simulation.world.Brain.InputMask;
+import main.simulation.world.PlantGrid.PlantBox;
 import pdf.ai.dna.DNA;
+import pdf.ai.dna.EvolutionMethods;
 import pdf.ai.dna.Evolutionizable;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
-import simulation.world.Brain.InputMask;
-import simulation.world.PlantGrid.PlantBox;
 
 public class Creature implements Evolutionizable{
+	public static final int SPLIT_BASETIME = 500;
+	public static final int SPLIT_TIMER_GOBACK = 3;
+	public static final int ATTACK_COOLDOWN_BASE = 100;
+	public static final double MUTATION_RATE = 0.05;
+	public static final double MUTATION_STRENGTH = 0.1;
+	public static final double ENERGY_LOSS_BASE = 0.01;
+	public static final double ENERGY_LOSS_ACC = 0.005;
+	public static final double ENERGY_LOSS_ROTATE = 0.002;
+	public static final double ENERGY_LOSS_HEAL = 0.01;
+	public static final double LIFE_HEAL_AMOUNT = 0.01;
+	public static final double LIFE_LOSS_NO_ENERGY = 0.1;
+	
+	
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
     private DNA dna;
-    private final int id;
+    private int id;
     private boolean eatingActive;
     private boolean attackingActive;
     private boolean splittingActive;
+    private int splitTimer;
+    private int attackCooldownTimer;
 
     public Creature(int newID, double xPosition, double yPosition, Random rnd) {
         this.id = newID;
@@ -26,12 +42,23 @@ public class Creature implements Evolutionizable{
         this.dna = new DNA(getNumberOfNeededGenes());
         this.dna.setRandom(rnd);
         compoundDNA();
+        initTimer();
     }
 
     public Creature(int newID, DNA newDNA, double xPosition, double yPosition) {
         this.id = newID;
         this.body = new Body(Body.RADIUS, xPosition, yPosition);
         compoundDNA(newDNA);
+        initTimer();
+    }
+    
+    private void initTimer() {
+    	splitTimer = SPLIT_BASETIME;
+    	attackCooldownTimer = 0;
+    }
+    
+    public int getSplitTimer() {
+    	return splitTimer;
     }
 
     @Override
@@ -46,6 +73,14 @@ public class Creature implements Evolutionizable{
 
     public boolean eats() {
     	return eatingActive;
+    }
+    
+    public void setId(int newId) throws IllegalAccessException {
+    	if (this.id == -1) {
+    		this.id = newId;
+    	} else {
+    		throw new IllegalAccessException("the id of this creature was already set (id == "+id+")");
+    	}
     }
 
     public boolean attacks() {
@@ -178,7 +213,7 @@ public class Creature implements Evolutionizable{
         return res;
     }
 
-    public void workBody(World theWorld) {
+    public void workBody(World theWorld) throws IllegalAccessException {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
     	this.body.acceleratePercent(Body.MOVE_BREAK_PERCENT);
@@ -206,9 +241,64 @@ public class Creature implements Evolutionizable{
     	eatingActive = (interpretedOutput[3] == 1?true:false);
     	attackingActive = (interpretedOutput[4] == 1?true:false);
     	splittingActive = (interpretedOutput[5] == 1?true:false);
+    	//ENERGY & LIFE CHANGE
+    	if (body.getStomach().getX() == 0) {
+    		body.changeLife(-LIFE_LOSS_NO_ENERGY);
+    	}
+    	body.changeStomachContent(-ENERGY_LOSS_BASE);
+    	if (interpretedOutput[0] > 0) body.changeStomachContent(-ENERGY_LOSS_ACC);
+    	if (interpretedOutput[1] > 0) body.changeStomachContent(-ENERGY_LOSS_ACC);
+    	if (interpretedOutput[2] > 0) body.changeStomachContent(-ENERGY_LOSS_ROTATE); 	
+    	if (body.getLife().getX() < body.getLife().getY() && body.getStomach().getX() > 0) { //automatic healing
+    		body.changeStomachContent(-ENERGY_LOSS_HEAL);
+    		body.changeLife(LIFE_HEAL_AMOUNT);
+    	}
+    	body.checkLifeBounds();
+    	body.checkStomachBounds();
+    	workActionTimer(theWorld);
     //if (id == 0) System.out.println(body.getRotationAngle()+"\t"+body.getRotationVelocity());
     }
     
+    private void workActionTimer(World theWorld) throws IllegalAccessException {
+    	if (body.getLife().getX() != body.getLife().getY()) splittingActive = false;
+    	if (body.getStomach().getX() == 0) {
+    		splittingActive = false;
+    		attackingActive = false;
+    	}
+    	if (splittingActive) {
+    		splitTimer--;
+    		if (splitTimer < 0) {
+    			theWorld.splitCreature(this);
+    			splitTimer = SPLIT_BASETIME;
+    		}
+    	} else {
+    		splitTimer+=SPLIT_TIMER_GOBACK;
+    		if (splitTimer>SPLIT_BASETIME) splitTimer = SPLIT_BASETIME;
+    	}
+    	attackCooldownTimer--;
+    	if (attackCooldownTimer > 0) attackingActive = false;
+    	if (attackingActive) {
+    		attackCooldownTimer = ATTACK_COOLDOWN_BASE;
+    	}
+    }
+    
+    public Creature split() {
+    	DNA nDNA = this.dna.getSequence(0, this.dna.getNumberOfGenes());
+    	nDNA = EvolutionMethods.mutate(nDNA,MUTATION_RATE, MUTATION_STRENGTH);
+    	Creature c = new Creature(-1, nDNA, this.body.getXCoordinate(), this.body.getYCoordinate());
+    	c.body.getLife().setX(this.body.getLife().getX()/2.0);
+    	c.body.getStomach().setX(this.body.getStomach().getX()/2.0);
+    	c.body.checkLifeBounds();
+    	c.body.checkStomachBounds();
+    	this.body.changeLife(-this.body.getLife().getX()/2.0);
+    	this.body.changeStomachContent(-this.body.getStomach().getX()/2.0);
+    	return c;
+    }
+    
+    public boolean isAlive() {
+    	return body.getLife().getX() > 0;
+    }
+
     public void move() {
     	Pair<Double,Double> moveVel = body.getVelocity();
     	body.move(moveVel.getX(), moveVel.getY());
