@@ -25,6 +25,16 @@ public class WorldCanvas extends ResizableCanvas {
 	//ATTRIBUTES
 	private World world;
 	private int selectedId = -1;
+	/*
+	 * 0 = Plants
+	 * 1 = Creatures
+	 * 2 = Walls
+	 */
+	private int whichEyes = 0;
+	
+	private double xs;
+	private double ys;
+	private double f;
 	
 	public void setWorld(World newWorld) {
 		world = newWorld;
@@ -33,7 +43,7 @@ public class WorldCanvas extends ResizableCanvas {
 	public int getIdOfPosition(double x, double y) {
 		ArrayList<Creature> creatures = world.getCreatures();	
 		for (int i = 0; i < creatures.size(); i++) {
-			if (creatures.get(i).getId() != selectedId && creatures.get(i).getBody().distanceTo(new Point2D(x/Z, y/Z))<creatures.get(i).getBody().getRadius()) {
+			if (creatures.get(i).getBody().distanceTo(new Point2D((x-xs)/f, (y-ys)/f))<creatures.get(i).getBody().getRadius()) {
 				return creatures.get(i).getId();
 			}
 		}
@@ -41,15 +51,25 @@ public class WorldCanvas extends ResizableCanvas {
 	}
 	
 	public void setSelectedId(int newId) {
-		selectedId = newId;
+		if (newId == selectedId) {
+			whichEyes = (whichEyes+1)%3;
+		} else {
+			selectedId = newId;
+			whichEyes = 0;
+		}
+		
 	}
 	
 	@Override
 	public void draw() {
+		double min = Math.min(getWidth(), getHeight());
+		f = min/World.SIZE;
+		xs = Math.max((getWidth()-World.SIZE*f)/2.0,0.0) ;
+		ys = Math.max((getHeight()-World.SIZE*f)/2.0,0.0) ;
 		GraphicsContext gc = this.getGraphicsContext2D();
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, getWidth(), getHeight());
-		gc.strokeRect(0, 0, World.SIZE*Z, World.SIZE*Z);
+		gc.strokeRect(xs,ys, World.SIZE*f, World.SIZE*f);
 		if (world != null) {
 			
 		
@@ -67,63 +87,98 @@ public class WorldCanvas extends ResizableCanvas {
 			Creature c = creatures.get(i);
 			Body b = c.getBody();
 			if (c.getId()==selectedId) {	
-				//Vision-Test
-				InputMask mask = c.getBrain().getInputMask();
-				for (int e = 0; e < mask.eyesInputs.length; e++) {
-				//	if (mask.eyesInputs[e].getX() != null && b != null) {
-					double length = mask.eyesInputs[e].getX()+b.getRadius();
-					gc.setFill(mask.eyesInputs[e].getY());
-					double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-					gc.fillArc((b.getXCoordinate()-length)*Z, (b.getYCoordinate()-length)*Z, length*2*Z, length*2*Z, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.ROUND);
-					gc.strokeArc((b.getXCoordinate()-length)*Z, (b.getYCoordinate()-length)*Z, length*2*Z, length*2*Z, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.OPEN);
-				//	}
-					//mask.eyesInputs[e].getX()
-				}
-				int ypos = 15;
-				gc.strokeText("id: "+String.valueOf(c.getId()), World.SIZE*Z+3, ypos);
-				ypos += 15;
-				gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", World.SIZE*Z+3, ypos);
-				ypos += 15;
-				gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", World.SIZE*Z+3, ypos);
-				ypos += 15;
-				gc.strokeText("age: "+String.valueOf(c.getAge()), World.SIZE*Z+3, ypos);
-				if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
-					ypos += 15;
-					gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), World.SIZE*Z+3, ypos);
-				}				
-				//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
-				//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
-				
-				
-				/*			//PlantGrid-Test
-				double range = b.getRadius()+Plant.RADIUS;
-				Pair<Integer,Integer> upLeft = world.getPlantGridPosition(b.getXCoordinate()-range,b.getYCoordinate()-range);
-				Pair<Integer,Integer> downRight = world.getPlantGridPosition(b.getXCoordinate()+range,b.getYCoordinate()+range);
-				double newRadius = b.getRadius()+Plant.RADIUS;
-				gc.strokeOval((b.getXCoordinate()-newRadius)*Z, (b.getYCoordinate()-newRadius)*Z, newRadius*2*Z, newRadius*2*Z);
-				for (int w = upLeft.getX(); w <= downRight.getX(); w++) {
-					for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
-						gc.strokeRect(w*PlantGrid.PLANTBOX_SIZE*Z, h*PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z);
-					}
-				}*/
+				drawSelectedCreature(gc, c);
 			}
-			
-			
-			
 			fillCircle(gc,b,b.getColor());
 			double rotationRadians = Math.toRadians(b.getRotationAngle());
 			double length = b.getRadius();
 			if (c.attacks()) length += Body.SPIKE_LENGTH;
-			gc.strokeLine(b.getXCoordinate()*Z, b.getYCoordinate()*Z, (b.getXCoordinate()+Math.cos(rotationRadians)*length)*Z, (b.getYCoordinate()+Math.sin(rotationRadians)*length)*Z);
+			gc.strokeLine(xs+b.getXCoordinate()*f, ys+b.getYCoordinate()*f, xs+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*f, ys+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*f);
 			
 		}
 		}
 	}
 	
+	private void drawSelectedCreature(GraphicsContext gc, Creature c) {
+		Body b = c.getBody();
+		//Vision-Test
+		InputMask mask = c.getBrain().getInputMask();
+		switch(whichEyes) {
+		case 0: 
+			for (int e = 0; e < mask.eyesInputPlant.length; e++) {
+				double length = mask.eyesInputPlant[e].getX()+b.getRadius();
+				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
+				drawViewArc(gc,b,length,angle, mask.eyesInputPlant[e].getY());
+			}
+		break;
+		case 1:
+			for (int e = 0; e < mask.eyesInputCreature.length; e++) {
+				double length = mask.eyesInputCreature[e].getX()+b.getRadius();
+				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
+				drawViewArc(gc,b,length,angle, mask.eyesInputCreature[e].getY());
+			}	
+		break;
+		case 2:
+			for (int e = 0; e < mask.eyesInputWall.length; e++) {
+				double length = mask.eyesInputWall[e].getX()+b.getRadius();
+				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
+				drawViewArc(gc,b,length,angle, mask.eyesInputWall[e].getY());
+			}		
+		}
+		
+		double ypos = ys+15;
+		double xpos = xs+World.SIZE*f+3;
+		gc.strokeText("id: "+String.valueOf(c.getId()), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("generation: "+c.getGeneration(), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", xpos, ypos);
+		ypos += 15;
+		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", xpos, ypos);
+		ypos += 15;
+		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
+		if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
+			ypos += 15;
+			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);
+		}
+		ypos += 15;
+		if (c.getParentId() == -1) {
+			gc.strokeText("parent: creator", xpos, ypos);
+		} else {
+			gc.strokeText("parent: "+c.getParentId(), xpos, ypos);
+		}
+		for (int i = 0; i < c.getChildrenIdList().size(); i++) {
+			ypos += 15;
+			gc.strokeText("child "+(i+1)+": "+c.getChildrenIdList().get(i), xpos, ypos);
+		}
+		
+		//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
+		//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
+		
+		
+		/*			//PlantGrid-Test
+		double range = b.getRadius()+Plant.RADIUS;
+		Pair<Integer,Integer> upLeft = world.getPlantGridPosition(b.getXCoordinate()-range,b.getYCoordinate()-range);
+		Pair<Integer,Integer> downRight = world.getPlantGridPosition(b.getXCoordinate()+range,b.getYCoordinate()+range);
+		double newRadius = b.getRadius()+Plant.RADIUS;
+		gc.strokeOval((b.getXCoordinate()-newRadius)*Z, (b.getYCoordinate()-newRadius)*Z, newRadius*2*Z, newRadius*2*Z);
+		for (int w = upLeft.getX(); w <= downRight.getX(); w++) {
+			for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
+				gc.strokeRect(w*PlantGrid.PLANTBOX_SIZE*Z, h*PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z);
+			}
+		}*/
+	}
+	
+	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, Color col) {
+		gc.setFill(col);
+		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.ROUND);
+		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.OPEN);
+	}
+	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color color) {
 		gc.setFill(color);
-		gc.fillOval((circle.getXCoordinate()-circle.getRadius())*Z, (circle.getYCoordinate()-circle.getRadius())*Z, circle.getRadius()*2*Z, circle.getRadius()*2*Z);
-		gc.strokeOval((circle.getXCoordinate()-circle.getRadius())*Z, (circle.getYCoordinate()-circle.getRadius())*Z, circle.getRadius()*2*Z, circle.getRadius()*2*Z);
+		gc.fillOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
+		gc.strokeOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
 	}
 
 }

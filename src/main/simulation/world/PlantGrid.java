@@ -25,9 +25,10 @@ public class PlantGrid {
 		 */
 		public void growTimer(double growthValue){
 			if (growthValue>0) {
-				this.growth -= growthValue*growthValue;
+				this.growth -= growthValue;
 			} else {
-				this.growth++;
+				this.growth+=5;
+				if (growth > Plant.BASE_GROW_TIME) growth = Plant.BASE_GROW_TIME;
 			}	
 		}
 		

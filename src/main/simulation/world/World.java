@@ -91,7 +91,9 @@ public class World {
 	
 	public void splitCreature(Creature c) throws IllegalAccessException {
 		Creature newC = c.split();
+		newC.setParentId(c.getId());
 		newC.setId(getNextId());
+		c.getChildrenIdList().add(newC.getId());
 		newCreatures.add(newC);
 	}
 	
