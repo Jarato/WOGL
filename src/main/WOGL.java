@@ -44,6 +44,7 @@ public class WOGL extends Application{
 		guiInitialize(stage);
 		simulation = new WOGLSimulation(control);//5223604287820547857
 		simulation.startSimulation();
+		control.setWOGLSimulation(simulation);
 	}
 	
 	public void guiInitialize(Stage stage) {

@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.gui.WorldWindowCtrl">
    <children>
-      <Pane fx:id="worldCanvasPane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+      <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <center>
+            <Pane fx:id="worldCanvasPane" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
+         <bottom>
+            <VBox maxWidth="1.7976931348623157E308" prefHeight="50.0" prefWidth="100.0">
+               <children>
+                  <Separator halignment="RIGHT" maxWidth="1.7976931348623157E308" prefWidth="200.0" />
+                  <HBox alignment="CENTER_LEFT" maxHeight="50.0" prefHeight="47.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="startStopButton" mnemonicParsing="false" onAction="#onStartStopButtonClick" prefHeight="40.0" prefWidth="65.0" text="Stop">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="newWorldButton" mnemonicParsing="false" onAction="#onNewWorldButtonClick" prefHeight="37.0" prefWidth="95.0" text="New World">
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" top="5.0" />
+                           </HBox.margin>
+                        </Button>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </bottom>
+      </BorderPane>
    </children>
 </AnchorPane>

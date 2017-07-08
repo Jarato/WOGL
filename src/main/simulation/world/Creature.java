@@ -302,8 +302,8 @@ public class Creature implements Evolutionizable{
     
     private void workActionTimer(World theWorld) throws IllegalAccessException {
     	if (body.getLife().getX() < body.getLife().getY()/2.0) splittingActive = false;
+    	if (body.getStomach().getX() < body.getStomach().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
-    		splittingActive = false;
     		attackingActive = false;
     	}
     	if (splittingActive) {

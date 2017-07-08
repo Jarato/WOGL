@@ -9,18 +9,17 @@ import main.simulation.world.Body;
 import main.simulation.world.Brain;
 import main.simulation.world.Creature;
 import main.simulation.world.Plant;
-import main.simulation.world.PlantGrid;
 import main.simulation.world.World;
 import main.simulation.world.Brain.InputMask;
 import main.simulation.world.PlantGrid.PlantBox;
 import pdf.simulation.CollisionCircle;
-import pdf.simulation.Point2D;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class WorldCanvas extends ResizableCanvas {
 	//CONSTS
-	public static final double Z = 1.2;
+	public static final double MAX_ZOOM = 50;
+	public static final double ZOOM_SPEED = 1/200.0;
 	
 	//ATTRIBUTES
 	private World world;
@@ -66,10 +65,13 @@ public class WorldCanvas extends ResizableCanvas {
 	public void zoom(double xPos, double yPos, double amount) {
 		Pair<Double,Double> wPos = getWorldPositionOf(xPos, yPos);
 		if (posIsInWorld(wPos)) {	
-			xs = xs-(amount/200)*wPos.getX()*f;
-			ys = ys-(amount/200)*wPos.getY()*f;
+			double newf = f*(1+amount*ZOOM_SPEED);
+			if (newf > MAX_ZOOM) newf = MAX_ZOOM;
+			double mult = newf/f-1;
+			xs = xs-mult*wPos.getX()*f;
+			ys = ys-mult*wPos.getY()*f;
 			
-			f *= (1+amount/200);
+			f = newf;
 			double min = Math.min(getWidth(), getHeight());
 			if (f < min/World.SIZE) {
 				f = min/World.SIZE;
