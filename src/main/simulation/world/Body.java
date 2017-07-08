@@ -12,7 +12,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double MAX_STOMACH = 100;
 	public static final double MAX_LIFE = 100;
 	public static final int NUMBER_OF_GENES = 3;
-	public static final double RADIUS = 5.0;
+	public static final double RADIUS = 7.0;
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
 	public static final double ROTATE_BREAK_PERCENT = 0.8;

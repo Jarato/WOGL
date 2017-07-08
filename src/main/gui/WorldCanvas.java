@@ -34,7 +34,11 @@ public class WorldCanvas extends ResizableCanvas {
 	
 	private double xs;
 	private double ys;
+	private double oldWidth;
+	private double oldHeight;
 	private double f;
+	private Pair<Double,Double> dragStartMPos = new Pair<Double,Double>(0.0,0.0);
+	private Pair<Double,Double> dragStartWPos = new Pair<Double,Double>(0.0,0.0);
 	
 	public void setWorld(World newWorld) {
 		world = newWorld;
@@ -43,11 +47,56 @@ public class WorldCanvas extends ResizableCanvas {
 	public int getIdOfPosition(double x, double y) {
 		ArrayList<Creature> creatures = world.getCreatures();	
 		for (int i = 0; i < creatures.size(); i++) {
-			if (creatures.get(i).getBody().distanceTo(new Point2D((x-xs)/f, (y-ys)/f))<creatures.get(i).getBody().getRadius()) {
+			if (creatures.get(i).getBody().distanceTo(getWorldPositionOf(x, y))<creatures.get(i).getBody().getRadius()) {
 				return creatures.get(i).getId();
 			}
 		}
 		return -1;
+	}
+	
+	public Pair<Double,Double> getWorldPositionOf(double x, double y){
+		return new Pair<Double,Double>((x-xs)/f, (y-ys)/f);
+	}
+	
+	public void setDragStartPos(double xPos, double yPos) {
+		dragStartMPos = new Pair<Double,Double>(xPos,yPos);
+		dragStartWPos = new Pair<Double,Double>(xs,ys);
+	}
+	
+	public void zoom(double xPos, double yPos, double amount) {
+		Pair<Double,Double> wPos = getWorldPositionOf(xPos, yPos);
+		if (posIsInWorld(wPos)) {	
+			xs = xs-(amount/200)*wPos.getX()*f;
+			ys = ys-(amount/200)*wPos.getY()*f;
+			
+			f *= (1+amount/200);
+			double min = Math.min(getWidth(), getHeight());
+			if (f < min/World.SIZE) {
+				f = min/World.SIZE;
+				xs = Math.max((getWidth()-World.SIZE*f)/2.0,0.0) ;
+				ys = Math.max((getHeight()-World.SIZE*f)/2.0,0.0) ;
+			}
+			checkWorldOutputPosition();
+		}	
+	}
+	
+	private boolean posIsInWorld(Pair<Double,Double> pos) {
+		return (pos.getX()>=0 && pos.getX()<=World.SIZE && pos.getY()>=0 && pos.getY()<=World.SIZE);
+	}
+	
+	public void drag(double xPos, double yPos) {
+		xs = dragStartWPos.getX()+(xPos-dragStartMPos.getX());
+		ys = dragStartWPos.getY()+(yPos-dragStartMPos.getY());
+		checkWorldOutputPosition();
+	}
+	
+	private void checkWorldOutputPosition() {
+		double xtra = Math.max(0, getWidth()-World.SIZE*f);
+		double ytra = Math.max(0, getHeight()-World.SIZE*f);
+		if (xs > xtra) xs = xtra;
+		if (xs < getWidth()-World.SIZE*f-xtra) xs = getWidth()-World.SIZE*f-xtra;
+		if (ys > ytra) ys = ytra;
+		if (ys < getHeight()-World.SIZE*f-ytra) ys = getHeight()-World.SIZE*f-ytra;
 	}
 	
 	public void setSelectedId(int newId) {
@@ -62,10 +111,14 @@ public class WorldCanvas extends ResizableCanvas {
 	
 	@Override
 	public void draw() {
-		double min = Math.min(getWidth(), getHeight());
-		f = min/World.SIZE;
-		xs = Math.max((getWidth()-World.SIZE*f)/2.0,0.0) ;
-		ys = Math.max((getHeight()-World.SIZE*f)/2.0,0.0) ;
+		if (getWidth() != oldWidth || getHeight() != oldHeight) {
+			oldHeight = getHeight();
+			oldWidth = getWidth();
+			double min = Math.min(getWidth(), getHeight());
+			f = min/World.SIZE;
+			xs = Math.max((getWidth()-World.SIZE*f)/2.0,0.0) ;
+			ys = Math.max((getHeight()-World.SIZE*f)/2.0,0.0) ;
+		}
 		GraphicsContext gc = this.getGraphicsContext2D();
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, getWidth(), getHeight());
