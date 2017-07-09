@@ -146,7 +146,6 @@ public class WorldCanvas extends ResizableCanvas {
 	
 	@Override
 	public void draw() {
-		checkGeneticSimilarity();
 		if (getWidth() != oldWidth || getHeight() != oldHeight) {
 			oldHeight = getHeight();
 			oldWidth = getWidth();
@@ -161,7 +160,7 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeRect(xs,ys, World.SIZE*f, World.SIZE*f);
 		if (world != null) {
 			
-		
+			checkGeneticSimilarity();
 		PlantBox[][] pGrid = world.getPlantGrid().getGrid();
 		for (int i = 0; i < pGrid.length; i++) {
 			for (int j = 0; j < pGrid[0].length; j++) {

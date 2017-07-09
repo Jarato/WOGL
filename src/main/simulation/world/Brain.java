@@ -49,7 +49,12 @@ public class Brain extends IOINeuralNet {
         	for (int i = 0; i < eyesInputPlant.length; i++) {
         		eyesInputWall[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
         	}
+        	
         }
+        public void resetGotHurt() {
+         	gotHurt = false;
+         }
+  
     }
 
 	private final InputMask inputMask = new InputMask();

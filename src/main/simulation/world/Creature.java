@@ -16,12 +16,14 @@ public class Creature implements Evolutionizable{
 	public static final int SPLIT_BASETIME = 500;
 	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
-	public static final double MUTATION_RATE = 0.05;
-	public static final double MUTATION_STRENGTH = 0.2;
+	public static final double ATTACK_DMG = 10;
+	public static final double MUTATION_RATE = 0.02;
+	public static final double MUTATION_STRENGTH = 0.25;
 	public static final double ENERGY_LOSS_BASE = 0.01;
 	public static final double ENERGY_LOSS_ACC = 0.01;
 	public static final double ENERGY_LOSS_ROTATE = 0.005;
 	public static final double ENERGY_LOSS_HEAL = 0.015;
+	public static final double ENERGY_LOSS_ATTACK = 0.02;
 	public static final double LIFE_HEAL_AMOUNT = 0.05;
 	public static final double LIFE_LOSS_NO_ENERGY = 0.5;
 	public static final long MAX_AGE = 5000;
@@ -320,6 +322,7 @@ public class Creature implements Evolutionizable{
     	if (attackCooldownTimer > 0) attackingActive = false;
     	if (attackingActive) {
     		attackCooldownTimer = ATTACK_COOLDOWN_BASE;
+    		body.changeStomachContent(ENERGY_LOSS_ATTACK);
     	}
     }
     

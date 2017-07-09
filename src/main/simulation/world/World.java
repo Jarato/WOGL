@@ -102,6 +102,7 @@ public class World {
 			c.workBrain(this);
 			c.workBody(this);
 			c.doAge();
+			c.getBrain().getInputMask().resetGotHurt();
 		}
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {
@@ -153,15 +154,22 @@ public class World {
 			}
 		}
 		for (int i = 0; i < creatures.size(); i++) {
-			Creature attacker = creatures.get(i);
-			for (int j = 0; j < creatures.size(); j++) {
-				if (i != j) {
-					Creature attacked = creatures.get(j);
-					if (attacker.getBody().inRangeOf(attacked.getBody(), attacker.getBody().getRadius()+attacked.getBody().getRadius()+Body.SPIKE_LENGTH)) {
-						
-					};
+			if (creatures.get(i).attacks()) {
+				Body attacker = creatures.get(i).getBody();
+				double attackRange = attacker.getRadius()+Body.SPIKE_LENGTH;
+				double attackRadians = Math.toRadians(attacker.getRotationAngle());
+				Pair<Double,Double> pointOfAttack = new Pair<Double,Double>(attacker.getXCoordinate()+Math.cos(attackRadians)*attackRange, attacker.getYCoordinate()+Math.sin(attackRadians)*attackRange);
+				for (int j = 0; j < creatures.size(); j++) {
+					if (i != j) {
+						Creature attacked = creatures.get(j);
+						if (attacked.getBody().inRangeOf(pointOfAttack, attacked.getBody().getRadius())) {
+							attacked.getBrain().getInputMask().gotHurt = true;
+							attacked.getBody().changeLife(-Creature.ATTACK_DMG);
+						};
+					}
 				}
 			}
+	
 		}
 		HashSet<Creature> deadCreatures = new HashSet<Creature>();
 		for (int i = 0; i < creatures.size(); i++) {
