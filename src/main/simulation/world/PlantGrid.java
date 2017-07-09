@@ -27,7 +27,7 @@ public class PlantGrid {
 			if (growthValue>0) {
 				this.growth -= growthValue;
 			} else {
-				this.growth+=5;
+				this.growth+=10;
 				if (growth > Plant.BASE_GROW_TIME) growth = Plant.BASE_GROW_TIME;
 			}	
 		}

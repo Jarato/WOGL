@@ -12,6 +12,7 @@ import main.simulation.world.Plant;
 import main.simulation.world.World;
 import main.simulation.world.Brain.InputMask;
 import main.simulation.world.PlantGrid.PlantBox;
+import pdf.ai.dna.DNA;
 import pdf.simulation.CollisionCircle;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
@@ -38,6 +39,8 @@ public class WorldCanvas extends ResizableCanvas {
 	private double f;
 	private Pair<Double,Double> dragStartMPos = new Pair<Double,Double>(0.0,0.0);
 	private Pair<Double,Double> dragStartWPos = new Pair<Double,Double>(0.0,0.0);
+	private Pair<Integer,Double> minDifId = new Pair<Integer,Double>(-1,0.0);
+	private Pair<Integer,Double> maxDifId = new Pair<Integer,Double>(-1,0.0);
 	
 	public void setWorld(World newWorld) {
 		world = newWorld;
@@ -106,13 +109,44 @@ public class WorldCanvas extends ResizableCanvas {
 			whichEyes = (whichEyes+1)%3;
 		} else {
 			selectedId = newId;
+			checkGeneticSimilarity();
 			whichEyes = 0;
 		}
-		
+	}
+	
+	private void checkGeneticSimilarity() {
+		Creature selC = null;
+		ArrayList<Creature> creatures = world.getCreatures();
+		for (int i = 0; i < creatures.size(); i++) {
+			if (creatures.get(i).getId() == selectedId) selC = creatures.get(i);
+		}
+		if (selC != null) {
+			double minDif = 1;
+			double maxDif = 0;
+			int minId = -1;
+			int maxId = -1;
+			DNA selDNA = selC.getDNA();
+			for (int i = 0; i < creatures.size(); i++) {
+				if (creatures.get(i).getId() != selectedId) {
+					double diff = selDNA.percentageDifference(creatures.get(i).getDNA());
+					if (diff > maxDif) {
+						maxDif = diff;
+						maxId = creatures.get(i).getId();
+					}
+					if (diff < minDif) {
+						minDif = diff;
+						minId = creatures.get(i).getId();
+					}
+				}
+			}
+			minDifId.set(minId, minDif);
+			maxDifId.set(maxId, maxDif);
+		}
 	}
 	
 	@Override
 	public void draw() {
+		checkGeneticSimilarity();
 		if (getWidth() != oldWidth || getHeight() != oldHeight) {
 			oldHeight = getHeight();
 			oldWidth = getWidth();
@@ -192,6 +226,10 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("least different creature: "+minDifId.getX()+" ("+UtilMethods.roundTo(minDifId.getY()*100,2)+"%)", xpos, ypos);
+		ypos += 15;
+		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
 		if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
 			ypos += 15;
 			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);

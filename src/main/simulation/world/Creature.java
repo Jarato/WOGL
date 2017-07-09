@@ -16,8 +16,8 @@ public class Creature implements Evolutionizable{
 	public static final int SPLIT_BASETIME = 500;
 	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
-	public static final double MUTATION_RATE = 0.02;
-	public static final double MUTATION_STRENGTH = 0.5;
+	public static final double MUTATION_RATE = 0.05;
+	public static final double MUTATION_STRENGTH = 0.2;
 	public static final double ENERGY_LOSS_BASE = 0.01;
 	public static final double ENERGY_LOSS_ACC = 0.01;
 	public static final double ENERGY_LOSS_ROTATE = 0.005;

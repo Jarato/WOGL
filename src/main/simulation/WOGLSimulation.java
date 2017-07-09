@@ -27,10 +27,22 @@ public class WOGLSimulation {
 		return running;
 	}
 	
+	public void createNewWorld(long seed) {
+		stopSimulation();
+		world = new World(seed);
+		startSimulation();
+	}
+	
+	public void createNewWorld() {
+		stopSimulation();
+		world = new World();
+		startSimulation();
+	}
+	
 	public void startSimulation() {
 		task = new SimulationTask(world, control);
 		timer = new Timer();
-		timer.schedule(task, 0,50);
+		timer.schedule(task, 0,40);
 		running = true;
 	}
 	
