@@ -15,11 +15,13 @@ public class WOGLSimulation {
 	
 	public WOGLSimulation(long seed, WorldWindowCtrl windowCtrl) {
 		world = new World(seed);
+		world.initilize();
 		initialize(windowCtrl);
 	}
 	
 	public WOGLSimulation(WorldWindowCtrl windowCtrl) {
 		world = new World();
+		world.initilize();
 		initialize(windowCtrl);
 	}
 	
@@ -30,12 +32,14 @@ public class WOGLSimulation {
 	public void createNewWorld(long seed) {
 		stopSimulation();
 		world = new World(seed);
+		world.initilize();
 		startSimulation();
 	}
 	
 	public void createNewWorld() {
 		stopSimulation();
 		world = new World();
+		world.initilize();
 		startSimulation();
 	}
 	

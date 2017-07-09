@@ -323,9 +323,9 @@ public class Creature implements Evolutionizable{
     	}
     }
     
-    public Creature split() {
+    public Creature split(Random rnd) {
     	DNA nDNA = this.dna.getSequence(0, this.dna.getNumberOfGenes());
-    	nDNA = EvolutionMethods.mutate(nDNA,MUTATION_RATE, MUTATION_STRENGTH);
+    	nDNA = EvolutionMethods.mutate(nDNA,MUTATION_RATE, MUTATION_STRENGTH, rnd);
     	Creature c = new Creature(-1, nDNA, this.body.getXCoordinate(), this.body.getYCoordinate());
     	c.body.getLife().setX(this.body.getLife().getX()/2.0);
     	c.body.getStomach().setX(this.body.getStomach().getX()/2.0);

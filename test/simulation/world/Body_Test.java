@@ -1,4 +1,4 @@
-package test.simulation.world;
+package simulation.world;
 
 import static org.junit.Assert.*;
 

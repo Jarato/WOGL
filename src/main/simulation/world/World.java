@@ -19,35 +19,32 @@ public class World {
 	private final ArrayList<Creature> creatures;
 	private final HashSet<Creature> newCreatures;
 	private final PlantGrid plantGrid;
-	private final Random rnd;
+	private final Random randomizer;
 	private final long worldSeed;
 	private int nextId;
 	
 	public World() {
 		worldSeed = new Random().nextLong();
 		newCreatures = new HashSet<Creature>();
-		rnd = new Random(worldSeed);
+		randomizer = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
-		plantGrid = new PlantGrid(rnd);
-		initilize();
+		plantGrid = new PlantGrid(randomizer);
 	}
 
 	public World(long seed) {
 		worldSeed = seed;
 		newCreatures = new HashSet<Creature>();
-		rnd = new Random(worldSeed);
+		randomizer = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
-		plantGrid = new PlantGrid(rnd);
-		initilize();
+		plantGrid = new PlantGrid(randomizer);
 	}
 	
-	private void initilize() {
-		
+	public void initilize() {		
 		nextId = 0;
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
 			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.RADIUS);
-			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), rnd);
-			c.getBody().rotate(rnd.nextDouble()*360);
+			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), randomizer);
+			c.getBody().rotate(randomizer.nextDouble()*360);
 			c.getBody().getLife().setX(c.getBody().getLife().getY());
 			c.getBody().getStomach().setX(c.getBody().getStomach().getY());
 			creatures.add(c);
@@ -60,7 +57,7 @@ public class World {
 	}
 	
 	public Pair<Double,Double> getRandomWorldPosition(double spacing){
-		return new Pair<Double,Double>(rnd.nextDouble()*(SIZE-2*spacing)+spacing, rnd.nextDouble()*(SIZE-2*spacing)+spacing);
+		return new Pair<Double,Double>(randomizer.nextDouble()*(SIZE-2*spacing)+spacing, randomizer.nextDouble()*(SIZE-2*spacing)+spacing);
 	}
 	
 	public long getWorldSeed() {
@@ -90,7 +87,7 @@ public class World {
 	}
 	
 	public void splitCreature(Creature c) throws IllegalAccessException {
-		Creature newC = c.split();
+		Creature newC = c.split(randomizer);
 		newC.setParentId(c.getId());
 		newC.setId(getNextId());
 		c.getChildrenIdList().add(newC.getId());
@@ -140,13 +137,6 @@ public class World {
 			} else if (b1.getYCoordinate()>SIZE-b1.getRadius()) {
 				b1.setYCoordinate(SIZE-b1.getRadius());
 			}
-			//attacked from other creatures
-			/*for (int j = i+1; j < creatures.size(); j++) {
-				Body b2 = creatures.get(j).getBody();
-				if (creatures.get(j).attacks() && b1.inRangeOf(b2, b1.getRadius()+b2.getRadius()+Body.SPIKE_LENGTH)) {
-					
-				}
-			}*/
 			//collision with plants
 			if (creatures.get(i).eats()) {
 				Pair<Integer,Integer> upLeft = getPlantGridPosition(b1.getXCoordinate()-b1.getRadius()-Plant.RADIUS,b1.getYCoordinate()-b1.getRadius()-Plant.RADIUS);
@@ -159,6 +149,17 @@ public class World {
 							b1.changeStomachContent(Plant.EATEN_VALUE);
 						}
 					}
+				}
+			}
+		}
+		for (int i = 0; i < creatures.size(); i++) {
+			Creature attacker = creatures.get(i);
+			for (int j = 0; j < creatures.size(); j++) {
+				if (i != j) {
+					Creature attacked = creatures.get(j);
+					if (attacker.getBody().inRangeOf(attacked.getBody(), attacker.getBody().getRadius()+attacked.getBody().getRadius()+Body.SPIKE_LENGTH)) {
+						
+					};
 				}
 			}
 		}
