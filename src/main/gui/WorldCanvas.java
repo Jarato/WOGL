@@ -195,22 +195,22 @@ public class WorldCanvas extends ResizableCanvas {
 		case 0: 
 			for (int e = 0; e < mask.eyesInputPlant.length; e++) {
 				double length = mask.eyesInputPlant[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputPlant[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputPlant[e].getY());
 			}
 		break;
 		case 1:
 			for (int e = 0; e < mask.eyesInputCreature.length; e++) {
 				double length = mask.eyesInputCreature[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputCreature[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputCreature[e].getY());
 			}	
 		break;
 		case 2:
 			for (int e = 0; e < mask.eyesInputWall.length; e++) {
 				double length = mask.eyesInputWall[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputWall[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
 			}		
 		}
 		
@@ -263,10 +263,10 @@ public class WorldCanvas extends ResizableCanvas {
 		}*/
 	}
 	
-	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, Color col) {
+	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, double width, Color col) {
 		gc.setFill(col);
-		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.ROUND);
-		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.OPEN);
+		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.ROUND);
+		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.OPEN);
 	}
 	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color color) {

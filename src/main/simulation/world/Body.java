@@ -11,13 +11,16 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	//CONSTS
 	public static final double MAX_STOMACH = 100;
 	public static final double MAX_LIFE = 100;
-	public static final int NUMBER_OF_GENES = 3;
+	public static final int NUMBER_OF_GENES = 4;
 	public static final double RADIUS = 7.0;
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
 	public static final double ROTATE_BREAK_PERCENT = 0.8;
 	public static final double ROTATE_ACCELERATION_BASE = 2;
 	public static final double SPIKE_LENGTH = 3.0;
+	public static final double SIGHTANGLE_MIN = 90;
+	public static final double SIGHTANGLE_MAX = 270;
+	
 	
 	
 	//ATTRIBUTES
@@ -38,6 +41,8 @@ public class Body extends CollisionCircle implements Evolutionizable{
     private double rotationAngle;
     private double rotationVelocity;
     private Color color;
+    private double sightAngle;
+    private double sightAreaWidth;
 
     //METHODS
 
@@ -52,6 +57,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
     
     public Pair<Double,Double> getLife() {
     	return this.life;
+    }
+    
+    public double getSightAngle() {
+    	return sightAngle;
+    }
+    
+    public double getSightAreaWidth() {
+    	return sightAreaWidth;
     }
 
     public Pair<Double,Double> getStomach() {
@@ -148,7 +161,9 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public void compoundDNA() {
         //Color
         double[] rgb = this.dna.normTo(0.0, 1.0);
-        this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));     
+        this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));   
+        sightAngle = this.dna.getNormedGene(3, SIGHTANGLE_MIN, SIGHTANGLE_MAX);
+        sightAreaWidth = sightAngle/Brain.NUMBER_OF_SIGHT_AREAS;
     }
 
 }

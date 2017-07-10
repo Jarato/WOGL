@@ -64,7 +64,6 @@ public class Creature implements Evolutionizable{
         parentId = -1;
     }
     
-    
     public ArrayList<Integer> getChildrenIdList() {
     	return childrenId;
     }
@@ -108,7 +107,7 @@ public class Creature implements Evolutionizable{
 
     @Override
     public int getNumberOfNeededGenes() {
-        return this.brain.getNumberOfNeededGenes()+this.body.getNumberOfNeededGenes();
+        return this.brain.getNumberOfNeededGenes()+this.body.getNumberOfNeededGenes()+1;
     }
 
     @Override
@@ -158,7 +157,7 @@ public class Creature implements Evolutionizable{
     public void compoundDNA() {
         int split= brain.getNumberOfNeededGenes();
         brain.compoundDNA(this.dna.getSequence(0, split));
-        body.compoundDNA(this.dna.getSequence(split, body.getNumberOfNeededGenes()));
+        body.compoundDNA(this.dna.getSequence(split+1, body.getNumberOfNeededGenes()));
     }
 
     public void workBrain(World theWorld) {
@@ -206,9 +205,9 @@ public class Creature implements Evolutionizable{
             }
         }
         //Seeing walls
-        double angleBase = this.body.getRotationAngle()-(Brain.SIGHT_MAXANGLE/2.0)+(Brain.SIGHT_AREA_WIDTH/2.0); //Base, the middle of the 8
+        double angleBase = this.body.getRotationAngle()-(body.getSightAngle()/2.0)+(body.getSightAreaWidth()/2.0); //Base, the middle of the 8
         for (int i = 0; i < brain.getInputMask().eyesInputWall.length; i++) {
-            double angleRadians = Math.toRadians(UtilMethods.rotate360(angleBase+i*Brain.SIGHT_AREA_WIDTH));
+            double angleRadians = Math.toRadians(UtilMethods.rotate360(angleBase+i*body.getSightAreaWidth()));
             Pair<Double,Double> vector = new Pair<Double,Double>(Math.cos(angleRadians), Math.sin(angleRadians));
             double distanceX = Double.MAX_VALUE;
             double distanceY = Double.MAX_VALUE;
@@ -241,7 +240,7 @@ public class Creature implements Evolutionizable{
     }
 
     private int getViewArea(double angle) {
-    	int res = (int)(Math.floor((angle-(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0))/Brain.SIGHT_AREA_WIDTH+360.0/Brain.SIGHT_AREA_WIDTH)%(360.0/Brain.SIGHT_AREA_WIDTH));
+    	int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()+360.0/body.getSightAreaWidth())%(360.0/body.getSightAreaWidth()));
     	/*if (res == -1) {
     		System.out.println("angle: "+angle+"\trotation: "+this.body.getRotationAngle());
     		System.out.println("rotation-MAX_ANGLE/2: "+(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0));
