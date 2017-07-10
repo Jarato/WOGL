@@ -153,6 +153,7 @@ public class World {
 				}
 			}
 		}
+		//attacking
 		for (int i = 0; i < creatures.size(); i++) {
 			if (creatures.get(i).attacks()) {
 				Body attacker = creatures.get(i).getBody();

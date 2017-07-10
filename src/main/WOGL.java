@@ -6,15 +6,11 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Control;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import main.gui.WorldCanvas;
 import main.gui.WorldWindowCtrl;
 import main.simulation.WOGLSimulation;
-import main.simulation.world.Brain;
-import main.simulation.world.World;
-import pdf.util.UtilMethods;
 
 public class WOGL extends Application{
 	

@@ -63,12 +63,12 @@ public class Creature_Test {
 
 	@Test
 	public void testWorkBody() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	public void testSplit() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 }

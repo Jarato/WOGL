@@ -8,6 +8,7 @@ public class Plant extends CollisionCircle {
 	public static final double RADIUS = 3.0;
 	public static final double EATEN_VALUE = 25;
 	public static final int BASE_GROW_TIME = 6000;
+	public static final int GROW_BACK_VALUE = 10;
 
 	public Plant(double radius, double xPosition, double yPosition) {
 		super(radius, xPosition, yPosition);

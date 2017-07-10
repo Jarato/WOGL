@@ -229,6 +229,8 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeText("least different creature: "+minDifId.getX()+" ("+UtilMethods.roundTo(minDifId.getY()*100,2)+"%)", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
+		ypos += 15;
+		gc.strokeText("is attacked: "+(mask.gotHurt?"true":"false"), xpos, ypos);
 		if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
 			ypos += 15;
 			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);

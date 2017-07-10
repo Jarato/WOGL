@@ -58,7 +58,7 @@ public class Brain extends IOINeuralNet {
     }
 
 	private final InputMask inputMask = new InputMask();
-
+	
 	public InputMask getInputMask() {
 		return inputMask;
 	}
