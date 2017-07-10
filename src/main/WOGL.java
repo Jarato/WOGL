@@ -67,7 +67,7 @@ public class WOGL extends Application{
 
 			stage.setMinWidth(300);
 			stage.setMinHeight(300);
-			stage.setTitle("WOGL pre-alpha");
+			stage.setTitle("WOGL alpha");
 			stage.setScene(scene);
 			stage.show();
 			stage.setOnCloseRequest(e -> close());
