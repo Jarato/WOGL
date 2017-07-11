@@ -96,18 +96,11 @@ public class World {
 	
 	public void step() throws IllegalAccessException {
 		newCreatures.clear();
-		//Input & Output
-		for (int i = 0; i < creatures.size(); i++) {
-			Creature c = creatures.get(i);
-			c.workBrain(this);
-			c.workBody(this);
-			c.doAge();
-			c.getBrain().getInputMask().resetGotHurt();
-		}
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
 			c.move();
+			c.getBrain().getInputMask().resetGotHurt();
 		}
 		//Collision
 		for (int i = 0; i < creatures.size(); i++) {
@@ -179,7 +172,15 @@ public class World {
 			}
 		}
 		creatures.removeAll(deadCreatures);
-		creatures.addAll(newCreatures);
 		plantGrid.calculateGrowth();
+		//Input & Output
+		for (int i = 0; i < creatures.size(); i++) {
+			Creature c = creatures.get(i);
+			c.workBrain(this);
+			c.workBody(this);
+			c.doAge();
+			
+		}
+		creatures.addAll(newCreatures);
 	}
 }

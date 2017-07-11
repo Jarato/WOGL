@@ -19,11 +19,11 @@ public class Creature implements Evolutionizable{
 	public static final double ATTACK_DMG = 10;
 	public static final double MUTATION_RATE = 0.02;
 	public static final double MUTATION_STRENGTH = 0.25;
-	public static final double ENERGY_LOSS_BASE = 0.01;
+	public static final double ENERGY_LOSS_BASE = 0.005;
 	public static final double ENERGY_LOSS_ACC = 0.01;
 	public static final double ENERGY_LOSS_ROTATE = 0.005;
 	public static final double ENERGY_LOSS_HEAL = 0.015;
-	public static final double ENERGY_LOSS_ATTACK = 0.02;
+	public static final double ENERGY_LOSS_ATTACK = 0.01;
 	public static final double LIFE_HEAL_AMOUNT = 0.05;
 	public static final double LIFE_LOSS_NO_ENERGY = 0.5;
 	public static final long MAX_AGE = 5000;
@@ -107,7 +107,7 @@ public class Creature implements Evolutionizable{
 
     @Override
     public int getNumberOfNeededGenes() {
-        return this.brain.getNumberOfNeededGenes()+this.body.getNumberOfNeededGenes()+1;
+        return this.brain.getNumberOfNeededGenes()+this.body.getNumberOfNeededGenes();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class Creature implements Evolutionizable{
     public void compoundDNA() {
         int split= brain.getNumberOfNeededGenes();
         brain.compoundDNA(this.dna.getSequence(0, split));
-        body.compoundDNA(this.dna.getSequence(split+1, body.getNumberOfNeededGenes()));
+        body.compoundDNA(this.dna.getSequence(split, body.getNumberOfNeededGenes()));
     }
 
     public void workBrain(World theWorld) {
@@ -178,9 +178,9 @@ public class Creature implements Evolutionizable{
         PlantBox[][] grid = theWorld.getPlantGrid().getGrid();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].getPlant() != null && this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE)) {
+                if (grid[i][j].getPlant() != null && this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE+body.getRadius()+grid[i][j].getPlant().getRadius())) {
                     int whichEye = getViewArea(this.body.angleTo(grid[i][j].getPlant()));
-                    if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
+                    if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(grid[i][j].getPlant());
                         if (mask.eyesInputPlant[whichEye].getX() > distance) {
                         	mask.eyesInputPlant[whichEye].set(distance, Plant.COLOR);
@@ -195,7 +195,7 @@ public class Creature implements Evolutionizable{
             if (crt.id != this.id) {
                 if (this.body.inRangeOf(crt.body, Brain.SIGHT_RANGE+this.getBody().getRadius()+crt.getBody().getRadius())) {
                     int whichEye = getViewArea(this.body.angleTo(crt.body));
-                    if (whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
+                    if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(crt.body);
                         if (mask.eyesInputCreature[whichEye].getX() > distance) {
                         	mask.eyesInputCreature[whichEye].set(distance, crt.body.getColor());
@@ -240,7 +240,10 @@ public class Creature implements Evolutionizable{
     }
 
     private int getViewArea(double angle) {
-    	int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()+360.0/body.getSightAreaWidth())%(360.0/body.getSightAreaWidth()));
+    	//int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()+360.0/body.getSightAreaWidth())%(360.0/body.getSightAreaWidth()));
+    	int res = (int) Math.floor(((angle-(body.getRotationAngle()-body.getSightAngle()/2.0) + 360)%360)/body.getSightAreaWidth());
+    	
+    	//int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()));
     	/*if (res == -1) {
     		System.out.println("angle: "+angle+"\trotation: "+this.body.getRotationAngle());
     		System.out.println("rotation-MAX_ANGLE/2: "+(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0));

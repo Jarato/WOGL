@@ -38,7 +38,7 @@ public class WOGL extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		guiInitialize(stage);
-		simulation = new WOGLSimulation(control);//5223604287820547857
+		simulation = new WOGLSimulation(control);
 		simulation.startSimulation();
 		control.setWOGLSimulation(simulation);
 	}

@@ -177,7 +177,8 @@ public class WorldCanvas extends ResizableCanvas {
 			if (c.getId()==selectedId) {	
 				drawSelectedCreature(gc, c);
 			}
-			fillCircle(gc,b,b.getColor());
+			fillCircle(gc,b,b.getColor(), (c.eats()?Color.RED:Color.BLACK));
+			gc.setStroke(Color.BLACK);
 			double rotationRadians = Math.toRadians(b.getRotationAngle());
 			double length = b.getRadius();
 			if (c.attacks()) length += Body.SPIKE_LENGTH;
@@ -266,11 +267,18 @@ public class WorldCanvas extends ResizableCanvas {
 	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, double width, Color col) {
 		gc.setFill(col);
 		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.ROUND);
-		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.OPEN);
+		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.ROUND);
 	}
 	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color color) {
 		gc.setFill(color);
+		gc.fillOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
+		gc.strokeOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
+	}
+	
+	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color fillColor, Color strokeColor) {
+		gc.setFill(fillColor);
+		gc.setStroke(strokeColor);
 		gc.fillOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
 		gc.strokeOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
 	}

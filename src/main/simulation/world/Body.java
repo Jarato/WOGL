@@ -18,8 +18,8 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double ROTATE_BREAK_PERCENT = 0.8;
 	public static final double ROTATE_ACCELERATION_BASE = 2;
 	public static final double SPIKE_LENGTH = 3.0;
-	public static final double SIGHTANGLE_MIN = 90;
-	public static final double SIGHTANGLE_MAX = 270;
+	public static final double SIGHTANGLE_MIN = 60;
+	public static final double SIGHTANGLE_MAX = 300;
 	
 	
 	
