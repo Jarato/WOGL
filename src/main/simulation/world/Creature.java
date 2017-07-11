@@ -19,13 +19,13 @@ public class Creature implements Evolutionizable{
 	public static final double ATTACK_DMG = 10;
 	public static final double MUTATION_RATE = 0.02;
 	public static final double MUTATION_STRENGTH = 0.25;
-	public static final double ENERGY_LOSS_BASE = 0.005;
+	public static final double ENERGY_LOSS_BASE = 0.01;
 	public static final double ENERGY_LOSS_ACC = 0.01;
-	public static final double ENERGY_LOSS_ROTATE = 0.005;
+	public static final double ENERGY_LOSS_ROTATE = 0.002;
 	public static final double ENERGY_LOSS_HEAL = 0.015;
 	public static final double ENERGY_LOSS_ATTACK = 0.01;
 	public static final double LIFE_HEAL_AMOUNT = 0.05;
-	public static final double LIFE_LOSS_NO_ENERGY = 0.5;
+	public static final double LIFE_LOSS_NO_ENERGY = 0.3;
 	public static final long MAX_AGE = 5000;
 	
 	private final Body body;
@@ -44,7 +44,7 @@ public class Creature implements Evolutionizable{
 
     public Creature(int newID, double xPosition, double yPosition, Random rnd) {
         this.id = newID;
-        this.body = new Body(Body.RADIUS, xPosition, yPosition);
+        this.body = new Body(0, xPosition, yPosition);
         childrenId = new ArrayList<Integer>();
         this.dna = new DNA(getNumberOfNeededGenes());
         this.dna.setRandom(rnd);
@@ -56,7 +56,7 @@ public class Creature implements Evolutionizable{
     
     public Creature(int newID, DNA newDNA, double xPosition, double yPosition) {
         this.id = newID;
-        this.body = new Body(Body.RADIUS, xPosition, yPosition);
+        this.body = new Body(0, xPosition, yPosition);
         childrenId = new ArrayList<Integer>();
         compoundDNA(newDNA);
         initTimer();

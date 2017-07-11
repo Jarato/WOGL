@@ -47,6 +47,7 @@ public class WorldWindowCtrl extends Control {
 		Optional<ButtonType> result = newWorldAlert.showAndWait();
 		if (result.get() == ButtonType.OK) {
 			simulation.createNewWorld();
+			startStopButton.setText("Stop");
 		}
 	}
 	

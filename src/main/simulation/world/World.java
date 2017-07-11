@@ -42,7 +42,7 @@ public class World {
 	public void initilize() {		
 		nextId = 0;
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
-			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.RADIUS);
+			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.MAX_RADIUS);
 			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), randomizer);
 			c.getBody().rotate(randomizer.nextDouble()*360);
 			c.getBody().getLife().setX(c.getBody().getLife().getY());
