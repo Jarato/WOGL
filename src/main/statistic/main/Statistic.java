@@ -5,5 +5,13 @@ package main.statistic.main;
  *
  */
 public class Statistic {
+	
+	private String name=null;
+
+	public Statistic(String name) {
+		this.name = name;
+	}
+	
+	
 
 }

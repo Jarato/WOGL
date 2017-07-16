@@ -11,11 +11,12 @@ import java.util.ArrayList;
  */
 public class StatisticManager {
 	
-	ArrayList<Statistic> allStatistics = new ArrayList<Statistic>();
+	static ArrayList<Statistic> allStatistics = new ArrayList<Statistic>();
 
 	
-	public static void createStatistic() {
-		Statistic statistic = new Statistic();
+	public static void createStatistic(String name) {
+		Statistic statistic = new Statistic(name);
+		allStatistics.add(statistic);
 	}
 	
 }
