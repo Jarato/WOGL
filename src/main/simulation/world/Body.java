@@ -9,9 +9,9 @@ import pdf.util.UtilMethods;
 
 public class Body extends CollisionCircle implements Evolutionizable{
 	//CONSTS
-	public static final double MAX_STOMACH = 100;
-	public static final double MAX_LIFE = 100;
-	public static final int NUMBER_OF_GENES = 5;
+	//public static final double MAX_STOMACH = 100;
+	//public static final double MAX_LIFE = 100;
+	public static final int NUMBER_OF_GENES = 6;
 	//public static final double RADIUS = 7.0;
 	public static final double MIN_RADIUS = 3.0;
 	public static final double MAX_RADIUS = 15.0;
@@ -40,8 +40,15 @@ public class Body extends CollisionCircle implements Evolutionizable{
     /**
      * 0 - 360
      */
+    private double moveAcceleration;
+    private double moveBreakValue;
+    private double energyLossBase;
+    private double energyLossAcc;
+	private double energyLossRot;
     private double rotationAngle;
     private double rotationVelocity;
+    private double rotationAcceleration;
+    private int splitTimerBase;
     private Color color;
     private double sightAngle;
     private double sightAreaWidth;
@@ -51,10 +58,30 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public Body(double radius, double xPosition, double yPosition) {
         super(radius, xPosition, yPosition);
         velocity = new Pair<Double,Double>(0.0,0.0);
-        stomach = new Pair<Double,Double>(0.0,MAX_STOMACH);
-        life = new Pair<Double,Double>(0.0,MAX_LIFE);
+        stomach = new Pair<Double,Double>(0.0,0.0);
+        life = new Pair<Double,Double>(0.0,0.0);
         rotationVelocity = 0;
         rotationAngle = 0;
+    }
+    
+    public double getEnergyLossAcc() {
+		return energyLossAcc;
+	}
+
+	public double getEnergyLossRot() {
+		return energyLossRot;
+	}
+    
+    public double getMoveAcceleration() {
+    	return moveAcceleration;
+    }
+    
+    public double getEnergyLossBase() {
+    	return energyLossBase;
+    }
+    
+    public double getMoveBreakValue() {
+    	return moveBreakValue;
     }
     
     public Pair<Double,Double> getLife() {
@@ -104,6 +131,10 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public void accelerateAngle(double angle, double length) {
     	double radians = Math.toRadians(angle);
 		velocity.set(velocity.getX()+length*Math.cos(radians), velocity.getY()+length*Math.sin(radians));
+    }
+    
+    public double getRotationAcceleration(){
+    	return rotationAcceleration;
     }
 
     public void changeStomachContent(double value) {
@@ -158,15 +189,33 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public Color getColor() {
         return color;
     }
+    
+    public int getSplitTimerBase() {
+    	return splitTimerBase;
+    }
 
     @Override
     public void compoundDNA() {
         //Color
-        double[] rgb = this.dna.normTo(0.0, 1.0);
-        this.setColor(new Color(rgb[0], rgb[1], rgb[2], 1.0));   
+        this.setColor(new Color(dna.getNormedGene(0, 0.0,1.0), dna.getNormedGene(1, 0.0,1.0), dna.getNormedGene(2, 0.0,1.0), 1.0)); 
+        //SightAngle
         sightAngle = this.dna.getNormedGene(3, SIGHTANGLE_MIN, SIGHTANGLE_MAX);
         sightAreaWidth = sightAngle/Brain.NUMBER_OF_SIGHT_AREAS;
+        //Radius
         setRadius(this.dna.getNormedGene(4, MIN_RADIUS, MAX_RADIUS));
+        double t = (this.radius/3.0)*(this.radius/3.0); 
+        rotationAcceleration = 5.0/t;
+        moveAcceleration = 0.1/t;//0.09/t+0.0004;
+        moveBreakValue = 0.92 + this.radius/200.0;
+        splitTimerBase = (int)Math.round(this.radius * 50);
+        double stomachLifeValue = this.radius*40;
+        energyLossBase = stomachLifeValue*0.00001+0.01;
+        energyLossAcc = stomachLifeValue *0.00003;
+        energyLossRot = stomachLifeValue *0.00001;
+        //Stomach/Life-Portion
+        double stomachPercent = this.dna.getNormedGene(5, 0.25, 0.75);
+        this.stomach.setY(stomachPercent*stomachLifeValue);
+        this.life.setY((1-stomachPercent)*stomachLifeValue);
     }
 
 }

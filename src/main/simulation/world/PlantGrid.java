@@ -82,6 +82,18 @@ public class PlantGrid {
 	public int getNumberOfLivingPlants() {
 		return numberOfLivingPlants;
 	}
+	
+	public void initNumberOfLivingPlants() {
+		int counter = 0;
+		for (int i = 0; i < grid.length; i++){
+			for (int k = 0; k < grid[i].length; k++){
+				if (grid[i][k].getPlant() != null){
+					counter++;
+				}
+			}
+		}
+		numberOfLivingPlants = counter;
+	}
 
 	public PlantBox[][] getGrid(){
 		return grid;
@@ -89,7 +101,7 @@ public class PlantGrid {
 	
 	public void removePlant(int x, int y) {
 		if (grid[x][y].plant != null) {
-			grid[x][y].removePlant();
+			grid[x][y].plantEaten();
 			numberOfLivingPlants--;
 		}
 	}

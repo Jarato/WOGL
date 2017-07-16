@@ -221,9 +221,9 @@ public class WorldCanvas extends ResizableCanvas {
 		ypos += 15;
 		gc.strokeText("generation: "+c.getGeneration(), xpos, ypos);
 		ypos += 15;
-		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", xpos, ypos);
+		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+UtilMethods.roundTo(b.getStomach().getY(),2)+")", xpos, ypos);
 		ypos += 15;
-		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", xpos, ypos);
+		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+UtilMethods.roundTo(b.getLife().getY(),2)+")", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
 		ypos += 15;
@@ -232,7 +232,7 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("is attacked: "+(mask.gotHurt?"true":"false"), xpos, ypos);
-		if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
+		if (c.getSplitTimer() != c.getBody().getSplitTimerBase()){
 			ypos += 15;
 			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);
 		}

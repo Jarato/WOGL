@@ -53,6 +53,7 @@ public class World {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
 			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
 		}
+		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);
 	}
 	
@@ -139,7 +140,7 @@ public class World {
 					for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
 						Plant p = plantGrid.getGrid()[w][h].getPlant();
 						if (p != null && b1.edgeDistanceTo(p) < 0) {
-							plantGrid.getGrid()[w][h].plantEaten();
+							plantGrid.removePlant(w,h);
 							b1.changeStomachContent(Plant.EATEN_VALUE);
 						}
 					}

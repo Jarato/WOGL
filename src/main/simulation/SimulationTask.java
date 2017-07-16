@@ -29,9 +29,15 @@ public class SimulationTask extends TimerTask{
 					e.printStackTrace();
 				}
 				control.getWorldCanvas().draw();
+				displayUserInterface();
 			}
 				
 		});
+	}
+	
+	private void displayUserInterface() {
+		control.displayCreatureCount(world.getCreatures().size());
+		control.displayPlantCount(world.getPlantGrid().getNumberOfLivingPlants());
 	}
 
 }

@@ -13,7 +13,6 @@ import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class Creature implements Evolutionizable{
-	public static final int SPLIT_BASETIME = 500;
 	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
 	public static final double ATTACK_DMG = 10;
@@ -96,7 +95,7 @@ public class Creature implements Evolutionizable{
     }
     
     private void initTimer() {
-    	splitTimer = SPLIT_BASETIME;
+    	splitTimer = this.body.getSplitTimerBase();
     	attackCooldownTimer = 0;
     	age = 0;
     }
@@ -261,25 +260,26 @@ public class Creature implements Evolutionizable{
     public void workBody(World theWorld) throws IllegalAccessException {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
-    	this.body.acceleratePercent(Body.MOVE_BREAK_PERCENT);
+    	double moveAcc = body.getMoveAcceleration();
+    	this.body.acceleratePercent(body.getMoveBreakValue());
     	switch(interpretedOutput[0]) {
-    		case 1: body.accelerateAngle(body.getRotationAngle(), Body.MOVE_ACCELERATION_BASE);
+    		case 1: body.accelerateAngle(body.getRotationAngle(), moveAcc);
     			break;
-    		case 2:body.accelerateAngle(body.getRotationAngle()+180.0, Body.MOVE_ACCELERATION_BASE);
+    		case 2:body.accelerateAngle(body.getRotationAngle()+180.0, moveAcc);
     			break;
     	}
     	switch(interpretedOutput[1]) {
-		case 1: body.accelerateAngle(body.getRotationAngle()+90.0, Body.MOVE_ACCELERATION_BASE);
+		case 1: body.accelerateAngle(body.getRotationAngle()+90.0, moveAcc);
 			break;
-		case 2:body.accelerateAngle(body.getRotationAngle()+270.0, Body.MOVE_ACCELERATION_BASE);
+		case 2:body.accelerateAngle(body.getRotationAngle()+270.0, moveAcc);
 			break;
     	}
     	//ROTATE
     	this.body.accelerateRotationPercent(Body.ROTATE_BREAK_PERCENT);
     	switch(interpretedOutput[2]) {
-		case 1:	body.accelerateRotationDirect(-Body.ROTATE_ACCELERATION_BASE);
+		case 1:	body.accelerateRotationDirect(-body.getRotationAcceleration());
 			break;
-		case 2: body.accelerateRotationDirect(Body.ROTATE_ACCELERATION_BASE);
+		case 2: body.accelerateRotationDirect(body.getRotationAcceleration());
 			break;
     	}
     	//ACTIONS
@@ -290,10 +290,10 @@ public class Creature implements Evolutionizable{
     	if (body.getStomach().getX() == 0) {
     		body.changeLife(-LIFE_LOSS_NO_ENERGY);
     	}
-    	body.changeStomachContent(-ENERGY_LOSS_BASE);
-    	if (interpretedOutput[0] > 0) body.changeStomachContent(-ENERGY_LOSS_ACC);
-    	if (interpretedOutput[1] > 0) body.changeStomachContent(-ENERGY_LOSS_ACC);
-    	if (interpretedOutput[2] > 0) body.changeStomachContent(-ENERGY_LOSS_ROTATE); 	
+    	body.changeStomachContent(-body.getEnergyLossBase());
+    	if (interpretedOutput[0] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
+    	if (interpretedOutput[1] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
+    	if (interpretedOutput[2] > 0) body.changeStomachContent(-body.getEnergyLossRot()); 	
     	if (body.getLife().getX() < body.getLife().getY() && body.getStomach().getX() > 0) { //automatic healing
     		body.changeStomachContent(-ENERGY_LOSS_HEAL);
     		body.changeLife(LIFE_HEAL_AMOUNT/(1+UtilMethods.point2DLength(body.getVelocity())));
@@ -314,11 +314,11 @@ public class Creature implements Evolutionizable{
     		splitTimer--;
     		if (splitTimer < 0) {
     			theWorld.splitCreature(this);
-    			splitTimer = SPLIT_BASETIME;
+    			splitTimer = this.body.getSplitTimerBase();
     		}
     	} else {
     		splitTimer+=SPLIT_TIMER_GOBACK;
-    		if (splitTimer>SPLIT_BASETIME) splitTimer = SPLIT_BASETIME;
+    		if (splitTimer> this.body.getSplitTimerBase()) splitTimer = this.body.getSplitTimerBase();
     	}
     	attackCooldownTimer--;
     	if (attackCooldownTimer > 0) attackingActive = false;
