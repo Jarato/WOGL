@@ -51,7 +51,7 @@ public class Creature_Test {
 		assertEquals(0.2, mask.eyesInputCreature[0].getY().getGreen(), 0.0001);
 		assertEquals(0.1, mask.eyesInputCreature[0].getY().getBlue(), 0.0001);
 		for (int i = 0; i < 6; i++) {
-			testCreature.getBody().rotate(-Brain.SIGHT_AREA_WIDTH);
+			testCreature.getBody().rotate(-testCreature.getBody().getSightAreaWidth());
 			testCreature.workBrain(testWorld);
 			//System.out.println("i: "+i);
 			assertEquals(199.9, mask.eyesInputCreature[i+1].getX(), 0.0001);

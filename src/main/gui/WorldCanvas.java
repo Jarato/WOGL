@@ -177,7 +177,8 @@ public class WorldCanvas extends ResizableCanvas {
 			if (c.getId()==selectedId) {	
 				drawSelectedCreature(gc, c);
 			}
-			fillCircle(gc,b,b.getColor());
+			fillCircle(gc,b,b.getColor(), (c.eats()?Color.RED:Color.BLACK));
+			gc.setStroke(Color.BLACK);
 			double rotationRadians = Math.toRadians(b.getRotationAngle());
 			double length = b.getRadius();
 			if (c.attacks()) length += Body.SPIKE_LENGTH;
@@ -195,22 +196,22 @@ public class WorldCanvas extends ResizableCanvas {
 		case 0: 
 			for (int e = 0; e < mask.eyesInputPlant.length; e++) {
 				double length = mask.eyesInputPlant[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputPlant[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputPlant[e].getY());
 			}
 		break;
 		case 1:
 			for (int e = 0; e < mask.eyesInputCreature.length; e++) {
 				double length = mask.eyesInputCreature[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputCreature[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputCreature[e].getY());
 			}	
 		break;
 		case 2:
 			for (int e = 0; e < mask.eyesInputWall.length; e++) {
 				double length = mask.eyesInputWall[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0+Brain.SIGHT_AREA_WIDTH*(e+1);
-				drawViewArc(gc,b,length,angle, mask.eyesInputWall[e].getY());
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
 			}		
 		}
 		
@@ -220,9 +221,9 @@ public class WorldCanvas extends ResizableCanvas {
 		ypos += 15;
 		gc.strokeText("generation: "+c.getGeneration(), xpos, ypos);
 		ypos += 15;
-		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+b.getStomach().getY()+")", xpos, ypos);
+		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+UtilMethods.roundTo(b.getStomach().getY(),2)+")", xpos, ypos);
 		ypos += 15;
-		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+b.getLife().getY()+")", xpos, ypos);
+		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+UtilMethods.roundTo(b.getLife().getY(),2)+")", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
 		ypos += 15;
@@ -231,7 +232,7 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("is attacked: "+(mask.gotHurt?"true":"false"), xpos, ypos);
-		if (c.getSplitTimer() != Creature.SPLIT_BASETIME){
+		if (c.getSplitTimer() != c.getBody().getSplitTimerBase()){
 			ypos += 15;
 			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);
 		}
@@ -263,14 +264,21 @@ public class WorldCanvas extends ResizableCanvas {
 		}*/
 	}
 	
-	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, Color col) {
+	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, double width, Color col) {
 		gc.setFill(col);
-		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.ROUND);
-		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, Brain.SIGHT_AREA_WIDTH, ArcType.OPEN);
+		gc.fillArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.ROUND);
+		gc.strokeArc(xs+(b.getXCoordinate()-length)*f, ys+(b.getYCoordinate()-length)*f, length*2*f, length*2*f, -angle, width, ArcType.ROUND);
 	}
 	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color color) {
 		gc.setFill(color);
+		gc.fillOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
+		gc.strokeOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
+	}
+	
+	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color fillColor, Color strokeColor) {
+		gc.setFill(fillColor);
+		gc.setStroke(strokeColor);
 		gc.fillOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
 		gc.strokeOval(xs+(circle.getXCoordinate()-circle.getRadius())*f, ys+(circle.getYCoordinate()-circle.getRadius())*f, circle.getRadius()*2*f, circle.getRadius()*2*f);
 	}

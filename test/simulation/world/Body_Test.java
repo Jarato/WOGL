@@ -98,9 +98,9 @@ public class Body_Test {
 		body.changeStomachContent(-10);
 		body.checkStomachBounds();
 		assertEquals(0, body.getStomach().getX(), 0.0001);
-		body.changeStomachContent(Body.MAX_STOMACH+15);
+		body.changeStomachContent(body.getStomach().getY()+15);
 		body.checkStomachBounds();
-		assertEquals(Body.MAX_STOMACH, body.getStomach().getX(), 0.0001);
+		assertEquals(body.getStomach().getY(), body.getStomach().getX(), 0.0001);
 	}
 
 	@Test
@@ -112,9 +112,9 @@ public class Body_Test {
 		body.changeLife(-10);
 		body.checkLifeBounds();
 		assertEquals(0, body.getLife().getX(), 0.0001);
-		body.changeLife(Body.MAX_LIFE+15);
+		body.changeLife(body.getLife().getY()+15);
 		body.checkLifeBounds();
-		assertEquals(Body.MAX_LIFE, body.getLife().getX(), 0.0001);
+		assertEquals(body.getLife().getY(), body.getLife().getX(), 0.0001);
 	}
 
 	@Test

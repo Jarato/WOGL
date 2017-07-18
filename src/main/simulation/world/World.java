@@ -42,7 +42,7 @@ public class World {
 	public void initilize() {		
 		nextId = 0;
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
-			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.RADIUS);
+			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.MAX_RADIUS);
 			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), randomizer);
 			c.getBody().rotate(randomizer.nextDouble()*360);
 			c.getBody().getLife().setX(c.getBody().getLife().getY());
@@ -53,6 +53,7 @@ public class World {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
 			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
 		}
+		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);
 	}
 	
@@ -96,18 +97,11 @@ public class World {
 	
 	public void step() throws IllegalAccessException {
 		newCreatures.clear();
-		//Input & Output
-		for (int i = 0; i < creatures.size(); i++) {
-			Creature c = creatures.get(i);
-			c.workBrain(this);
-			c.workBody(this);
-			c.doAge();
-			c.getBrain().getInputMask().resetGotHurt();
-		}
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
 			c.move();
+			c.getBrain().getInputMask().resetGotHurt();
 		}
 		//Collision
 		for (int i = 0; i < creatures.size(); i++) {
@@ -146,7 +140,7 @@ public class World {
 					for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
 						Plant p = plantGrid.getGrid()[w][h].getPlant();
 						if (p != null && b1.edgeDistanceTo(p) < 0) {
-							plantGrid.getGrid()[w][h].plantEaten();
+							plantGrid.removePlant(w,h);
 							b1.changeStomachContent(Plant.EATEN_VALUE);
 						}
 					}
@@ -179,7 +173,15 @@ public class World {
 			}
 		}
 		creatures.removeAll(deadCreatures);
-		creatures.addAll(newCreatures);
 		plantGrid.calculateGrowth();
+		//Input & Output
+		for (int i = 0; i < creatures.size(); i++) {
+			Creature c = creatures.get(i);
+			c.workBrain(this);
+			c.workBody(this);
+			c.doAge();
+			
+		}
+		creatures.addAll(newCreatures);
 	}
 }
