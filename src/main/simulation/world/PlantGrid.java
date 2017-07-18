@@ -35,6 +35,7 @@ public class PlantGrid {
 		public boolean checkGrowth() {
 			if (this.growth < 0) {
 				growPlant();
+				
 				this.growth = Plant.BASE_GROW_TIME;
 				return true;
 			} else return false;
@@ -44,7 +45,7 @@ public class PlantGrid {
 			this.growth = Plant.BASE_GROW_TIME;
 		}
 
-		public void plantEaten(){
+		public void deletePlant(){
 			this.plant = null;
 			initTimer();
 		}
@@ -52,13 +53,10 @@ public class PlantGrid {
 		public Plant getPlant(){
 			return this.plant;
 		}
-		
-		private void removePlant() {
-			plant = null;
-		}
 
 		public void growPlant() {
 			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getY()+rnd.nextDouble()*PLANTBOX_SIZE);
+			plant.setDieTimer(Plant.BASE_DIE_TIME);
 		}
 
 	}
@@ -101,7 +99,7 @@ public class PlantGrid {
 	
 	public void removePlant(int x, int y) {
 		if (grid[x][y].plant != null) {
-			grid[x][y].plantEaten();
+			grid[x][y].deletePlant();
 			numberOfLivingPlants--;
 		}
 	}
@@ -112,6 +110,8 @@ public class PlantGrid {
 			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
 					grid[i][k].growTimer(numberOfNeighbors(i, k));
+				} else {
+					grid[i][k].getPlant().addDieTimer(-1);
 				}
 			}
 		}
@@ -119,6 +119,11 @@ public class PlantGrid {
 			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
 					if (grid[i][k].checkGrowth()) numberOfLivingPlants++;
+				} else {
+					if (grid[i][k].getPlant().plantDelete()) {
+						grid[i][k].deletePlant();
+						numberOfLivingPlants--;
+					}
 				}
 			}
 		}

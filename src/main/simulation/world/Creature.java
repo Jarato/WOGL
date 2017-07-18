@@ -16,8 +16,8 @@ public class Creature implements Evolutionizable{
 	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
 	public static final double ATTACK_DMG = 10;
-	public static final double MUTATION_RATE = 0.02;
-	public static final double MUTATION_STRENGTH = 0.25;
+	public static final double MUTATION_RATE = 0.05;
+	public static final double MUTATION_STRENGTH = 0.10;
 	public static final double ENERGY_LOSS_BASE = 0.01;
 	public static final double ENERGY_LOSS_ACC = 0.01;
 	public static final double ENERGY_LOSS_ROTATE = 0.002;
@@ -163,6 +163,7 @@ public class Creature implements Evolutionizable{
         workEyes(theWorld);
         brain.getInputMask().stomachPercent = body.getStomach().getX()/body.getStomach().getY();
         brain.getInputMask().lifePercent = body.getLife().getX()/body.getLife().getY();
+        brain.getInputMask().movementSpeed = body.getSpeed();
         //set inputs
         brain.applyInputMask();
         //end of input sets.

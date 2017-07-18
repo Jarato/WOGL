@@ -22,7 +22,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double SPIKE_LENGTH = 3.0;
 	public static final double SIGHTANGLE_MIN = 60;
 	public static final double SIGHTANGLE_MAX = 300;
-	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.25;
+	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
 	
 	
 	
@@ -214,9 +214,9 @@ public class Body extends CollisionCircle implements Evolutionizable{
         moveBreakValue = 0.895 + this.radius/150.0;
         splitTimerBase = (int)Math.round(this.radius * 50);
         double stomachLifeValue = this.radius*40;
-        energyLossBase = stomachLifeValue*0.00001+0.01;
-        energyLossAcc = stomachLifeValue *0.00003;
-        energyLossRot = stomachLifeValue *0.00001;
+        energyLossBase = stomachLifeValue*0.000001+0.005;
+        energyLossAcc = stomachLifeValue *0.00002;
+        energyLossRot = stomachLifeValue *0.000005;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, 0.25, 0.75);
         this.stomach.setY(stomachPercent*stomachLifeValue);

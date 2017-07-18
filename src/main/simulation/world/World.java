@@ -13,8 +13,8 @@ public class World {
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final Color WALL_COLOR = Color.GRAY;
 	public static final double SIZE = 2000;
-	public static final int NUMBER_OF_STARTING_CREATURES = 50;
-	public static final int NUMBER_OF_STARTING_PLANTS = 1000;
+	public static final int NUMBER_OF_STARTING_CREATURES = 100;
+	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
 	//ATTRIBUTES
 	private final ArrayList<Creature> creatures;
 	private final HashSet<Creature> newCreatures;
@@ -52,6 +52,7 @@ public class World {
 		for (int i = 0; i < NUMBER_OF_STARTING_PLANTS; i++) {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
 			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
+			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant().setDieTimer(randomizer.nextInt(Plant.BASE_DIE_TIME)+1);
 		}
 		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);

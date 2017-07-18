@@ -36,8 +36,8 @@ public class SimulationTask extends TimerTask{
 	}
 	
 	private void displayUserInterface() {
-		control.displayCreatureCount(world.getCreatures().size());
-		control.displayPlantCount(world.getPlantGrid().getNumberOfLivingPlants());
+		control.displayCreatureCount(world.getNumberOfCreatures());
+		control.displayPlantCount(world.getNumberOfPlants());
 	}
 
 }
