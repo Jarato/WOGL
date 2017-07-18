@@ -22,6 +22,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double SPIKE_LENGTH = 3.0;
 	public static final double SIGHTANGLE_MIN = 60;
 	public static final double SIGHTANGLE_MAX = 300;
+	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.25;
 	
 	
 	
@@ -174,6 +175,10 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public DNA getDNA() {
         return this.dna;
     }
+    
+    public double getSpeed() {
+    	return UtilMethods.point2DLength(velocity);
+    }
 
     @Override
     public void compoundDNA(DNA newDNA) {
@@ -206,7 +211,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
         double t = (this.radius/3.0)*(this.radius/3.0); 
         rotationAcceleration = 5.0/t;
         moveAcceleration = 0.1/t;//0.09/t+0.0004;
-        moveBreakValue = 0.92 + this.radius/200.0;
+        moveBreakValue = 0.895 + this.radius/150.0;
         splitTimerBase = (int)Math.round(this.radius * 50);
         double stomachLifeValue = this.radius*40;
         energyLossBase = stomachLifeValue*0.00001+0.01;

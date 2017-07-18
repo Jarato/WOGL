@@ -73,6 +73,16 @@ public class World {
 		nextId++;
 		return nextId-1;
 	}
+	
+	public int getNumberOfCreatures() {
+		if (creatures == null) return 0;
+		return creatures.size();
+	}
+	
+	public int getNumberOfPlants() {
+		if (plantGrid == null) return 0;
+		return plantGrid.getNumberOfLivingPlants();
+	}
 
 	public ArrayList<Creature> getCreatures(){
 		return this.creatures;

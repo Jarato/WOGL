@@ -227,6 +227,8 @@ public class WorldCanvas extends ResizableCanvas {
 		ypos += 15;
 		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
 		ypos += 15;
+		gc.strokeText("speed: "+String.valueOf(UtilMethods.point2DLength(c.getBody().getVelocity())), xpos, ypos);
+		ypos += 15;
 		gc.strokeText("least different creature: "+minDifId.getX()+" ("+UtilMethods.roundTo(minDifId.getY()*100,2)+"%)", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
