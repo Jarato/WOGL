@@ -8,22 +8,23 @@ import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class Body extends CollisionCircle implements Evolutionizable{
-	//CONSTS
-	//public static final double MAX_STOMACH = 100;
-	//public static final double MAX_LIFE = 100;
+	//CONSTS - GENE
 	public static final int NUMBER_OF_GENES = 6;
-	//public static final double RADIUS = 7.0;
+	//CONSTS - MINMAX
 	public static final double MIN_RADIUS = 3.0;
 	public static final double MAX_RADIUS = 15.0;
+	public static final double SIGHTANGLE_MIN = 40;
+	public static final double SIGHTANGLE_MAX = 300;
+	public static final double STOMACH_LIFE_MIN_PERCENT = 0.2;
+	//CONSTS - MOVEMENT
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
 	public static final double ROTATE_BREAK_PERCENT = 0.8;
 	public static final double ROTATE_ACCELERATION_BASE = 2;
-	public static final double SPIKE_LENGTH = 3.0;
-	public static final double SIGHTANGLE_MIN = 60;
-	public static final double SIGHTANGLE_MAX = 300;
+	public static final double SPIKE_LENGTH_PERCENT = 1.5;
+	//CONSTS - ACTIONS
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
-	
+	public static final double SPLIT_TIMER_RADIUS_FACTOR = 50;
 	
 	
 	//ATTRIBUTES
@@ -41,12 +42,19 @@ public class Body extends CollisionCircle implements Evolutionizable{
     /**
      * 0 - 360
      */
+    //Inactive
     private double moveAcceleration;
     private double moveBreakValue;
+    //ENERGY LOSS
     private double energyLossBase;
     private double energyLossAcc;
 	private double energyLossRot;
-    private double rotationAngle;
+    private double energyLossAttack;
+    private double energyLossHeal;
+	//Other
+    private double healAmount;
+    //ACTIVE
+	private double rotationAngle;
     private double rotationVelocity;
     private double rotationAcceleration;
     private int splitTimerBase;
@@ -63,6 +71,18 @@ public class Body extends CollisionCircle implements Evolutionizable{
         life = new Pair<Double,Double>(0.0,0.0);
         rotationVelocity = 0;
         rotationAngle = 0;
+    }
+    
+    public double getHealAmount() {
+    	return healAmount;
+    }
+    
+    public double getEnergyLossAttack() {
+    	return energyLossAttack;
+    }
+    
+    public double getEnergyLossHeal() {
+    	return energyLossHeal;
     }
     
     public double getEnergyLossAcc() {
@@ -212,13 +232,17 @@ public class Body extends CollisionCircle implements Evolutionizable{
         rotationAcceleration = 5.0/t;
         moveAcceleration = 0.1/t;//0.09/t+0.0004;
         moveBreakValue = 0.895 + this.radius/150.0;
-        splitTimerBase = (int)Math.round(this.radius * 50);
-        double stomachLifeValue = this.radius*40;
-        energyLossBase = stomachLifeValue*0.000001+0.005;
-        energyLossAcc = stomachLifeValue *0.00002;
-        energyLossRot = stomachLifeValue *0.000005;
+        splitTimerBase = (int)Math.round(this.radius * SPLIT_TIMER_RADIUS_FACTOR);
+        double stomachLifeValue = this.radius*this.radius*2.5 + 100;
+        double baseline = stomachLifeValue/1000.0;
+        energyLossBase = baseline*0.001+0.003;
+        energyLossAcc = baseline *0.01;
+        energyLossRot = baseline *0.002;
+        energyLossAttack = baseline * 0.05;
+        energyLossHeal = baseline * 0.005;
+        healAmount = baseline * 0.04;
         //Stomach/Life-Portion
-        double stomachPercent = this.dna.getNormedGene(5, 0.25, 0.75);
+        double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);
         this.life.setY((1-stomachPercent)*stomachLifeValue);
     }

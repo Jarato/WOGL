@@ -58,6 +58,12 @@ public class WorldWindowCtrl extends Control {
 		}
 	}
 	
+	@FXML
+	private void onFastForwardToggleClick() {
+		System.out.println("Fast Forward");
+		simulation.toggleFastForwardSimulation();
+	}
+	
 	public Pane getWorldCanvasPane() {
 		return worldCanvasPane;
 	}

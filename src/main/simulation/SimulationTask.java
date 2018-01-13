@@ -8,9 +8,13 @@ import main.gui.WorldWindowCtrl;
 import main.simulation.world.World;
 
 public class SimulationTask extends TimerTask{
-
+	public static final int NUMBER_OF_STEPS_PER_DRAW = 2;
+	
+	
 	private World world;
 	private WorldWindowCtrl control;
+	
+	
 	
 	public SimulationTask(World theWorld, WorldWindowCtrl theControl) {
 		world = theWorld;
@@ -24,7 +28,10 @@ public class SimulationTask extends TimerTask{
 			@Override
 			public void run() {
 				try {
-					world.step();
+					for (int i = 0; i < NUMBER_OF_STEPS_PER_DRAW; i++) {
+						world.step();
+					}
+					
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				}
