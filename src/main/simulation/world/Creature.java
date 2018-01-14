@@ -13,19 +13,14 @@ import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class Creature implements Evolutionizable{
-	public static final int SPLIT_TIMER_GOBACK = 2;
+	public static final int SPLIT_TIMER_GOBACK = 1;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
 	public static final double ATTACK_DMG = 10;
-	public static final double MUTATION_RATE = 0.02;
-	public static final double MUTATION_STRENGTH = 0.25;
-	public static final double ENERGY_LOSS_BASE = 0.01;
-	public static final double ENERGY_LOSS_ACC = 0.01;
-	public static final double ENERGY_LOSS_ROTATE = 0.002;
-	public static final double ENERGY_LOSS_HEAL = 0.015;
-	public static final double ENERGY_LOSS_ATTACK = 0.01;
-	public static final double LIFE_HEAL_AMOUNT = 0.05;
-	public static final double LIFE_LOSS_NO_ENERGY = 0.3;
-	public static final long MAX_AGE = 5000;
+	public static final double MUTATION_RATE = 0.03;
+	public static final double MUTATION_STRENGTH = 0.1;
+	public static final double ENERGY_GAIN_ATTACK = 10;
+	public static final double LIFE_LOSS_NO_ENERGY = 0.1;
+	public static final long MAX_AGE = 10000;
 	
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
@@ -118,11 +113,11 @@ public class Creature implements Evolutionizable{
     	return eatingActive;
     }
     
-    public void setId(int newId) throws IllegalAccessException {
+    public void setId(int newId) {
     	if (this.id == -1) {
     		this.id = newId;
     	} else {
-    		throw new IllegalAccessException("the id of this creature was already set (id == "+id+")");
+    		System.out.println("Die ID ("+this.id+") has already been set. Creature-id "+newId+" couldn't be set");
     	}
     }
 
@@ -163,6 +158,7 @@ public class Creature implements Evolutionizable{
         workEyes(theWorld);
         brain.getInputMask().stomachPercent = body.getStomach().getX()/body.getStomach().getY();
         brain.getInputMask().lifePercent = body.getLife().getX()/body.getLife().getY();
+        brain.getInputMask().movementSpeed = body.getSpeed();
         //set inputs
         brain.applyInputMask();
         //end of input sets.
@@ -257,7 +253,7 @@ public class Creature implements Evolutionizable{
         return res;
     }
 
-    public void workBody(World theWorld) throws IllegalAccessException {
+    public void workBody(World theWorld) {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
     	double moveAcc = body.getMoveAcceleration();
@@ -295,8 +291,8 @@ public class Creature implements Evolutionizable{
     	if (interpretedOutput[1] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
     	if (interpretedOutput[2] > 0) body.changeStomachContent(-body.getEnergyLossRot()); 	
     	if (body.getLife().getX() < body.getLife().getY() && body.getStomach().getX() > 0) { //automatic healing
-    		body.changeStomachContent(-ENERGY_LOSS_HEAL);
-    		body.changeLife(LIFE_HEAL_AMOUNT/(1+UtilMethods.point2DLength(body.getVelocity())));
+    		body.changeStomachContent(-this.body.getEnergyLossHeal());
+    		body.changeLife(this.body.getHealAmount()/(1+UtilMethods.point2DLength(body.getVelocity())));
     	}
     	body.checkLifeBounds();
     	body.checkStomachBounds();
@@ -304,7 +300,8 @@ public class Creature implements Evolutionizable{
     //if (id == 0) System.out.println(body.getRotationAngle()+"\t"+body.getRotationVelocity());
     }
     
-    private void workActionTimer(World theWorld) throws IllegalAccessException {
+    private void workActionTimer(World theWorld)  {
+    	if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
     	if (body.getLife().getX() < body.getLife().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() < body.getStomach().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
@@ -324,7 +321,7 @@ public class Creature implements Evolutionizable{
     	if (attackCooldownTimer > 0) attackingActive = false;
     	if (attackingActive) {
     		attackCooldownTimer = ATTACK_COOLDOWN_BASE;
-    		body.changeStomachContent(ENERGY_LOSS_ATTACK);
+    		body.changeStomachContent(-this.body.getEnergyLossAttack());
     	}
     }
     

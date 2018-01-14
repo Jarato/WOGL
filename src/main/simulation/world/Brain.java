@@ -9,7 +9,7 @@ public class Brain extends IOINeuralNet {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 7;
 	public static final double SIGHT_RANGE = 200;
-	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+3;
+	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+4;
 	public static final int NUMBER_OF_INTERCELLS = 25;
 	public static final int NUMBER_OF_OUTPUTS = 9;
 	
@@ -24,6 +24,7 @@ public class Brain extends IOINeuralNet {
         public boolean gotHurt = false;
         public double stomachPercent = 1.0;
         public double lifePercent = 1.0;
+        public double movementSpeed = 0;
         
         private InputMask() {
         	for (int i = 0; i < eyesInputPlant.length; i++) {
@@ -107,6 +108,7 @@ public class Brain extends IOINeuralNet {
 	    setInputValue(pos, 1.0-inputMask.stomachPercent);
 	    setInputValue(pos+1, 1.0-inputMask.lifePercent);
 	    setInputValue(pos+2, (inputMask.gotHurt?1.0:0.0));
+	    setInputValue(pos+3, inputMask.movementSpeed);
 	}
 
 

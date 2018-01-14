@@ -30,6 +30,9 @@ public class WorldWindowCtrl extends Control {
 	@FXML
 	private Label plantCountLabel;
 	
+	@FXML
+	private Label fpsLabel;
+	
 	private WorldCanvas wCanvas;
 	private WOGLSimulation simulation;
 
@@ -56,6 +59,16 @@ public class WorldWindowCtrl extends Control {
 			simulation.createNewWorld();
 			startStopButton.setText("Stop");
 		}
+	}
+	
+	@FXML
+	private void onFastForwardToggleClick() {
+		//System.out.println("Fast Forward");
+		simulation.toggleFastForwardSimulation();
+	}
+	
+	public void updateFPSLabel(int numberOfFrames) {
+		fpsLabel.setText(numberOfFrames+" fps");
 	}
 	
 	public Pane getWorldCanvasPane() {

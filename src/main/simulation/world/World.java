@@ -13,8 +13,8 @@ public class World {
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final Color WALL_COLOR = Color.GRAY;
 	public static final double SIZE = 2000;
-	public static final int NUMBER_OF_STARTING_CREATURES = 50;
-	public static final int NUMBER_OF_STARTING_PLANTS = 1000;
+	public static final int NUMBER_OF_STARTING_CREATURES = 100;
+	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
 	//ATTRIBUTES
 	private final ArrayList<Creature> creatures;
 	private final HashSet<Creature> newCreatures;
@@ -48,10 +48,14 @@ public class World {
 			c.getBody().getLife().setX(c.getBody().getLife().getY());
 			c.getBody().getStomach().setX(c.getBody().getStomach().getY());
 			creatures.add(c);
+			if (i == 0) {
+				System.out.println("genes: "+c.getNumberOfNeededGenes()+"\tbrain: "+c.getBrain().getNumberOfNeededGenes()+"\tbody: "+c.getBody().getNumberOfNeededGenes());
+			}
 		}
 		for (int i = 0; i < NUMBER_OF_STARTING_PLANTS; i++) {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
 			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
+			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant().setDieTimer(randomizer.nextInt((int)(Plant.BASE_DIE_TIME*0.5))+Plant.BASE_DIE_TIME*0.5);
 		}
 		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);
@@ -73,6 +77,16 @@ public class World {
 		nextId++;
 		return nextId-1;
 	}
+	
+	public int getNumberOfCreatures() {
+		if (creatures == null) return 0;
+		return creatures.size();
+	}
+	
+	public int getNumberOfPlants() {
+		if (plantGrid == null) return 0;
+		return plantGrid.getNumberOfLivingPlants();
+	}
 
 	public ArrayList<Creature> getCreatures(){
 		return this.creatures;
@@ -87,7 +101,7 @@ public class World {
 		return res;
 	}
 	
-	public void splitCreature(Creature c) throws IllegalAccessException {
+	public void splitCreature(Creature c) {
 		Creature newC = c.split(randomizer);
 		newC.setParentId(c.getId());
 		newC.setId(getNextId());
@@ -95,7 +109,7 @@ public class World {
 		newCreatures.add(newC);
 	}
 	
-	public void step() throws IllegalAccessException {
+	public synchronized void step() {
 		newCreatures.clear();
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {
@@ -151,16 +165,26 @@ public class World {
 		for (int i = 0; i < creatures.size(); i++) {
 			if (creatures.get(i).attacks()) {
 				Body attacker = creatures.get(i).getBody();
-				double attackRange = attacker.getRadius()+Body.SPIKE_LENGTH;
+				double attackRange = attacker.getRadius()*Body.SPIKE_LENGTH_PERCENT;
 				double attackRadians = Math.toRadians(attacker.getRotationAngle());
-				Pair<Double,Double> pointOfAttack = new Pair<Double,Double>(attacker.getXCoordinate()+Math.cos(attackRadians)*attackRange, attacker.getYCoordinate()+Math.sin(attackRadians)*attackRange);
+				Pair<Double,Double> spikeVector = new Pair<Double,Double>(Math.cos(attackRadians)*attackRange, Math.sin(attackRadians)*attackRange);
+				double spikeSquaredLength = UtilMethods.point2DScalarProduct(spikeVector, spikeVector);
 				for (int j = 0; j < creatures.size(); j++) {
 					if (i != j) {
 						Creature attacked = creatures.get(j);
-						if (attacked.getBody().inRangeOf(pointOfAttack, attacked.getBody().getRadius())) {
-							attacked.getBrain().getInputMask().gotHurt = true;
-							attacked.getBody().changeLife(-Creature.ATTACK_DMG);
-						};
+						Pair<Double,Double> attackedVector = UtilMethods.point2DSubtraction(attacked.getBody(), attacker);
+						double projectionScalar = UtilMethods.point2DScalarProduct(spikeVector, attackedVector)/spikeSquaredLength;
+						if (projectionScalar >= 0) {
+							if (projectionScalar > 1) projectionScalar = 1;
+							double scalar = projectionScalar;
+							Pair<Double,Double> closestPointOnSpike = new Pair<Double,Double> (spikeVector.getX()*scalar, spikeVector.getY()*scalar);
+							double distance = UtilMethods.point2DLength(UtilMethods.point2DSubtraction(attackedVector, closestPointOnSpike));
+							if (distance < attacked.getBody().getRadius()) {
+								attacked.getBrain().getInputMask().gotHurt = true;
+								attacked.getBody().changeLife(-Creature.ATTACK_DMG);
+								attacker.changeStomachContent(Creature.ENERGY_GAIN_ATTACK);
+							}
+						}
 					}
 				}
 			}
