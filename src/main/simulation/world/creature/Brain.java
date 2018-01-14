@@ -1,6 +1,7 @@
-package main.simulation.world;
+package main.simulation.world.creature;
 
 import javafx.scene.paint.Color;
+import main.simulation.world.World;
 import pdf.ai.nnetwork.IOINeuralNet;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;

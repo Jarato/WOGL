@@ -1,11 +1,13 @@
-package main.simulation.world;
+package main.simulation.world.creature;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 import javafx.scene.paint.Color;
-import main.simulation.world.Brain.InputMask;
+import main.simulation.world.Plant;
 import main.simulation.world.PlantGrid.PlantBox;
+import main.simulation.world.World;
+import main.simulation.world.creature.Brain.InputMask;
 import pdf.ai.dna.DNA;
 import pdf.ai.dna.EvolutionMethods;
 import pdf.ai.dna.Evolutionizable;
@@ -13,29 +15,51 @@ import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
 public class Creature implements Evolutionizable{
-	public static final int SPLIT_TIMER_GOBACK = 1;
+	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ATTACK_COOLDOWN_BASE = 100;
 	public static final double ATTACK_DMG = 10;
 	public static final double MUTATION_RATE = 0.03;
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_GAIN_ATTACK = 10;
 	public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final long MAX_AGE = 10000;
-	
+	public static final int STARTAGE_OF_DECAY = 8000;
+	// FIXED
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
     private DNA dna;
     private int id;
-    private long age;
     private int generation;
+    private int parentId;
+    // CHANGING WITH AGE
+    private double age_digestionDivider;
+    private double age_splitTimerDivider;
+    private double age_healDivider;
+    private double age_moveAccDivider;
+    private double age_rotateAccDivider;
+    private double age_LineColorDivider;
+    
+    private int age;
+    // CHANGING
     private boolean eatingActive;
     private boolean attackingActive;
     private boolean splittingActive;
-    private int splitTimer;
+    private double splitTimer;
     private int attackCooldownTimer;
-    private int parentId;
+   
     private ArrayList<Integer> childrenId;
 
+    /*		DEATH SYSTEM
+    digestion efficiency	down	#
+    split timing			up		#
+    heal strength			down	#
+    dealing dmg				down	
+    movement acc			down	#
+    angular acc				down	#
+    mutation on split		up		
+	*/
+    
+    
+    
     public Creature(int newID, double xPosition, double yPosition, Random rnd) {
         this.id = newID;
         this.body = new Body(0, xPosition, yPosition);
@@ -43,6 +67,7 @@ public class Creature implements Evolutionizable{
         this.dna = new DNA(getNumberOfNeededGenes());
         this.dna.setRandom(rnd);
         compoundDNA();
+        initDecayValues();
         initTimer();
         generation = 0;
         parentId = -1;
@@ -53,9 +78,19 @@ public class Creature implements Evolutionizable{
         this.body = new Body(0, xPosition, yPosition);
         childrenId = new ArrayList<Integer>();
         compoundDNA(newDNA);
+        initDecayValues();
         initTimer();
         generation = 0;
         parentId = -1;
+    }
+    
+    private void initDecayValues() {
+    	age_digestionDivider = 1;
+    	age_splitTimerDivider = 1;
+    	age_healDivider = 1;
+    	age_moveAccDivider = 1;
+    	age_rotateAccDivider = 1;
+    	age_LineColorDivider = 1;
     }
     
     public ArrayList<Integer> getChildrenIdList() {
@@ -80,9 +115,19 @@ public class Creature implements Evolutionizable{
     
     public void doAge() {
     	age++;
-    	if (age > MAX_AGE) {
-    		body.getLife().setX(0.0);
+    	if (age > STARTAGE_OF_DECAY && age%10 == 0) {
+    		double overDecayTime = age-STARTAGE_OF_DECAY;
+    		age_digestionDivider = 1 + overDecayTime/10000.0;
+    		age_splitTimerDivider = 1 + overDecayTime/30000.0;
+    		age_healDivider = 1 + overDecayTime/15000.0;
+    		age_moveAccDivider = 1 + overDecayTime/15000.0;
+    		age_rotateAccDivider = 1 + overDecayTime/10000.0;
+    		age_LineColorDivider = 1 + overDecayTime/15000.0;
     	}
+    }
+    
+    public double getLineColorDivider() {
+    	return age_LineColorDivider;
     }
     
     public long getAge() {
@@ -95,7 +140,7 @@ public class Creature implements Evolutionizable{
     	age = 0;
     }
     
-    public int getSplitTimer() {
+    public double getSplitTimer() {
     	return splitTimer;
     }
 
@@ -163,6 +208,17 @@ public class Creature implements Evolutionizable{
         brain.applyInputMask();
         //end of input sets.
         brain.calculateNet();
+    }
+    
+    public void digest(double foodValue, int foodType) {
+    	// foodType == 0 - plant
+    	if (foodType == 0) {
+    		this.body.changeStomachContent(this.body.getHerbivore_eff()*foodValue/age_digestionDivider);
+    	}
+    	// foodType == 1 - creature
+    	if (foodType == 1) {
+    		this.body.changeStomachContent(this.body.getCarnivore_eff()*foodValue/age_digestionDivider);
+    	}
     }
 
     private void workEyes(World theWorld) {
@@ -256,7 +312,7 @@ public class Creature implements Evolutionizable{
     public void workBody(World theWorld) {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
-    	double moveAcc = body.getMoveAcceleration();
+    	double moveAcc = body.getMoveAcceleration()/age_moveAccDivider;
     	this.body.acceleratePercent(body.getMoveBreakValue());
     	switch(interpretedOutput[0]) {
     		case 1: body.accelerateAngle(body.getRotationAngle(), moveAcc);
@@ -272,10 +328,11 @@ public class Creature implements Evolutionizable{
     	}
     	//ROTATE
     	this.body.accelerateRotationPercent(Body.ROTATE_BREAK_PERCENT);
+    	double rotateAcc = body.getRotationAcceleration()/age_rotateAccDivider;
     	switch(interpretedOutput[2]) {
-		case 1:	body.accelerateRotationDirect(-body.getRotationAcceleration());
+		case 1:	body.accelerateRotationDirect(-rotateAcc);
 			break;
-		case 2: body.accelerateRotationDirect(body.getRotationAcceleration());
+		case 2: body.accelerateRotationDirect(rotateAcc);
 			break;
     	}
     	//ACTIONS
@@ -292,7 +349,7 @@ public class Creature implements Evolutionizable{
     	if (interpretedOutput[2] > 0) body.changeStomachContent(-body.getEnergyLossRot()); 	
     	if (body.getLife().getX() < body.getLife().getY() && body.getStomach().getX() > 0) { //automatic healing
     		body.changeStomachContent(-this.body.getEnergyLossHeal());
-    		body.changeLife(this.body.getHealAmount()/(1+UtilMethods.point2DLength(body.getVelocity())));
+    		body.changeLife(this.body.getHealAmount()/age_healDivider);
     	}
     	body.checkLifeBounds();
     	body.checkStomachBounds();
@@ -308,7 +365,7 @@ public class Creature implements Evolutionizable{
     		attackingActive = false;
     	}
     	if (splittingActive) {
-    		splitTimer--;
+    		splitTimer -= 1/age_splitTimerDivider;
     		if (splitTimer < 0) {
     			theWorld.splitCreature(this);
     			splitTimer = this.body.getSplitTimerBase();

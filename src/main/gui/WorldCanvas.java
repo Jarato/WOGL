@@ -5,12 +5,11 @@ import java.util.ArrayList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
-import main.simulation.world.Body;
-import main.simulation.world.Brain;
-import main.simulation.world.Creature;
 import main.simulation.world.Plant;
 import main.simulation.world.World;
-import main.simulation.world.Brain.InputMask;
+import main.simulation.world.creature.Body;
+import main.simulation.world.creature.Brain.InputMask;
+import main.simulation.world.creature.Creature;
 import main.simulation.world.PlantGrid.PlantBox;
 import pdf.ai.dna.DNA;
 import pdf.simulation.CollisionCircle;
@@ -180,7 +179,10 @@ public class WorldCanvas extends ResizableCanvas {
 			}
 			
 			//BODY
-			fillCircle(gc,b,b.getColor(), Color.BLACK);
+			gc.setLineWidth(2);
+			int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+			fillCircle(gc,b,b.getColor(), Color.rgb(line_colorVal, line_colorVal, line_colorVal));
+			gc.setLineWidth(1);
 			// MOUTH
 			if (c.eats()) {
 				gc.setFill(Color.BLACK);
@@ -260,16 +262,24 @@ public class WorldCanvas extends ResizableCanvas {
 		ypos += 15;
 		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
 		ypos += 15;
-		gc.strokeText("speed: "+String.valueOf(UtilMethods.point2DLength(c.getBody().getVelocity())), xpos, ypos);
+		gc.strokeText("herbivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getHerbivore_eff(),2)), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("carnivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getCarnivore_eff(),2)), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("speed: "+String.valueOf(UtilMethods.roundTo(UtilMethods.point2DLength(c.getBody().getVelocity()), 2)), xpos, ypos);
 		ypos += 15;
 		gc.strokeText("least different creature: "+minDifId.getX()+" ("+UtilMethods.roundTo(minDifId.getY()*100,2)+"%)", xpos, ypos);
 		ypos += 15;
 		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
+		//ypos += 15;
+		//int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+		
+		//gc.strokeText("line_colorVal: "+line_colorVal, xpos, ypos);
 		ypos += 15;
 		gc.strokeText("is attacked: "+(mask.gotHurt?"true":"false"), xpos, ypos);
 		if (c.getSplitTimer() != c.getBody().getSplitTimerBase()){
 			ypos += 15;
-			gc.strokeText("splitTimer: "+String.valueOf(c.getSplitTimer()), xpos, ypos);
+			gc.strokeText("splitTimer: "+String.valueOf(Math.round(c.getSplitTimer())), xpos, ypos);
 		}
 		ypos += 15;
 		if (c.getParentId() == -1) {

@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Random;
 
 import javafx.scene.paint.Color;
+import main.simulation.world.creature.Body;
+import main.simulation.world.creature.Creature;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
@@ -163,7 +165,7 @@ public class World {
 						Plant p = plantGrid.getGrid()[w][h].getPlant();
 						if (p != null && b1.edgeDistanceTo(p) < 0) {
 							plantGrid.removePlant(w,h);
-							b1.changeStomachContent(Plant.EATEN_VALUE);
+							creatures.get(i).digest(Plant.EATEN_VALUE, 0);
 						}
 					}
 				}
@@ -172,15 +174,15 @@ public class World {
 		//attacking
 		for (int i = 0; i < creatures.size(); i++) {
 			if (creatures.get(i).attacks()) {
-				Body attacker = creatures.get(i).getBody();
-				double attackRange = attacker.getRadius()*Body.SPIKE_LENGTH_PERCENT;
-				double attackRadians = Math.toRadians(attacker.getRotationAngle());
+				Body attackerB = creatures.get(i).getBody();
+				double attackRange = attackerB.getRadius()*Body.SPIKE_LENGTH_PERCENT;
+				double attackRadians = Math.toRadians(attackerB.getRotationAngle());
 				Pair<Double,Double> spikeVector = new Pair<Double,Double>(Math.cos(attackRadians)*attackRange, Math.sin(attackRadians)*attackRange);
 				double spikeSquaredLength = UtilMethods.point2DScalarProduct(spikeVector, spikeVector);
 				for (int j = 0; j < creatures.size(); j++) {
 					if (i != j) {
 						Creature attacked = creatures.get(j);
-						Pair<Double,Double> attackedVector = UtilMethods.point2DSubtraction(attacked.getBody(), attacker);
+						Pair<Double,Double> attackedVector = UtilMethods.point2DSubtraction(attacked.getBody(), attackerB);
 						double projectionScalar = UtilMethods.point2DScalarProduct(spikeVector, attackedVector)/spikeSquaredLength;
 						if (projectionScalar >= 0) {
 							if (projectionScalar > 1) projectionScalar = 1;
@@ -190,7 +192,8 @@ public class World {
 							if (distance < attacked.getBody().getRadius()) {
 								attacked.getBrain().getInputMask().gotHurt = true;
 								attacked.getBody().changeLife(-Creature.ATTACK_DMG);
-								attacker.changeStomachContent(Creature.ENERGY_GAIN_ATTACK);
+								creatures.get(i).digest(Creature.ENERGY_GAIN_ATTACK, 1);
+								attackerB.changeStomachContent(Creature.ENERGY_GAIN_ATTACK);
 							}
 						}
 					}

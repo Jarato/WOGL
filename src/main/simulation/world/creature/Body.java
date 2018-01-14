@@ -1,4 +1,4 @@
-package main.simulation.world;
+package main.simulation.world.creature;
 
 import javafx.scene.paint.Color;
 import pdf.ai.dna.DNA;
@@ -9,13 +9,17 @@ import pdf.util.UtilMethods;
 
 public class Body extends CollisionCircle implements Evolutionizable{
 	//CONSTS - GENE
-	public static final int NUMBER_OF_GENES = 6;
+	public static final int NUMBER_OF_GENES = 7;
 	//CONSTS - MINMAX
 	public static final double MIN_RADIUS = 3.0;
 	public static final double MAX_RADIUS = 15.0;
 	public static final double SIGHTANGLE_MIN = 40;
 	public static final double SIGHTANGLE_MAX = 300;
 	public static final double STOMACH_LIFE_MIN_PERCENT = 0.2;
+	public static final double VORE_CUTOFF = 0.9;
+	public static final double VORE_PURE_EFF = 1.2;
+	public static final double OVER_EATING_BUFFER = 0.05;
+	public static final double OVER_EATING_DMG = 0.2;
 	//CONSTS - MOVEMENT
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
@@ -44,7 +48,10 @@ public class Body extends CollisionCircle implements Evolutionizable{
      */
     //Inactive
     private double moveAcceleration;
+    private double rotationAcceleration;
     private double moveBreakValue;
+    private double carnivore_eff;
+    private double herbivore_eff;
     //ENERGY LOSS
     private double energyLossBase;
     private double energyLossAcc;
@@ -56,7 +63,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     //ACTIVE
 	private double rotationAngle;
     private double rotationVelocity;
-    private double rotationAcceleration;
+    
     private int splitTimerBase;
     private Color color;
     private double sightAngle;
@@ -170,6 +177,11 @@ public class Body extends CollisionCircle implements Evolutionizable{
     	if (stomach.getX() < 0.0) {
     		stomach.setX(0.0);
     	} else if(stomach.getX() > stomach.getY()) {
+    		double diff = stomach.getX()-stomach.getY();
+    		double buffer = stomach.getY()*OVER_EATING_BUFFER;
+    		if (diff > buffer) {
+    			changeLife(-(diff-buffer)*OVER_EATING_DMG);
+    		}
     		stomach.setX(stomach.getY());
     	}
     }
@@ -218,6 +230,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public int getSplitTimerBase() {
     	return splitTimerBase;
     }
+    
+    public double getHerbivore_eff() {
+		return herbivore_eff;
+	}
+    
+    public double getCarnivore_eff() {
+		return carnivore_eff;
+	}
 
     @Override
     public void compoundDNA() {
@@ -235,16 +255,28 @@ public class Body extends CollisionCircle implements Evolutionizable{
         splitTimerBase = (int)Math.round(this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.001+0.004;
+        energyLossBase = baseline*0.0015+0.005;
         energyLossAcc = baseline *0.008;
         energyLossRot = baseline *0.001;
         energyLossAttack = baseline * 0.05;
         energyLossHeal = baseline * 0.005;
-        healAmount = baseline * 0.04;
+        healAmount = baseline * 0.03;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);
         this.life.setY((1-stomachPercent)*stomachLifeValue);
+        double vore_eff = this.dna.getNormedGene(6, 0.0, 1.0);
+        if (vore_eff > VORE_CUTOFF) {
+        	this.herbivore_eff = VORE_PURE_EFF;
+        	this.carnivore_eff = 0;
+        } else if (1-vore_eff > VORE_CUTOFF) {
+        	this.herbivore_eff = 0;
+        	this.carnivore_eff = VORE_PURE_EFF;
+        } else {
+        	this.herbivore_eff = vore_eff;
+        	this.carnivore_eff = 1-vore_eff;
+        }
+        
     }
 
 }
