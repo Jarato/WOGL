@@ -1,34 +1,29 @@
 package main.simulation;
 
-import javafx.concurrent.Task;
 import main.simulation.world.World;
 
 public class FastForwardTask implements Runnable{
 
 	private World world;
-	private volatile boolean stop;
+	private FPSTask fpsTask;
+	private volatile boolean stopRun = false;
 	
-	public FastForwardTask(World theWorld) {
-		world = theWorld;
-		stop = false;
+	public synchronized void stopRunning() {
+		stopRun = true;
 	}
 	
-	public void stopLoop() {
-		stop = true;
+	public FastForwardTask(World theWorld, FPSTask theFPSTask) {
+		world = theWorld;
+		fpsTask = theFPSTask;
 	}
 	
 	@Override
 	public void run(){
-		int loops = 1000;
-		while (!stop && loops > 0) {
-			try {
-				world.step();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			loops--;
+		while(!stopRun) {
+			world.step();
+			fpsTask.addFrame();
 		}
+		
 	}
 
 }

@@ -113,11 +113,11 @@ public class Creature implements Evolutionizable{
     	return eatingActive;
     }
     
-    public void setId(int newId) throws IllegalAccessException {
+    public void setId(int newId) {
     	if (this.id == -1) {
     		this.id = newId;
     	} else {
-    		throw new IllegalAccessException("the id of this creature was already set (id == "+id+")");
+    		System.out.println("Die ID ("+this.id+") has already been set. Creature-id "+newId+" couldn't be set");
     	}
     }
 
@@ -253,7 +253,7 @@ public class Creature implements Evolutionizable{
         return res;
     }
 
-    public void workBody(World theWorld) throws IllegalAccessException {
+    public void workBody(World theWorld) {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
     	double moveAcc = body.getMoveAcceleration();
@@ -300,7 +300,7 @@ public class Creature implements Evolutionizable{
     //if (id == 0) System.out.println(body.getRotationAngle()+"\t"+body.getRotationVelocity());
     }
     
-    private void workActionTimer(World theWorld) throws IllegalAccessException {
+    private void workActionTimer(World theWorld)  {
     	if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
     	if (body.getLife().getX() < body.getLife().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() < body.getStomach().getY()/2.0) splittingActive = false;

@@ -101,7 +101,7 @@ public class World {
 		return res;
 	}
 	
-	public void splitCreature(Creature c) throws IllegalAccessException {
+	public void splitCreature(Creature c) {
 		Creature newC = c.split(randomizer);
 		newC.setParentId(c.getId());
 		newC.setId(getNextId());
@@ -109,7 +109,7 @@ public class World {
 		newCreatures.add(newC);
 	}
 	
-	public void step() throws IllegalAccessException {
+	public synchronized void step() {
 		newCreatures.clear();
 		//Move
 		for (int i = 0; i < creatures.size(); i++) {

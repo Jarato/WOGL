@@ -74,7 +74,7 @@ public class WOGL extends Application{
 	}
 	
 	private void close() {
-		simulation.stopSimulation();
+		simulation.terminateSimulation();
 	}
 
 }
