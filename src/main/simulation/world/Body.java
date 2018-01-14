@@ -235,9 +235,9 @@ public class Body extends CollisionCircle implements Evolutionizable{
         splitTimerBase = (int)Math.round(this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.001+0.003;
-        energyLossAcc = baseline *0.01;
-        energyLossRot = baseline *0.002;
+        energyLossBase = baseline*0.001+0.004;
+        energyLossAcc = baseline *0.008;
+        energyLossRot = baseline *0.001;
         energyLossAttack = baseline * 0.05;
         energyLossHeal = baseline * 0.005;
         healAmount = baseline * 0.04;

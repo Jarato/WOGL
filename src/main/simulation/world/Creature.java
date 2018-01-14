@@ -19,7 +19,7 @@ public class Creature implements Evolutionizable{
 	public static final double MUTATION_RATE = 0.03;
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_GAIN_ATTACK = 10;
-	public static final double LIFE_LOSS_NO_ENERGY = 0.1;
+	public static final double LIFE_LOSS_NO_ENERGY = 0.2;
 	public static final long MAX_AGE = 10000;
 	
 	private final Body body;

@@ -37,7 +37,7 @@ public class WorldCanvas extends ResizableCanvas {
 	private double yWorldBound;
 	private double oldWidth;
 	private double oldHeight;
-	private double zoomDepth;
+	private double zoomD;
 	private Pair<Double,Double> dragStartMPos = new Pair<Double,Double>(0.0,0.0);
 	private Pair<Double,Double> dragStartWPos = new Pair<Double,Double>(0.0,0.0);
 	private Pair<Integer,Double> minDifId = new Pair<Integer,Double>(-1,0.0);
@@ -58,7 +58,7 @@ public class WorldCanvas extends ResizableCanvas {
 	}
 	
 	public Pair<Double,Double> getWorldPositionOf(double x, double y){
-		return new Pair<Double,Double>((x-xWorldBound)/zoomDepth, (y-yWorldBound)/zoomDepth);
+		return new Pair<Double,Double>((x-xWorldBound)/zoomD, (y-yWorldBound)/zoomD);
 	}
 	
 	public void setDragStartPos(double xPos, double yPos) {
@@ -69,18 +69,18 @@ public class WorldCanvas extends ResizableCanvas {
 	public void zoom(double xPos, double yPos, double amount) {
 		Pair<Double,Double> wPos = getWorldPositionOf(xPos, yPos);
 		if (posIsInWorld(wPos)) {	
-			double newf = zoomDepth*(1+amount*ZOOM_SPEED);
+			double newf = zoomD*(1+amount*ZOOM_SPEED);
 			if (newf > MAX_ZOOM) newf = MAX_ZOOM;
-			double mult = newf/zoomDepth-1;
-			xWorldBound = xWorldBound-mult*wPos.getX()*zoomDepth;
-			yWorldBound = yWorldBound-mult*wPos.getY()*zoomDepth;
+			double mult = newf/zoomD-1;
+			xWorldBound = xWorldBound-mult*wPos.getX()*zoomD;
+			yWorldBound = yWorldBound-mult*wPos.getY()*zoomD;
 			
-			zoomDepth = newf;
+			zoomD = newf;
 			double min = Math.min(getWidth(), getHeight());
-			if (zoomDepth < min/World.SIZE) {
-				zoomDepth = min/World.SIZE;
-				xWorldBound = Math.max((getWidth()-World.SIZE*zoomDepth)/2.0,0.0) ;
-				yWorldBound = Math.max((getHeight()-World.SIZE*zoomDepth)/2.0,0.0) ;
+			if (zoomD < min/World.SIZE) {
+				zoomD = min/World.SIZE;
+				xWorldBound = Math.max((getWidth()-World.SIZE*zoomD)/2.0,0.0) ;
+				yWorldBound = Math.max((getHeight()-World.SIZE*zoomD)/2.0,0.0) ;
 			}
 			checkWorldOutputPosition();
 		}	
@@ -97,12 +97,12 @@ public class WorldCanvas extends ResizableCanvas {
 	}
 	
 	private void checkWorldOutputPosition() {
-		double xtra = Math.max(0, getWidth()-World.SIZE*zoomDepth);
-		double ytra = Math.max(0, getHeight()-World.SIZE*zoomDepth);
+		double xtra = Math.max(0, getWidth()-World.SIZE*zoomD);
+		double ytra = Math.max(0, getHeight()-World.SIZE*zoomD);
 		if (xWorldBound > xtra) xWorldBound = xtra;
-		if (xWorldBound < getWidth()-World.SIZE*zoomDepth-xtra) xWorldBound = getWidth()-World.SIZE*zoomDepth-xtra;
+		if (xWorldBound < getWidth()-World.SIZE*zoomD-xtra) xWorldBound = getWidth()-World.SIZE*zoomD-xtra;
 		if (yWorldBound > ytra) yWorldBound = ytra;
-		if (yWorldBound < getHeight()-World.SIZE*zoomDepth-ytra) yWorldBound = getHeight()-World.SIZE*zoomDepth-ytra;
+		if (yWorldBound < getHeight()-World.SIZE*zoomD-ytra) yWorldBound = getHeight()-World.SIZE*zoomD-ytra;
 	}
 	
 	public void setSelectedId(int newId) {
@@ -151,14 +151,14 @@ public class WorldCanvas extends ResizableCanvas {
 			oldHeight = getHeight();
 			oldWidth = getWidth();
 			double min = Math.min(getWidth(), getHeight());
-			zoomDepth = min/World.SIZE;
-			xWorldBound = Math.max((getWidth()-World.SIZE*zoomDepth)/2.0,0.0) ;
-			yWorldBound = Math.max((getHeight()-World.SIZE*zoomDepth)/2.0,0.0) ;
+			zoomD = min/World.SIZE;
+			xWorldBound = Math.max((getWidth()-World.SIZE*zoomD)/2.0,0.0) ;
+			yWorldBound = Math.max((getHeight()-World.SIZE*zoomD)/2.0,0.0) ;
 		}
 		GraphicsContext gc = this.getGraphicsContext2D();
 		gc.setFill(Color.WHITE);
 		gc.fillRect(0, 0, getWidth(), getHeight());
-		gc.strokeRect(xWorldBound,yWorldBound, World.SIZE*zoomDepth, World.SIZE*zoomDepth);
+		gc.strokeRect(xWorldBound,yWorldBound, World.SIZE*zoomD, World.SIZE*zoomD);
 		if (world != null) {
 			
 			checkGeneticSimilarity();
@@ -186,14 +186,14 @@ public class WorldCanvas extends ResizableCanvas {
 				gc.setFill(Color.BLACK);
 				double length = b.getRadius();
 				double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
-				gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomDepth, yWorldBound+(b.getYCoordinate()-length)*zoomDepth, b.getRadius()*2*zoomDepth, length*2*zoomDepth, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
+				gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, b.getRadius()*2*zoomD, length*2*zoomD, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
 			}
 			gc.setStroke(Color.BLACK);
 			double rotationRadians = Math.toRadians(b.getRotationAngle());
 			double length = b.getRadius();
 			// SPIKE+DIRECTION
 			if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
-			gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomDepth, yWorldBound+b.getYCoordinate()*zoomDepth, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomDepth, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomDepth);
+			gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);
 			
 		}
 		}
@@ -225,9 +225,31 @@ public class WorldCanvas extends ResizableCanvas {
 				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
 			}		
 		}
-		
+		Creature minDifC = world.getCreatureById(minDifId.getX());
+		double xPosMinDif = 0;
+		double yPosMinDif = 0;
+		if (minDifC != null) {
+			Body minDifB = minDifC.getBody();
+			xPosMinDif = minDifB.getXCoordinate();
+			yPosMinDif = minDifB.getYCoordinate();
+		}
+		Creature maxDifC = world.getCreatureById(maxDifId.getX());
+		double xPosMaxDif = 0;
+		double yPosMaxDif = 0;
+		if (minDifC != null) {
+			Body maxDifB = maxDifC.getBody();
+			xPosMaxDif = maxDifB.getXCoordinate();
+			yPosMaxDif = maxDifB.getYCoordinate();
+		}
+		gc.setLineWidth(2);
+		gc.setStroke(Color.BLUE);
+		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+xPosMinDif*zoomD, yWorldBound+ yPosMinDif*zoomD);
+		gc.setStroke(Color.RED);
+		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+xPosMaxDif*zoomD, yWorldBound+yPosMaxDif*zoomD);
 		double ypos = yWorldBound+15;
-		double xpos = xWorldBound+World.SIZE*zoomDepth+3;
+		double xpos = xWorldBound+World.SIZE*zoomD+3;
+		gc.setStroke(Color.BLACK);
+		gc.setLineWidth(1);
 		gc.strokeText("id: "+String.valueOf(c.getId()), xpos, ypos);
 		ypos += 15;
 		gc.strokeText("generation: "+c.getGeneration(), xpos, ypos);
@@ -259,6 +281,11 @@ public class WorldCanvas extends ResizableCanvas {
 			ypos += 15;
 			gc.strokeText("child "+(i+1)+": "+c.getChildrenIdList().get(i), xpos, ypos);
 		}
+		int[] f = world.getPlantGrid().getNoFieldsW();
+		for (int i = 0; i < 9; i++) {
+			ypos += 15;
+			gc.strokeText(i+": "+f[i], xpos, ypos);
+		}
 		
 		//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
 		//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
@@ -279,21 +306,21 @@ public class WorldCanvas extends ResizableCanvas {
 	
 	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, double width, Color col) {
 		gc.setFill(col);
-		gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomDepth, yWorldBound+(b.getYCoordinate()-length)*zoomDepth, length*2*zoomDepth, length*2*zoomDepth, -angle, width, ArcType.ROUND);
-		gc.strokeArc(xWorldBound+(b.getXCoordinate()-length)*zoomDepth, yWorldBound+(b.getYCoordinate()-length)*zoomDepth, length*2*zoomDepth, length*2*zoomDepth, -angle, width, ArcType.ROUND);
+		gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, length*2*zoomD, length*2*zoomD, -angle, width, ArcType.ROUND);
+		gc.strokeArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, length*2*zoomD, length*2*zoomD, -angle, width, ArcType.ROUND);
 	}
 	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color color) {
 		gc.setFill(color);
-		gc.fillOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomDepth, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomDepth, circle.getRadius()*2*zoomDepth, circle.getRadius()*2*zoomDepth);
-		gc.strokeOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomDepth, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomDepth, circle.getRadius()*2*zoomDepth, circle.getRadius()*2*zoomDepth);
+		gc.fillOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
+		gc.strokeOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
 	}
 	
 	private void fillCircle(GraphicsContext gc, CollisionCircle circle, Color fillColor, Color strokeColor) {
 		gc.setFill(fillColor);
 		gc.setStroke(strokeColor);
-		gc.fillOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomDepth, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomDepth, circle.getRadius()*2*zoomDepth, circle.getRadius()*2*zoomDepth);
-		gc.strokeOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomDepth, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomDepth, circle.getRadius()*2*zoomDepth, circle.getRadius()*2*zoomDepth);
+		gc.fillOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
+		gc.strokeOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
 	}
 
 }

@@ -71,6 +71,11 @@ public class WorldWindowCtrl extends Control {
 		fpsLabel.setText(numberOfFrames+" fps");
 	}
 	
+	public void updateCreaturePlantCount() {
+		displayCreatureCount(simulation.getWorld().getNumberOfCreatures());
+		displayPlantCount(simulation.getWorld().getNumberOfPlants());
+	}
+	
 	public Pane getWorldCanvasPane() {
 		return worldCanvasPane;
 	}

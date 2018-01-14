@@ -25,7 +25,7 @@ public class PlantGrid {
 		 */
 		public void growTimer(double growthValue){
 			if (growthValue>0) {
-				this.growth -= growthValue;
+				this.growth -= Math.pow(growthValue, 0.9);
 			} else {
 				this.growth+=Plant.GROWTIMER_NO_NEIGHBOR_UPDATE;
 				if (growth > Plant.BASE_GROW_TIME) growth = Plant.BASE_GROW_TIME;
@@ -63,9 +63,11 @@ public class PlantGrid {
 	public static final int AXIS_PLANTBOX_AMOUNT = 40;
 	public final static double PLANTBOX_SIZE = World.SIZE/AXIS_PLANTBOX_AMOUNT;
 	private PlantBox[][] grid;
+	private int[] noFieldsW;
 	private int numberOfLivingPlants;
 
 	public PlantGrid(Random newRnd){
+		noFieldsW = new int[9];
 		rnd = newRnd;
 		grid = new PlantBox[AXIS_PLANTBOX_AMOUNT][];
 		for (int i = 0; i < grid.length; i++){
@@ -103,13 +105,22 @@ public class PlantGrid {
 			numberOfLivingPlants--;
 		}
 	}
+	
+	public int[] getNoFieldsW() {
+		return noFieldsW;
+	}
 
 	public void calculateGrowth(){
+		for (int i = 0; i < 9; i++) {
+			noFieldsW[i] = 0;
+		}
 		//calculating the non-plants
 		for (int i = 0; i < grid.length; i++){
 			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
-					grid[i][k].growTimer(numberOfNeighbors(i, k));
+					int neighbors = numberOfNeighbors(i, k);
+					noFieldsW[neighbors]++;
+					grid[i][k].growTimer(neighbors);
 				} else {
 					grid[i][k].getPlant().addDieTimer(-1);
 				}

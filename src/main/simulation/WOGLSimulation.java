@@ -30,6 +30,10 @@ public class WOGLSimulation {
 		initialize(windowCtrl);
 	}
 	
+	public World getWorld() {
+		return world;
+	}
+	
 	public boolean isFastForward() {
 		return fastForward;
 	}

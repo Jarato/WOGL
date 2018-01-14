@@ -109,6 +109,14 @@ public class World {
 		newCreatures.add(newC);
 	}
 	
+	public Creature getCreatureById(int id) {
+		for(int i = 0; i < creatures.size(); i++) {
+			Creature c = creatures.get(i);
+			if (c.getId() == id) return c;
+		}
+		return null;
+	}
+	
 	public synchronized void step() {
 		newCreatures.clear();
 		//Move
@@ -208,4 +216,6 @@ public class World {
 		}
 		creatures.addAll(newCreatures);
 	}
+	
+	
 }
