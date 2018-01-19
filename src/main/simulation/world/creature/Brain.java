@@ -2,14 +2,15 @@ package main.simulation.world.creature;
 
 import javafx.scene.paint.Color;
 import main.simulation.world.World;
-import pdf.ai.nnetwork.IOINeuralNet;
+import pdf.ai.nnetwork.IOIActivationNet;
+import pdf.ai.nnetwork.cell.activationfunction.Tanh;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 
-public class Brain extends IOINeuralNet {
+public class Brain extends IOIActivationNet {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 7;
-	public static final double SIGHT_RANGE = 200;
+	public static final double SIGHT_RANGE = 400;
 	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+4;
 	public static final int NUMBER_OF_INTERCELLS = 15;
 	public static final int NUMBER_OF_OUTPUTS = 9;
@@ -64,7 +65,7 @@ public class Brain extends IOINeuralNet {
 	}
 
 	public Brain(int numberOfInputCells, int numberOfInterCells, int numberOfOutputCells) {
-		super(numberOfInputCells, numberOfInterCells, numberOfOutputCells);
+		super(numberOfInputCells, numberOfInterCells, numberOfOutputCells, new Tanh());
 	}
 
 	public void applyInputMask() {

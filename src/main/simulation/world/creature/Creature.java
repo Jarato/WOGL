@@ -16,13 +16,13 @@ import pdf.util.UtilMethods;
 
 public class Creature implements Evolutionizable{
 	public static final int SPLIT_TIMER_GOBACK = 2;
-	public static final int ATTACK_COOLDOWN_BASE = 100;
+	public static final int ACTION_COOLDOWN_BASE = 50;
 	public static final double ATTACK_DMG = 10;
 	public static final double MUTATION_RATE = 0.03;
 	public static final double MUTATION_STRENGTH = 0.1;
-	public static final double ENERGY_GAIN_ATTACK = 10;
-	public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final int STARTAGE_OF_DECAY = 8000;
+	public static final double ENERGY_GAIN_ATTACK = 5;
+	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
+	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 125;
 	// FIXED
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
@@ -33,10 +33,11 @@ public class Creature implements Evolutionizable{
     // CHANGING WITH AGE
     private double age_digestionDivider;
     private double age_splitTimerDivider;
-    private double age_healDivider;
+    private double age_healParam;
     private double age_moveAccDivider;
     private double age_rotateAccDivider;
     private double age_LineColorDivider;
+    private int startage_of_decay;
     
     private int age;
     // CHANGING
@@ -44,6 +45,7 @@ public class Creature implements Evolutionizable{
     private boolean attackingActive;
     private boolean splittingActive;
     private double splitTimer;
+    private int eatCooldownTimer;
     private int attackCooldownTimer;
    
     private ArrayList<Integer> childrenId;
@@ -87,7 +89,7 @@ public class Creature implements Evolutionizable{
     private void initDecayValues() {
     	age_digestionDivider = 1;
     	age_splitTimerDivider = 1;
-    	age_healDivider = 1;
+    	age_healParam = 0;
     	age_moveAccDivider = 1;
     	age_rotateAccDivider = 1;
     	age_LineColorDivider = 1;
@@ -115,13 +117,13 @@ public class Creature implements Evolutionizable{
     
     public void doAge() {
     	age++;
-    	if (age > STARTAGE_OF_DECAY && age%10 == 0) {
-    		double overDecayTime = age-STARTAGE_OF_DECAY;
-    		age_digestionDivider = 1 + overDecayTime/10000.0;
-    		age_splitTimerDivider = 1 + overDecayTime/30000.0;
-    		age_healDivider = 1 + overDecayTime/15000.0;
-    		age_moveAccDivider = 1 + overDecayTime/15000.0;
-    		age_rotateAccDivider = 1 + overDecayTime/10000.0;
+    	if (age > startage_of_decay && age%10 == 0) {
+    		double overDecayTime = age-startage_of_decay;
+    		age_digestionDivider = 1 + overDecayTime/20000.0;
+    		age_splitTimerDivider = 1 + overDecayTime/10000.0;
+    		age_healParam = overDecayTime/10000.0;
+    		age_moveAccDivider = 1 + overDecayTime/6000.0;
+    		age_rotateAccDivider = 1 + overDecayTime/6000.0;
     		age_LineColorDivider = 1 + overDecayTime/15000.0;
     	}
     }
@@ -142,6 +144,10 @@ public class Creature implements Evolutionizable{
     
     public double getSplitTimer() {
     	return splitTimer;
+    }
+    
+    public int getStartAgeOfDecay() {
+    	return startage_of_decay;
     }
 
     @Override
@@ -197,6 +203,7 @@ public class Creature implements Evolutionizable{
         int split= brain.getNumberOfNeededGenes();
         brain.compoundDNA(this.dna.getSequence(0, split));
         body.compoundDNA(this.dna.getSequence(split, body.getNumberOfNeededGenes()));
+        startage_of_decay = (int)(Math.pow(body.getRadius(), 2)*STARTAGE_OF_DECAY_RADIUS_FACTOR);
     }
 
     public void workBrain(World theWorld) {
@@ -219,6 +226,7 @@ public class Creature implements Evolutionizable{
     	if (foodType == 1) {
     		this.body.changeStomachContent(this.body.getCarnivore_eff()*foodValue/age_digestionDivider);
     	}
+    	eatCooldownTimer = ACTION_COOLDOWN_BASE;
     }
 
     private void workEyes(World theWorld) {
@@ -251,6 +259,19 @@ public class Creature implements Evolutionizable{
                         if (mask.eyesInputCreature[whichEye].getX() > distance) {
                         	mask.eyesInputCreature[whichEye].set(distance, crt.body.getColor());
                         }
+                    }
+                }
+            }
+        }
+        //Seeing cadavers
+        ArrayList<Cadaver> cadaverList = theWorld.getCadavers();
+        for (Cadaver cad: cadaverList) {
+        	if (this.body.inRangeOf(cad, Brain.SIGHT_RANGE+this.getBody().getRadius()+cad.getRadius())) {
+                int whichEye = getViewArea(this.body.angleTo(cad));
+                if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
+                    double distance = this.body.edgeDistanceTo(cad);
+                    if (mask.eyesInputCreature[whichEye].getX() > distance) {
+                    	mask.eyesInputCreature[whichEye].set(distance, cad.getColor());
                     }
                 }
             }
@@ -291,21 +312,7 @@ public class Creature implements Evolutionizable{
     }
 
     private int getViewArea(double angle) {
-    	//int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()+360.0/body.getSightAreaWidth())%(360.0/body.getSightAreaWidth()));
     	int res = (int) Math.floor(((angle-(body.getRotationAngle()-body.getSightAngle()/2.0) + 360)%360)/body.getSightAreaWidth());
-    	
-    	//int res = (int)(Math.floor((angle-(body.getRotationAngle()-body.getSightAngle()/2.0))/body.getSightAreaWidth()));
-    	/*if (res == -1) {
-    		System.out.println("angle: "+angle+"\trotation: "+this.body.getRotationAngle());
-    		System.out.println("rotation-MAX_ANGLE/2: "+(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0));
-    		System.out.println("angle - (rotation-MAX_ANGLE/2): "+(angle-(this.body.getRotationAngle()-Brain.SIGHT_MAXANGLE/2.0)));
-    		try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}*/
         return res;
     }
 
@@ -341,24 +348,28 @@ public class Creature implements Evolutionizable{
     	splittingActive = (interpretedOutput[5] == 1?true:false);
     	//ENERGY & LIFE CHANGE
     	if (body.getStomach().getX() == 0) {
-    		body.changeLife(-LIFE_LOSS_NO_ENERGY);
+    		body.changeLife(-this.body.getHealAmountBase()*(age_healParam+1));
     	}
     	body.changeStomachContent(-body.getEnergyLossBase());
     	if (interpretedOutput[0] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
     	if (interpretedOutput[1] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
     	if (interpretedOutput[2] > 0) body.changeStomachContent(-body.getEnergyLossRot()); 	
-    	if (body.getLife().getX() < body.getLife().getY() && body.getStomach().getX() > 0) { //automatic healing
+    	if (body.getStomach().getX() > 0) { //automatic healing
     		body.changeStomachContent(-this.body.getEnergyLossHeal());
-    		body.changeLife(this.body.getHealAmount()/age_healDivider);
+    		double stomach_percent = this.body.getStomach().getX() / this.body.getStomach().getY();
+    		body.changeLife(this.body.getHealAmountBase()*(Math.sqrt(stomach_percent)/(age_healParam+1)+(age_healParam*stomach_percent - age_healParam)));
     	}
     	body.checkLifeBounds();
     	body.checkStomachBounds();
     	workActionTimer(theWorld);
-    //if (id == 0) System.out.println(body.getRotationAngle()+"\t"+body.getRotationVelocity());
     }
     
     private void workActionTimer(World theWorld)  {
-    	if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
+    	if (eatCooldownTimer > 0) {
+    		eatingActive = false;
+    		eatCooldownTimer--;
+    	}
+    	//if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
     	if (body.getLife().getX() < body.getLife().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() < body.getStomach().getY()/2.0) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
@@ -377,7 +388,7 @@ public class Creature implements Evolutionizable{
     	attackCooldownTimer--;
     	if (attackCooldownTimer > 0) attackingActive = false;
     	if (attackingActive) {
-    		attackCooldownTimer = ATTACK_COOLDOWN_BASE;
+    		attackCooldownTimer = ACTION_COOLDOWN_BASE;
     		body.changeStomachContent(-this.body.getEnergyLossAttack());
     	}
     }

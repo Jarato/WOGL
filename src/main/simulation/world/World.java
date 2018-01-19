@@ -6,6 +6,7 @@ import java.util.Random;
 
 import javafx.scene.paint.Color;
 import main.simulation.world.creature.Body;
+import main.simulation.world.creature.Cadaver;
 import main.simulation.world.creature.Creature;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
@@ -14,12 +15,13 @@ public class World {
 	//CONSTS
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final Color WALL_COLOR = Color.GRAY;
-	public static final double SIZE = 2000;
+	public static final double SIZE = 3000;
 	public static final int NUMBER_OF_STARTING_CREATURES = 100;
 	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
 	//ATTRIBUTES
 	private final ArrayList<Creature> creatures;
 	private final HashSet<Creature> newCreatures;
+	private final ArrayList<Cadaver> cadavers;
 	private final PlantGrid plantGrid;
 	private final Random randomizer;
 	private final long worldSeed;
@@ -31,6 +33,7 @@ public class World {
 		randomizer = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(randomizer);
+		cadavers = new ArrayList<Cadaver>();
 	}
 
 	public World(long seed) {
@@ -39,6 +42,7 @@ public class World {
 		randomizer = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(randomizer);
+		cadavers = new ArrayList<Cadaver>();
 	}
 	
 	public void initilize() {		
@@ -61,6 +65,10 @@ public class World {
 		}
 		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);
+	}
+	
+	public ArrayList<Cadaver> getCadavers(){
+		return cadavers;
 	}
 	
 	public Pair<Double,Double> getRandomWorldPosition(double spacing){
@@ -145,6 +153,16 @@ public class World {
 				//	}
 				}
 			}
+			//collision with cadavers
+			if (creatures.get(i).eats()) {
+				for (int j = 0; j < cadavers.size(); j++) {
+					Cadaver cad = cadavers.get(j);
+					if (b1.inRangeOf(cad, b1.getRadius()+cad.getRadius())) {
+						creatures.get(i).digest(Cadaver.DIGESTION_VALUE, 1);
+						cad.takeMass(Cadaver.EATEN_PER_BITE);
+					}
+				}
+			}
 			//collision with walls
 			if(b1.getXCoordinate()<b1.getRadius()) {
 				b1.setXCoordinate(b1.getRadius());
@@ -201,10 +219,21 @@ public class World {
 			}
 	
 		}
+		HashSet<Cadaver> decayedCadavers = new HashSet<Cadaver>();
+		//Cadavers decaying
+		for (Cadaver cad: cadavers) {
+			cad.decay();
+			if (cad.decayed()) {
+				decayedCadavers.add(cad);
+			}
+		}
+		cadavers.removeAll(decayedCadavers);
+		//Dead creature calculations
 		HashSet<Creature> deadCreatures = new HashSet<Creature>();
 		for (int i = 0; i < creatures.size(); i++) {
 			if (!creatures.get(i).isAlive()) {
 				deadCreatures.add(creatures.get(i));
+				cadavers.add(creatures.get(i).getBody().createCadaver());
 			}
 		}
 		creatures.removeAll(deadCreatures);

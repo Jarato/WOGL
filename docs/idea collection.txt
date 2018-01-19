@@ -1,0 +1,45 @@
+full version 1 (idea collection)
+dnaD = dna-Dependency
+
+Creature
+(1) Species detection (mean shift clustering)
+(2) Sexual System (Petri-Net like structure)
+(3) Cling-System (Creatures can cling to plants, rocks and other creatures)
+
+Body
+(4) Oval Shaping (dnaD)
+(5) Armor (Anglearea) (dnaD)
+(6) Number of viewareas (dnaD)
+(7) View-Maxdistance depending on night and day (dnaD)
+(8) movement efficiency (water/land) + pure aquatic and land-based creatures.
+(9) Energy-resource
+		stomach-content fills up energy
+		energy is used to move/attack/eat/split/etc.
+		age decay lowers the efficiency and speed of conversion between food and energy
+
+Brain
+(10) number of intercells depending on dna (dna-structure similarity calculation)
+(11) neuron malfunction through age-decay
+
+World
+(12) Night&Day (-> (7))
+(13) Water
+(14) Plants lightly dna-dependent (better near water or further away) + pure aquatic and land-based plants. 
+		- Color
+		- Size
+		- Stages?
+
+Simulation
+(15) option to follow selected creatures
+
+Statistics
+(16) Speciohistogram
+		split-history and longlivity of species
+		numberstrength depending on history-time
+		
+
+Technical
+(17) Quadtrees for collision detection and vision calculation
+(18) two way plant growth calculations
+(19) plant system calculation only every x steps
+(20) Brain calculation optimization through matrix-calculations.

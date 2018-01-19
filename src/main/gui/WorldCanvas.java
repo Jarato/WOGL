@@ -8,6 +8,7 @@ import javafx.scene.shape.ArcType;
 import main.simulation.world.Plant;
 import main.simulation.world.World;
 import main.simulation.world.creature.Body;
+import main.simulation.world.creature.Cadaver;
 import main.simulation.world.creature.Brain.InputMask;
 import main.simulation.world.creature.Creature;
 import main.simulation.world.PlantGrid.PlantBox;
@@ -159,45 +160,52 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.fillRect(0, 0, getWidth(), getHeight());
 		gc.strokeRect(xWorldBound,yWorldBound, World.SIZE*zoomD, World.SIZE*zoomD);
 		if (world != null) {
-			
 			checkGeneticSimilarity();
-		PlantBox[][] pGrid = world.getPlantGrid().getGrid();
-		for (int i = 0; i < pGrid.length; i++) {
-			for (int j = 0; j < pGrid[0].length; j++) {
-				Plant p = pGrid[i][j].getPlant();
-				if (p != null) {
-					fillCircle(gc,p,Plant.COLOR);
+			// PLANTS
+			PlantBox[][] pGrid = world.getPlantGrid().getGrid();
+			for (int i = 0; i < pGrid.length; i++) {
+				for (int j = 0; j < pGrid[0].length; j++) {
+					Plant p = pGrid[i][j].getPlant();
+					if (p != null) {
+						fillCircle(gc,p,Plant.COLOR);
+					}
 				}
 			}
-		}
-		ArrayList<Creature> creatures = world.getCreatures();
-		for (int i = 0; i < creatures.size(); i++) {
-			Creature c = creatures.get(i);
-			Body b = c.getBody();
-			if (c.getId()==selectedId) {	
-				drawSelectedCreature(gc, c);
+			// CADAVERS
+			ArrayList<Cadaver> cadavers = world.getCadavers();
+			for (int i = 0; i < cadavers.size(); i++) {
+				Cadaver cad = cadavers.get(i);
+				fillCircle(gc, cad, cad.getColor(), Color.GRAY);
 			}
-			
-			//BODY
-			gc.setLineWidth(2);
-			int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
-			fillCircle(gc,b,b.getColor(), Color.rgb(line_colorVal, line_colorVal, line_colorVal));
-			gc.setLineWidth(1);
-			// MOUTH
-			if (c.eats()) {
-				gc.setFill(Color.BLACK);
+			// CREATURES
+			ArrayList<Creature> creatures = world.getCreatures();
+			for (int i = 0; i < creatures.size(); i++) {
+				Creature c = creatures.get(i);
+				Body b = c.getBody();
+				if (c.getId()==selectedId) {	
+					drawSelectedCreature(gc, c);
+				}
+				//BODY
+				gc.setLineWidth(2);
+				int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+				Color age_color = Color.rgb(line_colorVal, line_colorVal, line_colorVal);
+				fillCircle(gc,b,b.getColor(), age_color);
+				gc.setLineWidth(1);
+				// MOUTH
+				if (c.eats()) {
+					gc.setFill(age_color);
+					double length = b.getRadius();
+					double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
+					gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, b.getRadius()*2*zoomD, length*2*zoomD, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
+				}
+				gc.setStroke(age_color);
+				double rotationRadians = Math.toRadians(b.getRotationAngle());
 				double length = b.getRadius();
-				double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
-				gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, b.getRadius()*2*zoomD, length*2*zoomD, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
+				// SPIKE+DIRECTION
+				if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
+				gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);	
+				gc.setStroke(Color.BLACK);
 			}
-			gc.setStroke(Color.BLACK);
-			double rotationRadians = Math.toRadians(b.getRotationAngle());
-			double length = b.getRadius();
-			// SPIKE+DIRECTION
-			if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
-			gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);
-			
-		}
 		}
 	}
 	
@@ -265,6 +273,8 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.strokeText("herbivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getHerbivore_eff(),2)), xpos, ypos);
 		ypos += 15;
 		gc.strokeText("carnivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getCarnivore_eff(),2)), xpos, ypos);
+		ypos += 15;
+		gc.strokeText("StartAgeOfDecay: "+String.valueOf(c.getStartAgeOfDecay()), xpos, ypos);
 		ypos += 15;
 		gc.strokeText("speed: "+String.valueOf(UtilMethods.roundTo(UtilMethods.point2DLength(c.getBody().getVelocity()), 2)), xpos, ypos);
 		ypos += 15;

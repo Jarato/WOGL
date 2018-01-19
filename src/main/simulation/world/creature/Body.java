@@ -28,7 +28,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double SPIKE_LENGTH_PERCENT = 1.5;
 	//CONSTS - ACTIONS
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
-	public static final double SPLIT_TIMER_RADIUS_FACTOR = 50;
+	public static final double SPLIT_TIMER_RADIUS_FACTOR = 5;
 	
 	
 	//ATTRIBUTES
@@ -59,7 +59,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     private double energyLossAttack;
     private double energyLossHeal;
 	//Other
-    private double healAmount;
+    private double healAmount_base;
     //ACTIVE
 	private double rotationAngle;
     private double rotationVelocity;
@@ -80,8 +80,13 @@ public class Body extends CollisionCircle implements Evolutionizable{
         rotationAngle = 0;
     }
     
-    public double getHealAmount() {
-    	return healAmount;
+    public Cadaver createCadaver() {
+    	Cadaver ret = new Cadaver(this.radius, this.getXCoordinate(), this.getYCoordinate(), this.radius*this.radius*Cadaver.RADIUS_MASS_MULTIPLIER, color);
+    	return ret;
+    }
+    
+    public double getHealAmountBase() {
+    	return healAmount_base;
     }
     
     public double getEnergyLossAttack() {
@@ -252,15 +257,15 @@ public class Body extends CollisionCircle implements Evolutionizable{
         rotationAcceleration = 5.0/t;
         moveAcceleration = 0.1/t;//0.09/t+0.0004;
         moveBreakValue = 0.895 + this.radius/150.0;
-        splitTimerBase = (int)Math.round(this.radius * SPLIT_TIMER_RADIUS_FACTOR);
+        splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.0015+0.005;
-        energyLossAcc = baseline *0.008;
-        energyLossRot = baseline *0.001;
+        energyLossBase = baseline*0.006+0.002; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.005+0.0002;
+        energyLossRot = baseline *0.002;
         energyLossAttack = baseline * 0.05;
-        energyLossHeal = baseline * 0.005;
-        healAmount = baseline * 0.03;
+        energyLossHeal = baseline * 0.004;
+        healAmount_base = baseline * 0.065+0.002;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);

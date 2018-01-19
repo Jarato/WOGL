@@ -131,7 +131,7 @@ public class PlantGrid {
 				if (grid[i][k].getPlant() == null){
 					if (grid[i][k].checkGrowth()) numberOfLivingPlants++;
 				} else {
-					if (grid[i][k].getPlant().plantDelete()) {
+					if (grid[i][k].getPlant().plantDead()) {
 						grid[i][k].deletePlant();
 						numberOfLivingPlants--;
 					}
