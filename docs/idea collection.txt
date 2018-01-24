@@ -43,3 +43,4 @@ Technical
 (18) two way plant growth calculations
 (19) plant system calculation only every x steps
 (20) Brain calculation optimization through matrix-calculations.
+(21) OpenGL for showing the world
