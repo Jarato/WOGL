@@ -101,6 +101,18 @@ public class Body_Test {
 		body.checkStomachBounds();
 		assertEquals(body.getStomach().getY(), body.getStomach().getX(), 0.0001);
 	}
+	
+	@Test
+	public void testCalculateAngleRotation() {
+		Body bodyTest = new Body(0,0,0);
+		bodyTest.setRotationAngle(90);
+		Body bodyOther = new Body(0, 0, 10);
+		assertEquals(0, bodyTest.calculateAngleToRotation(bodyOther), 0.0001);
+		bodyTest.setRotationAngle(0);
+		assertEquals(90, bodyTest.calculateAngleToRotation(bodyOther), 0.0001);
+		bodyOther.setCoordinates(-10, 0);
+		assertEquals(180, bodyTest.calculateAngleToRotation(bodyOther), 0.0001);
+	}
 
 	@Test
 	public void testChangeLife() {

@@ -11,6 +11,8 @@ public class Brain extends IOIActivationNet {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 7;
 	public static final double SIGHT_RANGE = 400;
+	public static final int NUMBER_OF_COLLISION_DETECTION_AREAS = 6;
+	public static final double COLLISION_DETECTION_AREA_ANGLE = 360.0/NUMBER_OF_COLLISION_DETECTION_AREAS;
 	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+4;
 	public static final int NUMBER_OF_INTERCELLS = 15;
 	public static final int NUMBER_OF_OUTPUTS = 9;
@@ -23,6 +25,7 @@ public class Brain extends IOIActivationNet {
     	public final Pair<Double, Color>[] eyesInputPlant = new Pair[NUMBER_OF_SIGHT_AREAS];
     	public final Pair<Double, Color>[] eyesInputCreature = new Pair[NUMBER_OF_SIGHT_AREAS];
     	public final Pair<Double, Color>[] eyesInputWall = new Pair[NUMBER_OF_SIGHT_AREAS];
+    	public double[] collision = new double[NUMBER_OF_COLLISION_DETECTION_AREAS];
         public boolean gotHurt = false;
         public double stomachPercent = 1.0;
         public double lifePercent = 1.0;
@@ -50,12 +53,12 @@ public class Brain extends IOIActivationNet {
         	for (int i = 0; i < eyesInputPlant.length; i++) {
         		eyesInputWall[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
         	}
-        	
         }
-        public void resetGotHurt() {
-         	gotHurt = false;
-         }
-  
+        
+        public void reset_Col_GotHurt() {
+        	gotHurt = false;
+        	collision = new double[NUMBER_OF_COLLISION_DETECTION_AREAS];
+        }
     }
 
 	private final InputMask inputMask = new InputMask();
@@ -106,6 +109,10 @@ public class Brain extends IOIActivationNet {
 	        pos++;
 	        setInputValue(pos, 1.0-inputMask.eyesInputWall[i].getY().getBlue());
 	        pos++;
+		}
+		for (int i = 0; i < inputMask.collision.length; i++) {
+			setInputValue(pos, inputMask.collision[i]);
+			pos++;
 		}
 	    setInputValue(pos, 1.0-inputMask.stomachPercent);
 	    setInputValue(pos+1, 1.0-inputMask.lifePercent);

@@ -10,11 +10,11 @@ import pdf.util.UtilMethods;
 import simulation.world.creature.Body;
 import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
+import simulation.world.environment.Rock;
 
 public class World {
 	//CONSTS
 	public static final Color NOTHING_COLOR = Color.WHITE;
-	public static final Color WALL_COLOR = Color.GRAY;
 	public static final double SIZE = 3000;
 	public static final int NUMBER_OF_STARTING_CREATURES = 100;
 	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
@@ -143,13 +143,14 @@ public class World {
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
 			c.move();
-			c.getBrain().getInputMask().resetGotHurt();
+			c.getBrain().getInputMask().reset_Col_GotHurt();
 			c.getBody().resetSlowPercent();
 			c.doAge();
 		}
 		//Collision
 		for (int i = 0; i < creatures.size(); i++) {
-			Body b1 = creatures.get(i).getBody();
+			Creature c1 = creatures.get(i);
+			Body b1 = c1.getBody();
 			//collision with other creatures
 			for (int j = i+1; j < creatures.size(); j++) {
 				//if (i != j) {
@@ -162,6 +163,8 @@ public class World {
 						vector.set(vector.getX()*factor, vector.getY()*factor);
 						b1.move(-vector.getX(), -vector.getY());
 						b2.move(vector.getX(), vector.getY());
+						c1.calculateCollision(b2, Body.COLLISION_HARDNESS);
+						creatures.get(j).calculateCollision(b1, Body.COLLISION_HARDNESS);
 				//	}
 				}
 			}
@@ -174,19 +177,24 @@ public class World {
 						cad.takeMass(Cadaver.EATEN_PER_BITE);
 					}
 					b1.mulSlowPercent(cad.calculateSlow(b1.getRadius()));
+					c1.calculateCollision(cad, Cadaver.COLLISION_HARDNESS);
 				}
 			}
 		
-			//collision with walls
+			//collision with world-bounds
 			if(b1.getXCoordinate()<b1.getRadius()) { // left side
 				b1.setXCoordinate(b1.getRadius());
+				c1.calculateCollision(new Pair<Double,Double>(0.0,b1.getYCoordinate()), Rock.COLLISION_HARDNESS);
 			} else if (b1.getXCoordinate()>SIZE-b1.getRadius()) { // right side
 				b1.setXCoordinate(SIZE-b1.getRadius());
+				c1.calculateCollision(new Pair<Double,Double>(World.SIZE,b1.getYCoordinate()), Rock.COLLISION_HARDNESS);
 			}
 			if(b1.getYCoordinate()<b1.getRadius()) { // top side
 				b1.setYCoordinate(b1.getRadius());
+				c1.calculateCollision(new Pair<Double,Double>(b1.getXCoordinate(),0.0), Rock.COLLISION_HARDNESS);
 			} else if (b1.getYCoordinate()>SIZE-b1.getRadius()) { // bottom side
 				b1.setYCoordinate(SIZE-b1.getRadius());
+				c1.calculateCollision(new Pair<Double,Double>(b1.getXCoordinate(),World.SIZE), Rock.COLLISION_HARDNESS);
 			}
 			//collision with plants
 			if (creatures.get(i).eats()) {

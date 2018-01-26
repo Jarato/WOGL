@@ -16,8 +16,8 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double SIGHTANGLE_MIN = 40;
 	public static final double SIGHTANGLE_MAX = 300;
 	public static final double STOMACH_LIFE_MIN_PERCENT = 0.2;
-	public static final double VORE_CUTOFF = 0.9;
-	public static final double VORE_PURE_EFF = 1.2;
+	public static final double VORE_CUTOFF = 0.95;
+	public static final double VORE_PURE_EFF = 1.1;
 	public static final double OVER_EATING_BUFFER = 0.1;
 	public static final double OVER_EATING_DMG = 0.2;
 	//CONSTS - MOVEMENT
@@ -30,7 +30,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
 	public static final double SPLIT_TIMER_RADIUS_FACTOR = 10;
 	
-	
+	public static final double COLLISION_HARDNESS = 0.5;
 	//ATTRIBUTES
 
     private DNA dna;
@@ -85,6 +85,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
     public Cadaver createCadaver() {
     	Cadaver ret = new Cadaver(this.radius, this.getXCoordinate(), this.getYCoordinate(), this.radius*this.radius*Cadaver.RADIUS_MASS_MULTIPLIER, color);
     	return ret;
+    }
+    
+    public void setRotationAngle(double rotValue) {
+    	rotationAngle = rotValue;
+    }
+    
+    public double calculateAngleToRotation(Pair<Double,Double> toPoint) {
+    	return this.angleTo(toPoint) - rotationAngle;
     }
     
     public void mulSlowPercent(double value) {
@@ -278,7 +286,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
         splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.0075+0.001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossBase = baseline*0.008;//+0.001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
         energyLossAcc = baseline *0.006+0.0001;
         energyLossRot = baseline *0.0025;
         energyLossAttack = baseline * 0.05;

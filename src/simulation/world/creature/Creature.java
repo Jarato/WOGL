@@ -13,6 +13,7 @@ import simulation.world.Plant;
 import simulation.world.PlantGrid.PlantBox;
 import simulation.world.World;
 import simulation.world.creature.Brain.InputMask;
+import simulation.world.environment.Rock;
 
 public class Creature implements Evolutionizable{
 	public static final int SPLIT_TIMER_GOBACK = 2;
@@ -23,6 +24,7 @@ public class Creature implements Evolutionizable{
 	public static final double ENERGY_GAIN_ATTACK = 5;
 	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
 	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 160;
+	
 	// FIXED
 	private final Body body;
     private final Brain brain = new Brain(Brain.NUMBER_OF_INPUTS, Brain.NUMBER_OF_INTERCELLS, Brain.NUMBER_OF_OUTPUTS);
@@ -309,7 +311,7 @@ public class Creature implements Evolutionizable{
             	distance = Math.sqrt(distance);
             }
             if (mask.eyesInputWall[i].getX() > distance) {
-            	mask.eyesInputWall[i].set(distance, World.WALL_COLOR);
+            	mask.eyesInputWall[i].set(distance, Rock.COLOR);
             }
         }
     }
@@ -317,6 +319,17 @@ public class Creature implements Evolutionizable{
     private int getViewArea(double angle) {
     	int res = (int) Math.floor(((angle-(body.getRotationAngle()-body.getSightAngle()/2.0) + 360)%360)/body.getSightAreaWidth());
         return res;
+    }
+    
+    private int getCollisionArea(double angle) {
+    	int res = (int) Math.floor(((angle-(body.getRotationAngle()-brain.COLLISION_DETECTION_AREA_ANGLE/2.0) + 360)%360)/Brain.COLLISION_DETECTION_AREA_ANGLE);
+    	return res;
+    }
+    
+    public void calculateCollision(Pair<Double,Double> colPoint, double hardness) {
+    	int areaIndex = getCollisionArea(body.angleTo(colPoint));
+    	InputMask im = brain.getInputMask();
+    	im.collision[areaIndex] = Math.max(im.collision[areaIndex], hardness);
     }
 
     public void workBody(World theWorld) {

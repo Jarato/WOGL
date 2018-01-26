@@ -13,6 +13,7 @@ import simulation.world.Plant;
 import simulation.world.PlantGrid.PlantBox;
 import simulation.world.World;
 import simulation.world.creature.Body;
+import simulation.world.creature.Brain;
 import simulation.world.creature.Brain.InputMask;
 import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
@@ -107,7 +108,7 @@ public class WorldCanvas extends ResizableCanvas {
 	
 	public void setSelectedId(int newId) {
 		if (newId == selectedId) {
-			whichEyes = (whichEyes+1)%3;
+			whichEyes = (whichEyes+1)%4;
 		} else {
 			selectedId = newId;
 			checkGeneticSimilarity();
@@ -233,7 +234,14 @@ public class WorldCanvas extends ResizableCanvas {
 				double length = mask.eyesInputWall[e].getX()+b.getRadius();
 				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
 				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
-			}		
+			}
+		break;
+		case 3:
+			for (int e = 0; e < mask.collision.length; e++) {
+				double length = b.getRadius()*2;
+				double angle = b.getRotationAngle()-Brain.COLLISION_DETECTION_AREA_ANGLE/2.0+Brain.COLLISION_DETECTION_AREA_ANGLE*(e+1);
+				drawViewArc(gc,b,length,angle, Brain.COLLISION_DETECTION_AREA_ANGLE, Color.hsb(0, 0, 1-mask.collision[e]));
+			}
 		}
 		Creature minDifC = world.getCreatureById(minDifId.getX());
 		double xPosMinDif = 0;
