@@ -163,6 +163,7 @@ public class WorldCanvas extends ResizableCanvas {
 		if (world != null) {
 			checkGeneticSimilarity();
 			// PLANTS
+			gc.setStroke(Color.BLACK);
 			PlantBox[][] pGrid = world.getPlantGrid().getGrid();
 			for (int i = 0; i < pGrid.length; i++) {
 				for (int j = 0; j < pGrid[0].length; j++) {
@@ -214,6 +215,7 @@ public class WorldCanvas extends ResizableCanvas {
 		Body b = c.getBody();
 		//Vision-Test
 		InputMask mask = c.getBrain().getInputMask();
+		gc.setStroke(Color.BLACK);
 		switch(whichEyes) {
 		case 0: 
 			for (int e = 0; e < mask.eyesInputPlant.length; e++) {

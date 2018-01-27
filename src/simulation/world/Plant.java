@@ -10,7 +10,7 @@ public class Plant extends CollisionCircle {
 	public static final int BASE_GROW_TIME = 18000;
 	public static final int BASE_DIE_TIME = 25000;
 	public static final int GROWTIMER_NO_NEIGHBOR_UPDATE = 10;
-	public static final double COLLISION_HARDNESS = 0.5;
+	public static final double COLLISION_HARDNESS = 1.0/3.0;
 	
 	private double dieTimer;
 

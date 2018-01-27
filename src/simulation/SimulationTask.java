@@ -8,7 +8,7 @@ import gui.WorldWindowCtrl;
 import simulation.world.World;
 
 public class SimulationTask implements Runnable{
-	public static final int NUMBER_OF_STEPS_PER_DRAW = 1;
+	public static final int NUMBER_OF_STEPS_PER_DRAW = 3;
 	
 	
 	private World world;

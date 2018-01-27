@@ -30,7 +30,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
 	public static final double SPLIT_TIMER_RADIUS_FACTOR = 10;
 	
-	public static final double COLLISION_HARDNESS = 0.5;
+	public static final double COLLISION_HARDNESS = 2.0/3.0;
 	//ATTRIBUTES
 
     private DNA dna;

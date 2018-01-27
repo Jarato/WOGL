@@ -197,16 +197,18 @@ public class World {
 				c1.calculateCollision(new Pair<Double,Double>(b1.getXCoordinate(),World.SIZE), Rock.COLLISION_HARDNESS);
 			}
 			//collision with plants
-			if (creatures.get(i).eats()) {
-				Pair<Integer,Integer> upLeft = getPlantGridPosition(b1.getXCoordinate()-b1.getRadius()-Plant.RADIUS,b1.getYCoordinate()-b1.getRadius()-Plant.RADIUS);
-				Pair<Integer,Integer> downRight = getPlantGridPosition(b1.getXCoordinate()+b1.getRadius()+Plant.RADIUS,b1.getYCoordinate()+b1.getRadius()+Plant.RADIUS);
-				for (int w = upLeft.getX(); w <= downRight.getX(); w++) {
-					for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
-						Plant p = plantGrid.getGrid()[w][h].getPlant();
-						if (p != null && b1.edgeDistanceTo(p) < 0) {
+			
+			Pair<Integer,Integer> upLeft = getPlantGridPosition(b1.getXCoordinate()-b1.getRadius()-Plant.RADIUS,b1.getYCoordinate()-b1.getRadius()-Plant.RADIUS);
+			Pair<Integer,Integer> downRight = getPlantGridPosition(b1.getXCoordinate()+b1.getRadius()+Plant.RADIUS,b1.getYCoordinate()+b1.getRadius()+Plant.RADIUS);
+			for (int w = upLeft.getX(); w <= downRight.getX(); w++) {
+				for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
+					Plant p = plantGrid.getGrid()[w][h].getPlant();
+					if (p != null && b1.edgeDistanceTo(p) < 0) {
+						c1.calculateCollision(p, Plant.COLLISION_HARDNESS);	
+						if (creatures.get(i).eats()) {
 							plantGrid.removePlant(w,h);
 							creatures.get(i).digest(Plant.EATEN_VALUE, 0);
-						}
+						}		
 					}
 				}
 			}

@@ -11,10 +11,11 @@ public class Brain extends IOIActivationNet {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 7;
 	public static final double SIGHT_RANGE = 400;
-	public static final int NUMBER_OF_COLLISION_DETECTION_AREAS = 6;
+	public static final int NUMBER_OF_COLLISION_DETECTION_AREAS = 4;
 	public static final double COLLISION_DETECTION_AREA_ANGLE = 360.0/NUMBER_OF_COLLISION_DETECTION_AREAS;
-	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+4;
-	public static final int NUMBER_OF_INTERCELLS = 15;
+	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+NUMBER_OF_COLLISION_DETECTION_AREAS+4;
+	//    3 (view-kind: creature, plant, rock) * 4 (information: r,g,b + distance) *NUMBER_OF_SIGHT_AREAS + NUMBER_OF_COLLISION_DETECTION_AREAS + 4 (stomach, life, hurt, velocity)
+	public static final int NUMBER_OF_INTERCELLS = 20;
 	public static final int NUMBER_OF_OUTPUTS = 9;
 	
 	public class InputMask {
