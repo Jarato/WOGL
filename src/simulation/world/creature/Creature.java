@@ -380,7 +380,7 @@ public class Creature implements Evolutionizable{
     	splittingActive = (interpretedOutput[5] == 1?true:false);
     	//ENERGY & LIFE CHANGE
     	if (body.getStomach().getX() == 0) {
-    		body.changeLife(-this.body.getHealAmountBase()*(age_healParam+1));
+    		body.changeLife(-this.body.getHealAmountBase()*(age_healParam+5));
     	}
     	body.changeStomachContent(-body.getEnergyLossBase());
     	if (interpretedOutput[0] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
@@ -402,7 +402,7 @@ public class Creature implements Evolutionizable{
     		eatCooldownTimer--;
     	}
     	//if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
-    	if (body.getLife().getX() < body.getLife().getY()*0.5) splittingActive = false;
+    	if (body.getLife().getX() < body.getLife().getY()*0.75) splittingActive = false;
     	if (body.getStomach().getX() < body.getStomach().getY()*0.5) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
     		attackingActive = false;

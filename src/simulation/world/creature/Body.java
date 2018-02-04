@@ -286,12 +286,12 @@ public class Body extends CollisionCircle implements Evolutionizable{
         splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.007 + 0.0005; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
-        energyLossAcc = baseline *0.0055 + 0.001;
+        energyLossBase = baseline*0.006 + 0.0005; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.005 + 0.001;
         energyLossRot = baseline *0.002;
-        energyLossAttack = baseline * 0.03;
-        energyLossHeal = baseline * 0.003;
-        healAmount_base = baseline * 0.07+0.002;
+        energyLossAttack = baseline * 0.5;
+        energyLossHeal = baseline * 0.005;
+        healAmount_base = baseline * 0.08+0.002;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);

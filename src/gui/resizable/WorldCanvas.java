@@ -223,6 +223,11 @@ public class WorldCanvas extends ResizableCanvas {
 		if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
 		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);	
 		gc.setStroke(Color.BLACK);
+		if (c.splits()) {
+			double radius = b.getRadius()*0.3;
+			gc.setFill(Color.WHITE);
+			gc.fillOval(xWorldBound+(b.getXCoordinate()-radius)*zoomD, yWorldBound+(b.getYCoordinate()-radius)*zoomD, radius*2*zoomD, radius*2*zoomD);
+		}
 	}
 	
 	private void drawSelectedCreature(GraphicsContext gc, SelectedCreatureInfo sci) {
