@@ -6,7 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import gui.WorldCanvas;
+import gui.resizable.WorldCanvas;
 import gui.WorldWindowCtrl;
 import simulation.WOGLSimulation;
 
@@ -36,6 +36,7 @@ public class WOGL extends Application{
 	@Override
 	public void start(Stage stage) throws Exception {
 		guiInitialize(stage);
+		//long seed = 1853386138547355417l;
 		simulation = new WOGLSimulation(control);
 		simulation.startSimulation();
 		control.setWOGLSimulation(simulation);
@@ -50,12 +51,7 @@ public class WOGL extends Application{
 			root = (Parent) loader.load();
 			control = (WorldWindowCtrl) loader.getController();
 			if (control == null) System.out.println("Control-Class is null");
-			WorldCanvas wcanvas = new WorldCanvas();
-			Pane pane = control.getWorldCanvasPane();
-			control.setWorldCanvas(wcanvas);
-			pane.getChildren().add(wcanvas);
-			wcanvas.widthProperty().bind(pane.widthProperty());
-			wcanvas.heightProperty().bind(pane.heightProperty());
+			control.initGuiNodes();
 	
 			Scene scene = new Scene(root);
 

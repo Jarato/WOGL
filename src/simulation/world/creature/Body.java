@@ -19,7 +19,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double VORE_CUTOFF = 0.95;
 	public static final double VORE_PURE_EFF = 1.1;
 	public static final double OVER_EATING_BUFFER = 0.1;
-	public static final double OVER_EATING_DMG = 0.2;
+	public static final double OVER_EATING_DMG = 0.4;
 	//CONSTS - MOVEMENT
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
@@ -28,7 +28,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double SPIKE_LENGTH_PERCENT = 1.5;
 	//CONSTS - ACTIONS
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
-	public static final double SPLIT_TIMER_RADIUS_FACTOR = 10;
+	public static final double SPLIT_TIMER_RADIUS_FACTOR = 8;
 	
 	public static final double COLLISION_HARDNESS = 2.0/3.0;
 	//ATTRIBUTES
@@ -286,12 +286,12 @@ public class Body extends CollisionCircle implements Evolutionizable{
         splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR);
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.008;//+0.001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
-        energyLossAcc = baseline *0.006+0.0001;
-        energyLossRot = baseline *0.0025;
-        energyLossAttack = baseline * 0.05;
-        energyLossHeal = baseline * 0.004;
-        healAmount_base = baseline * 0.065+0.002;
+        energyLossBase = baseline*0.007 + 0.0005; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.0055 + 0.001;
+        energyLossRot = baseline *0.002;
+        energyLossAttack = baseline * 0.03;
+        energyLossHeal = baseline * 0.003;
+        healAmount_base = baseline * 0.07+0.002;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);

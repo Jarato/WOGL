@@ -26,7 +26,6 @@ public class FPSTask extends TimerTask{
 				// TODO Auto-generated method stub
 				control.updateFPSLabel(frames);
 				frames = 0;
-				control.updateCreaturePlantCount();
 			}
 			
 		});

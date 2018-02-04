@@ -14,16 +14,17 @@ import simulation.world.PlantGrid.PlantBox;
 import simulation.world.World;
 import simulation.world.creature.Brain.InputMask;
 import simulation.world.environment.Rock;
+import simulation.world.environment.RockSystem;
 
 public class Creature implements Evolutionizable{
 	public static final int SPLIT_TIMER_GOBACK = 2;
 	public static final int ACTION_COOLDOWN_BASE = 50;
-	public static final double ATTACK_DMG = 20;
-	public static final double MUTATION_RATE = 0.03;
+	public static final double ATTACK_DMG = 25;
+	public static final double MUTATION_RATE = 0.05;
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_GAIN_ATTACK = 5;
 	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 160;
+	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 150;
 	
 	// FIXED
 	private final Body body;
@@ -281,22 +282,23 @@ public class Creature implements Evolutionizable{
                 }
             }
         }
-        //Seeing walls
+        //Seeing walls/rocks
         double angleBase = this.body.getRotationAngle()-(body.getSightAngle()/2.0)+(body.getSightAreaWidth()/2.0); //Base, the middle of the 8
         for (int i = 0; i < brain.getInputMask().eyesInputWall.length; i++) {
             double angleRadians = Math.toRadians(UtilMethods.rotate360(angleBase+i*body.getSightAreaWidth()));
             Pair<Double,Double> vector = new Pair<Double,Double>(Math.cos(angleRadians), Math.sin(angleRadians));
+            //Seeing world-bounds
             double distanceX = Double.MAX_VALUE;
             double distanceY = Double.MAX_VALUE;
             if (vector.getX() > 0) {
-                distanceX = (World.SIZE-this.body.getXCoordinate()-this.body.getRadius());
+                distanceX = (World.SIZE-this.body.getXCoordinate());
             } else if (vector.getX() < 0) {
-                distanceX = Math.abs((this.body.getXCoordinate()-this.body.getRadius()));
+                distanceX = Math.abs((this.body.getXCoordinate()));
             }
             if (vector.getY() > 0) {
-                distanceY = (World.SIZE-this.body.getYCoordinate()-this.body.getRadius());
+                distanceY = (World.SIZE-this.body.getYCoordinate());
             } else if (vector.getY() < 0) {
-                distanceY = Math.abs((this.body.getYCoordinate()-this.body.getRadius()));
+                distanceY = Math.abs((this.body.getYCoordinate()));
             }
             double distance;
             if (vector.getX() == 0) {
@@ -308,10 +310,23 @@ public class Creature implements Evolutionizable{
 
             	double tempXDistance = distanceY/vector.getY()*vector.getX();
             	distance = Math.min(tempYDistance*tempYDistance+distanceX*distanceX, distanceY*distanceY+tempXDistance*tempXDistance);
-            	distance = Math.sqrt(distance);
+            	distance = Math.sqrt(distance) - body.getRadius();
             }
+          
+            
             if (mask.eyesInputWall[i].getX() > distance) {
             	mask.eyesInputWall[i].set(distance, Rock.COLOR);
+            }
+            //Seeing rocks
+            RockSystem rockSys = theWorld.getRockSystem();
+            double[] bodyP = new double[] {body.getXCoordinate(), body.getYCoordinate()};
+            double[] visionLine = new double[] {vector.getX(), vector.getY()};
+            visionLine = UtilMethods.vectorAddition(bodyP, UtilMethods.vectorSkalar(visionLine, Brain.SIGHT_RANGE+body.getRadius()));
+        
+            Pair<double[],Double> res = rockSys.getClosestLineIntersec(bodyP, visionLine);
+            double rockDist = res.getY()-body.getRadius();
+            if (mask.eyesInputWall[i].getX() > rockDist) {
+            	mask.eyesInputWall[i].set(rockDist, Rock.COLOR);
             }
         }
     }
@@ -387,8 +402,8 @@ public class Creature implements Evolutionizable{
     		eatCooldownTimer--;
     	}
     	//if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
-    	if (body.getLife().getX() < body.getLife().getY()/2.0) splittingActive = false;
-    	if (body.getStomach().getX() < body.getStomach().getY()/2.0) splittingActive = false;
+    	if (body.getLife().getX() < body.getLife().getY()*0.5) splittingActive = false;
+    	if (body.getStomach().getX() < body.getStomach().getY()*0.5) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
     		attackingActive = false;
     	}

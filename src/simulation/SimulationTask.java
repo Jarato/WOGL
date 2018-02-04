@@ -8,7 +8,7 @@ import gui.WorldWindowCtrl;
 import simulation.world.World;
 
 public class SimulationTask implements Runnable{
-	public static final int NUMBER_OF_STEPS_PER_DRAW = 3;
+	public static final int NUMBER_OF_STEPS_PER_DRAW = 1;
 	
 	
 	private World world;
@@ -33,7 +33,6 @@ public class SimulationTask implements Runnable{
 					world.step();
 				}
 				control.getWorldCanvas().draw();
-				displayUserInterface();
 				fpsTask.addFrame();
 				return null;
 			}
@@ -50,11 +49,6 @@ public class SimulationTask implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-	}
-	
-	private void displayUserInterface() {
-		control.displayCreatureCount(world.getNumberOfCreatures());
-		control.displayPlantCount(world.getNumberOfPlants());
 	}
 
 }

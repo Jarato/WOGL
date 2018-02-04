@@ -11,20 +11,28 @@ import simulation.world.creature.Body;
 import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
 import simulation.world.environment.Rock;
+import simulation.world.environment.RockSystem;
+import statistic.Statistic;
+import statistic.StatisticManager;
+import statistic.Datapack.DATATYPE;
 
 public class World {
 	//CONSTS
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final double SIZE = 3000;
-	public static final int NUMBER_OF_STARTING_CREATURES = 100;
+	public static final int NUMBER_OF_STARTING_CREATURES = 50;
 	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
+	public static final int STEP_PER_STAT_UPDATE = 100;
 	//ATTRIBUTES
+	private final RockSystem rockSys;
 	private final ArrayList<Creature> creatures;
 	private final HashSet<Creature> newCreatures;
 	private final ArrayList<Cadaver> cadavers;
 	private final PlantGrid plantGrid;
 	private final Random randomizer;
 	private final long worldSeed;
+	private final Statistic creature_count_stat;
+	private final Statistic plant_count_stat;
 	private int nextId;
 	private int maxGen;
 	private long step;
@@ -36,8 +44,13 @@ public class World {
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(randomizer);
 		cadavers = new ArrayList<Cadaver>();
+		rockSys = new RockSystem(randomizer);
 		maxGen = 0;
 		step = 0;
+		creature_count_stat = StatisticManager.createStatistic("creature count");
+		plant_count_stat = StatisticManager.createStatistic("plant count");
+		creature_count_stat.addDataByMethod(this, "getNumberOfCreatures", DATATYPE.INTEGER);
+		plant_count_stat.addDataByMethod(plantGrid, "getNumberOfLivingPlants", DATATYPE.INTEGER);
 	}
 
 	public World(long seed) {
@@ -47,12 +60,18 @@ public class World {
 		creatures = new ArrayList<Creature>();
 		plantGrid = new PlantGrid(randomizer);
 		cadavers = new ArrayList<Cadaver>();
+		rockSys = new RockSystem(randomizer);
 		maxGen = 0;
 		step = 0;
+		creature_count_stat = StatisticManager.createStatistic("creature count");
+		plant_count_stat = StatisticManager.createStatistic("plant count");
+		creature_count_stat.addDataByMethod(this, "getNumberOfCreatures", DATATYPE.INTEGER);
+		plant_count_stat.addDataByMethod(plantGrid, "getNumberOfLivingPlants", DATATYPE.INTEGER);
 	}
 	
 	public void initialize() {		
 		nextId = 0;
+		rockSys.createTestRock();
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
 			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.MAX_RADIUS);
 			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), randomizer);
@@ -67,10 +86,24 @@ public class World {
 		for (int i = 0; i < NUMBER_OF_STARTING_PLANTS; i++) {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
 			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
-			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant().setDieTimer(randomizer.nextInt((int)(Plant.BASE_DIE_TIME*0.5))+Plant.BASE_DIE_TIME*0.5);
+			Plant p = plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant();
+			if (rockSys.checkInBounds(p)) {
+				plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].deletePlant();
+			} else {
+				plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant().setDieTimer(randomizer.nextInt((int)(Plant.BASE_DIE_TIME*0.5))+Plant.BASE_DIE_TIME*0.5);
+			}	
 		}
 		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Worldseed: "+worldSeed);
+	}
+	
+	public void gatherWorldStepStats() {
+		creature_count_stat.observe();
+		plant_count_stat.observe();
+	}
+	
+	public RockSystem getRockSystem() {
+		return rockSys;
 	}
 	
 	public ArrayList<Cadaver> getCadavers(){
@@ -137,6 +170,8 @@ public class World {
 		return null;
 	}
 	
+	
+	
 	public synchronized void step() {
 		newCreatures.clear();
 		//Move
@@ -196,8 +231,23 @@ public class World {
 				b1.setYCoordinate(SIZE-b1.getRadius());
 				c1.calculateCollision(new Pair<Double,Double>(b1.getXCoordinate(),World.SIZE), Rock.COLLISION_HARDNESS);
 			}
-			//collision with plants
+			// ROCK SYSTEM
+			Pair<double[], Double> res = rockSys.getClosestPointTo(b1);
+			double[] cp = res.getX();
+			double shiftDist = b1.getRadius()-res.getY();
+			double[] vecCon = new double[] { cp[0] - b1.getXCoordinate(), cp[1] - b1.getYCoordinate() };
+			//check for inbounds of rocks
+			if (rockSys.checkInBounds(b1)) {
+				double[] shiftVec = UtilMethods.vectorSkalar(vecCon, (b1.getRadius()+res.getY())/res.getY());
+				b1.setCoordinates(b1.getXCoordinate() + shiftVec[0], b1.getYCoordinate() + shiftVec[1]);
+			} else if (res.getY() < b1.getRadius()) { //collision with rocks
+				double[] shiftVec = UtilMethods.vectorSkalar(vecCon, shiftDist/res.getY());
+				b1.setCoordinates(b1.getXCoordinate() - shiftVec[0], b1.getYCoordinate() - shiftVec[1]);
+				c1.calculateCollision(new Pair<Double,Double>(cp[0],cp[1]), Rock.COLLISION_HARDNESS);
+			}
 			
+			
+			//collision with plants
 			Pair<Integer,Integer> upLeft = getPlantGridPosition(b1.getXCoordinate()-b1.getRadius()-Plant.RADIUS,b1.getYCoordinate()-b1.getRadius()-Plant.RADIUS);
 			Pair<Integer,Integer> downRight = getPlantGridPosition(b1.getXCoordinate()+b1.getRadius()+Plant.RADIUS,b1.getYCoordinate()+b1.getRadius()+Plant.RADIUS);
 			for (int w = upLeft.getX(); w <= downRight.getX(); w++) {
@@ -261,7 +311,7 @@ public class World {
 			}
 		}
 		creatures.removeAll(deadCreatures);
-		plantGrid.calculateGrowth();
+		plantGrid.calculateGrowth(rockSys);
 		//Input & Output
 		for (int i = 0; i < creatures.size(); i++) {
 			Creature c = creatures.get(i);
@@ -270,6 +320,10 @@ public class World {
 		}
 		creatures.addAll(newCreatures);
 		step++;
+		if (step%STEP_PER_STAT_UPDATE == 0) {
+			creature_count_stat.observe();
+			plant_count_stat.observe();
+		}
 	}
 	
 	

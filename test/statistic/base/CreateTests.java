@@ -6,7 +6,9 @@ import java.lang.reflect.Method;
 import org.junit.Test;
 
 import simulation.world.World;
-import statistic.base.Datapack.DATATYPE;
+import statistic.Statistic;
+import statistic.StatisticManager;
+import statistic.Datapack.DATATYPE;
 
 public class CreateTests {
 

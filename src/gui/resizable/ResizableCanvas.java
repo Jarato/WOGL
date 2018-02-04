@@ -1,4 +1,4 @@
-package gui;
+package gui.resizable;
 
 import javafx.scene.canvas.Canvas;
 

@@ -1,9 +1,9 @@
-package statistic.base;
+package statistic;
 
 import java.util.ArrayList;
 
 import simulation.world.World;
-import statistic.base.Datapack.DATATYPE;
+import statistic.Datapack.DATATYPE;
 
 /**
  * @author Pagad
@@ -48,7 +48,7 @@ public class Statistic {
 	 * 			DATATYPE.DOUBLE
 	 */
 	
-	public void addDataByMethode(Object o, String methodeName, DATATYPE data) {
+	public void addDataByMethod(Object o, String methodeName, DATATYPE data) {
 		DataList.add(new Datapack(methodeName,o, data));
 	}
 	
@@ -67,7 +67,7 @@ public class Statistic {
 	 * 			DATATYPE.DOUBLE
 	 */
 	public void addData(Object o, String VariableName,DATATYPE data) {
-		addDataByMethode(o,VariableName,data);		
+		addDataByMethod(o,VariableName,data);		
 	}
 	
 	public String toTable() {

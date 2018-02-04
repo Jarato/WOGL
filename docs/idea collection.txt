@@ -21,6 +21,9 @@ Brain
 (10) number of intercells depending on dna (dna-structure similarity calculation)
 (11) neuron malfunction through age-decay
 
+DNA
+(12) mutation pressure. each gene gets a hereditable value of mutation propability. The DNA itself decides how likely what gene changes.
+
 World
 (12) Night&Day (-> (7))
 (13) Water

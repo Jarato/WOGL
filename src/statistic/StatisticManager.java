@@ -1,7 +1,7 @@
 /**
  * 
  */
-package statistic.base;
+package statistic;
 
 import java.util.ArrayList;
 

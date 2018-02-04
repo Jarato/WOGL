@@ -71,50 +71,42 @@ public class Brain extends IOIActivationNet {
 	public Brain(int numberOfInputCells, int numberOfInterCells, int numberOfOutputCells) {
 		super(numberOfInputCells, numberOfInterCells, numberOfOutputCells, new Tanh());
 	}
+	
+	private int setEyeInput(int pos, Pair<Double, Color> eyeInput) {
+		double temp = (SIGHT_RANGE-eyeInput.getX())/SIGHT_RANGE;
+		setInputValue(pos, temp*temp);
+		pos++;
+		Color seenC = eyeInput.getY();
+        setInputValue(pos, 1.0-seenC.getHue());
+        pos++;
+        setInputValue(pos, 1.0-seenC.getSaturation());
+        pos++;
+        setInputValue(pos, 1.0-seenC.getBrightness());
+        pos++;
+		
+		return pos;
+	}
 
 	public void applyInputMask() {
 		int pos = 0;
 		for (int i = 0; i < inputMask.eyesInputPlant.length; i++) {
-			//distance
-			double temp = (SIGHT_RANGE-inputMask.eyesInputPlant[i].getX())/SIGHT_RANGE;
-			setInputValue(pos, temp*temp);
-			pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputPlant[i].getY().getRed());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputPlant[i].getY().getGreen());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputPlant[i].getY().getBlue());
-	        pos++;
+			// PLANTS
+			pos = setEyeInput(pos,inputMask.eyesInputPlant[i]);
 		}
 		for (int i = 0; i < inputMask.eyesInputCreature.length; i++) {
-			//distance
-			double temp = (SIGHT_RANGE-inputMask.eyesInputCreature[i].getX())/SIGHT_RANGE;
-			setInputValue(pos, temp*temp);
-			pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputCreature[i].getY().getRed());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputCreature[i].getY().getGreen());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputCreature[i].getY().getBlue());
-	        pos++;
+			// CREATURES
+			pos = setEyeInput(pos,inputMask.eyesInputCreature[i]);		
 		}
-		for (int i = 0; i < inputMask.eyesInputPlant.length; i++) {
-			//distance
-			pos= i*4;
-			double temp = (SIGHT_RANGE-inputMask.eyesInputWall[i].getX())/SIGHT_RANGE;
-			setInputValue(pos, temp*temp);
-			pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputWall[i].getY().getRed());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputWall[i].getY().getGreen());
-	        pos++;
-	        setInputValue(pos, 1.0-inputMask.eyesInputWall[i].getY().getBlue());
-	        pos++;
+		for (int i = 0; i < inputMask.eyesInputWall.length; i++) {
+			// WALLS
+			pos = setEyeInput(pos,inputMask.eyesInputWall[i]);
 		}
 		for (int i = 0; i < inputMask.collision.length; i++) {
+			// COLLISION
 			setInputValue(pos, inputMask.collision[i]);
 			pos++;
 		}
+		// OTHER
 	    setInputValue(pos, 1.0-inputMask.stomachPercent);
 	    setInputValue(pos+1, 1.0-inputMask.lifePercent);
 	    setInputValue(pos+2, (inputMask.gotHurt?1.0:0.0));

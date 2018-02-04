@@ -1,7 +1,7 @@
 /**
  * 
  */
-package statistic.base;
+package statistic;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -57,6 +57,10 @@ public  class Datapack {
 	 */
 	public String getList(int i) {
 		return datalist.get(i)+"";
+	}
+	
+	public Object getData(int i){
+		return datalist.get(i);
 	}
 
 	/**

@@ -1,12 +1,15 @@
-package gui;
+package gui.resizable;
 
 import java.util.ArrayList;
 
+import gui.SelectedCreatureInfo;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import pdf.ai.dna.DNA;
 import pdf.simulation.CollisionCircle;
+import pdf.simulation.Point2D;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 import simulation.world.Plant;
@@ -17,16 +20,16 @@ import simulation.world.creature.Brain;
 import simulation.world.creature.Brain.InputMask;
 import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
+import simulation.world.environment.Rock;
 
 public class WorldCanvas extends ResizableCanvas {
 	//CONSTS
 	public static final double MAX_ZOOM = 50;
 	public static final double ZOOM_SPEED = 1/200.0;
-	public static final double CREATURE_MOUTH_ANGLE = 20;
+	public static final double CREATURE_MOUTH_ANGLE = 25;
 	
 	//ATTRIBUTES
 	private World world;
-	private int selectedId = -1;
 	/*
 	 * 0 = Plants
 	 * 1 = Creatures
@@ -41,21 +44,31 @@ public class WorldCanvas extends ResizableCanvas {
 	private double zoomD;
 	private Pair<Double,Double> dragStartMPos = new Pair<Double,Double>(0.0,0.0);
 	private Pair<Double,Double> dragStartWPos = new Pair<Double,Double>(0.0,0.0);
-	private Pair<Integer,Double> minDifId = new Pair<Integer,Double>(-1,0.0);
-	private Pair<Integer,Double> maxDifId = new Pair<Integer,Double>(-1,0.0);
+	private SelectedCreatureInfo sci;
 	
 	public void setWorld(World newWorld) {
 		world = newWorld;
 	}
 	
-	public int getIdOfPosition(double x, double y) {
+	public void initZoomDragValues() {
+		double min = Math.min(getWidth(), getHeight());
+		zoomD = min/World.SIZE;
+		xWorldBound = Math.max((getWidth()-World.SIZE*zoomD)/2.0,0.0);
+		yWorldBound = Math.max((getHeight()-World.SIZE*zoomD)/2.0,0.0);
+	}
+	
+	public void setSelectedCreatureInfo(SelectedCreatureInfo setSci) {
+		sci = setSci;
+	}
+	
+	public Creature getCreatureOnPosition(double x, double y) {
 		ArrayList<Creature> creatures = world.getCreatures();	
 		for (int i = 0; i < creatures.size(); i++) {
 			if (creatures.get(i).getBody().distanceTo(getWorldPositionOf(x, y))<creatures.get(i).getBody().getRadius()) {
-				return creatures.get(i).getId();
+				return creatures.get(i);
 			}
 		}
-		return -1;
+		return null;
 	}
 	
 	public Pair<Double,Double> getWorldPositionOf(double x, double y){
@@ -98,70 +111,59 @@ public class WorldCanvas extends ResizableCanvas {
 	}
 	
 	private void checkWorldOutputPosition() {
-		double xtra = Math.max(0, getWidth()-World.SIZE*zoomD);
-		double ytra = Math.max(0, getHeight()-World.SIZE*zoomD);
+		double drawSize = World.SIZE;
+		double xtra = Math.max(getWidth()*0.5, getWidth()-drawSize*zoomD);
+		double ytra = Math.max(getHeight()*0.5, getHeight()-drawSize*zoomD);
 		if (xWorldBound > xtra) xWorldBound = xtra;
-		if (xWorldBound < getWidth()-World.SIZE*zoomD-xtra) xWorldBound = getWidth()-World.SIZE*zoomD-xtra;
+		if (xWorldBound < getWidth()-drawSize*zoomD-xtra) xWorldBound = getWidth()-drawSize*zoomD-xtra;
 		if (yWorldBound > ytra) yWorldBound = ytra;
-		if (yWorldBound < getHeight()-World.SIZE*zoomD-ytra) yWorldBound = getHeight()-World.SIZE*zoomD-ytra;
+		if (yWorldBound < getHeight()-drawSize*zoomD-ytra) yWorldBound = getHeight()-drawSize*zoomD-ytra;
 	}
 	
-	public void setSelectedId(int newId) {
-		if (newId == selectedId) {
-			whichEyes = (whichEyes+1)%4;
-		} else {
-			selectedId = newId;
-			checkGeneticSimilarity();
-			whichEyes = 0;
-		}
-	}
 	
-	private void checkGeneticSimilarity() {
-		Creature selC = null;
-		ArrayList<Creature> creatures = world.getCreatures();
-		for (int i = 0; i < creatures.size(); i++) {
-			if (creatures.get(i).getId() == selectedId) selC = creatures.get(i);
-		}
-		if (selC != null) {
-			double minDif = 1;
-			double maxDif = 0;
-			int minId = -1;
-			int maxId = -1;
-			DNA selDNA = selC.getDNA();
-			for (int i = 0; i < creatures.size(); i++) {
-				if (creatures.get(i).getId() != selectedId) {
-					double diff = selDNA.percentageDifference(creatures.get(i).getDNA());
-					if (diff > maxDif) {
-						maxDif = diff;
-						maxId = creatures.get(i).getId();
-					}
-					if (diff < minDif) {
-						minDif = diff;
-						minId = creatures.get(i).getId();
-					}
-				}
-			}
-			minDifId.set(minId, minDif);
-			maxDifId.set(maxId, maxDif);
-		}
-	}
 	
 	@Override
 	public void draw() {
 		if (getWidth() != oldWidth || getHeight() != oldHeight) {
 			oldHeight = getHeight();
 			oldWidth = getWidth();
-			double min = Math.min(getWidth(), getHeight());
-			zoomD = min/World.SIZE;
-			xWorldBound = Math.max((getWidth()-World.SIZE*zoomD)/2.0,0.0) ;
-			yWorldBound = Math.max((getHeight()-World.SIZE*zoomD)/2.0,0.0) ;
+		}
+		if (sci == null) System.out.println("SCI IS NULL");
+		if (sci.isFollowSelected()) {
+			Creature c = sci.getCreature();
+			Body b = c.getBody();	
+			xWorldBound = -b.getXCoordinate()*zoomD+getWidth()/2.0;
+			yWorldBound = -b.getYCoordinate()*zoomD+getHeight()/2.0;
 		}
 		GraphicsContext gc = this.getGraphicsContext2D();
-		gc.setFill(Color.WHITE);
+		gc.setFill(Rock.COLOR);
 		gc.fillRect(0, 0, getWidth(), getHeight());
+		gc.setFill(Color.WHITE);
+		gc.fillRect(xWorldBound,yWorldBound, World.SIZE*zoomD, World.SIZE*zoomD);
 		gc.strokeRect(xWorldBound,yWorldBound, World.SIZE*zoomD, World.SIZE*zoomD);
 		if (world != null) {
-			checkGeneticSimilarity();
+			// ROCKS
+			Rock[] rocks = world.getRockSystem().getRocks();
+			gc.setStroke(Color.BLACK);
+			gc.setFill(Rock.COLOR);
+			for (int i = 0; i < rocks.length; i++) {
+				double[] xPo = rocks[i].getWorldPoints().getX();
+				double[] yPo = rocks[i].getWorldPoints().getY();
+				double[] xsPo = new double[xPo.length];
+				double[] ysPo = new double[yPo.length];
+				for (int k = 0; k < xPo.length; k++) {
+					xsPo[k] = xWorldBound + xPo[k]*zoomD;
+					ysPo[k] = yWorldBound + yPo[k]*zoomD;
+				}
+				gc.fillPolygon(xsPo, ysPo, xsPo.length);
+				gc.strokePolygon(xsPo, ysPo, xsPo.length);
+				// rectangle round rocks
+				double x = xWorldBound + rocks[i].getTopLeftBound().getX()*zoomD;
+				double y = yWorldBound + rocks[i].getTopLeftBound().getY()*zoomD;
+				double w = (rocks[i].getBottomRightBound().getX()-rocks[i].getTopLeftBound().getX())*zoomD;
+				double h = (rocks[i].getBottomRightBound().getY()-rocks[i].getTopLeftBound().getY())*zoomD;
+				//gc.strokeRect(x, y, w, h);
+			}
 			// PLANTS
 			gc.setStroke(Color.BLACK);
 			PlantBox[][] pGrid = world.getPlantGrid().getGrid();
@@ -173,6 +175,7 @@ public class WorldCanvas extends ResizableCanvas {
 					}
 				}
 			}
+			
 			// CADAVERS
 			ArrayList<Cadaver> cadavers = world.getCadavers();
 			for (int i = 0; i < cadavers.size(); i++) {
@@ -183,146 +186,123 @@ public class WorldCanvas extends ResizableCanvas {
 			ArrayList<Creature> creatures = world.getCreatures();
 			for (int i = 0; i < creatures.size(); i++) {
 				Creature c = creatures.get(i);
-				Body b = c.getBody();
-				if (c.getId()==selectedId) {	
-					drawSelectedCreature(gc, c);
+				drawCreatureBody(gc, c);
+			}
+			//Creature selC = sci.getCreature();
+			if ( sci.getCreature() != null) {
+				if (sci.getCreature().isAlive()) { 
+					drawSelectedCreature(gc, sci);
+					sci.getRessourceCanvas().draw();
+				} else {
+					sci.initInfo(null);
+					sci.getwControl().setSelectedPaneVisibility(false);
 				}
-				//BODY
-				gc.setLineWidth(2);
-				int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
-				Color age_color = Color.rgb(line_colorVal, line_colorVal, line_colorVal);
-				fillCircle(gc,b,b.getColor(), age_color);
-				gc.setLineWidth(1);
-				// MOUTH
-				if (c.eats()) {
-					gc.setFill(age_color);
-					double length = b.getRadius();
-					double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
-					gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, b.getRadius()*2*zoomD, length*2*zoomD, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
-				}
-				gc.setStroke(age_color);
-				double rotationRadians = Math.toRadians(b.getRotationAngle());
-				double length = b.getRadius();
-				// SPIKE+DIRECTION
-				if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
-				gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);	
-				gc.setStroke(Color.BLACK);
 			}
 		}
 	}
 	
-	private void drawSelectedCreature(GraphicsContext gc, Creature c) {
+	private void drawCreatureBody(GraphicsContext gc, Creature c) {
 		Body b = c.getBody();
-		//Vision-Test
-		InputMask mask = c.getBrain().getInputMask();
+		//BODY
+		gc.setLineWidth(2);
+		int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+		Color age_color = Color.rgb(line_colorVal, line_colorVal, line_colorVal);
+		fillCircle(gc,b,b.getColor(), age_color);
+		gc.setLineWidth(1);
+		// MOUTH
+		if (c.eats()) {
+			gc.setFill(age_color);
+			double length = b.getRadius();
+			double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
+			gc.fillArc(xWorldBound+(b.getXCoordinate()-length)*zoomD, yWorldBound+(b.getYCoordinate()-length)*zoomD, b.getRadius()*2*zoomD, length*2*zoomD, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
+		}
+		gc.setStroke(age_color);
+		double rotationRadians = Math.toRadians(b.getRotationAngle());
+		double length = b.getRadius();
+		// SPIKE+DIRECTION
+		if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
+		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+(b.getXCoordinate()+Math.cos(rotationRadians)*length)*zoomD, yWorldBound+(b.getYCoordinate()+Math.sin(rotationRadians)*length)*zoomD);	
 		gc.setStroke(Color.BLACK);
-		switch(whichEyes) {
-		case 0: 
+	}
+	
+	private void drawSelectedCreature(GraphicsContext gc, SelectedCreatureInfo sci) {
+		sci.getwControl().updateSelectedPaneInfo();
+		Creature c = sci.getCreature();
+		Body b = c.getBody();
+		double[] bodyPoint = new double[] {b.getXCoordinate(), b.getYCoordinate()};
+		
+		InputMask mask = c.getBrain().getInputMask();
+		if (sci.isShowPlantView()) {
 			for (int e = 0; e < mask.eyesInputPlant.length; e++) {
 				double length = mask.eyesInputPlant[e].getX()+b.getRadius();
 				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
 				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputPlant[e].getY());
 			}
-		break;
-		case 1:
+		} else if (sci.isShowCreatureView()) {
 			for (int e = 0; e < mask.eyesInputCreature.length; e++) {
 				double length = mask.eyesInputCreature[e].getX()+b.getRadius();
 				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
 				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputCreature[e].getY());
-			}	
-		break;
-		case 2:
+			}
+		} else if (sci.isShowWallView()) {
 			for (int e = 0; e < mask.eyesInputWall.length; e++) {
 				double length = mask.eyesInputWall[e].getX()+b.getRadius();
-				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
-				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
+				
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+0.5);
+				double angle_radians = Math.toRadians(angle);
+				double[] endPoint = new double[] {Math.cos(angle_radians), Math.sin(angle_radians)};
+				endPoint = UtilMethods.vectorAddition(bodyPoint, UtilMethods.vectorSkalar(endPoint, length));
+				//gc.setStroke(Rock.COLOR);
+				gc.setLineWidth(2);
+				gc.strokeLine(xWorldBound + b.getXCoordinate()*zoomD, yWorldBound + b.getYCoordinate()*zoomD, xWorldBound + endPoint[0]*zoomD, yWorldBound + endPoint[1]*zoomD);
+				//drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInputWall[e].getY());
 			}
-		break;
-		case 3:
+		} else if (sci.isShowCollision()) {
 			for (int e = 0; e < mask.collision.length; e++) {
 				double length = b.getRadius()*2;
 				double angle = b.getRotationAngle()-Brain.COLLISION_DETECTION_AREA_ANGLE/2.0+Brain.COLLISION_DETECTION_AREA_ANGLE*(e+1);
 				drawViewArc(gc,b,length,angle, Brain.COLLISION_DETECTION_AREA_ANGLE, Color.hsb(0, 0, 1-mask.collision[e]));
 			}
 		}
-		Creature minDifC = world.getCreatureById(minDifId.getX());
-		double xPosMinDif = 0;
-		double yPosMinDif = 0;
-		if (minDifC != null) {
-			Body minDifB = minDifC.getBody();
-			xPosMinDif = minDifB.getXCoordinate();
-			yPosMinDif = minDifB.getYCoordinate();
-		}
-		Creature maxDifC = world.getCreatureById(maxDifId.getX());
-		double xPosMaxDif = 0;
-		double yPosMaxDif = 0;
-		if (minDifC != null) {
-			Body maxDifB = maxDifC.getBody();
-			xPosMaxDif = maxDifB.getXCoordinate();
-			yPosMaxDif = maxDifB.getYCoordinate();
-		}
+		drawCreatureBody(gc, c);
 		gc.setLineWidth(2);
-		gc.setStroke(Color.BLUE);
-		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+xPosMinDif*zoomD, yWorldBound+ yPosMinDif*zoomD);
 		gc.setStroke(Color.RED);
-		gc.strokeLine(xWorldBound+b.getXCoordinate()*zoomD, yWorldBound+b.getYCoordinate()*zoomD, xWorldBound+xPosMaxDif*zoomD, yWorldBound+yPosMaxDif*zoomD);
-		double ypos = yWorldBound+15;
-		double xpos = xWorldBound+World.SIZE*zoomD+3;
-		gc.setStroke(Color.BLACK);
+		gc.strokeOval(xWorldBound + (bodyPoint[0]-b.getRadius()*1.1)*zoomD, yWorldBound + (bodyPoint[1]-b.getRadius()*1.1)*zoomD, b.getRadius()*2.2*zoomD, b.getRadius()*2.2*zoomD);
 		gc.setLineWidth(1);
-		gc.strokeText("id: "+String.valueOf(c.getId()), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("generation: "+c.getGeneration(), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("stomach: ("+UtilMethods.roundTo(b.getStomach().getX(),2)+"/"+UtilMethods.roundTo(b.getStomach().getY(),2)+")", xpos, ypos);
-		ypos += 15;
-		gc.strokeText("life: ("+UtilMethods.roundTo(b.getLife().getX(),2)+"/"+UtilMethods.roundTo(b.getLife().getY(),2)+")", xpos, ypos);
-		ypos += 15;
-		gc.strokeText("age: "+String.valueOf(c.getAge()), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("herbivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getHerbivore_eff(),2)), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("carnivore_eff: "+String.valueOf(UtilMethods.roundTo(c.getBody().getCarnivore_eff(),2)), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("StartAgeOfDecay: "+String.valueOf(c.getStartAgeOfDecay()), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("speed: "+String.valueOf(UtilMethods.roundTo(UtilMethods.point2DLength(c.getBody().getVelocity()), 2)), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("slowPercent: "+String.valueOf(UtilMethods.roundTo(c.getBody().getSlowPercent(), 2)), xpos, ypos);
-		ypos += 15;
-		gc.strokeText("least different creature: "+minDifId.getX()+" ("+UtilMethods.roundTo(minDifId.getY()*100,2)+"%)", xpos, ypos);
-		ypos += 15;
-		gc.strokeText("most different creature: "+maxDifId.getX()+" ("+UtilMethods.roundTo(maxDifId.getY()*100,2)+"%)", xpos, ypos);
-		//ypos += 15;
-		//int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+		gc.setStroke(Color.BLACK);
 		
-		//gc.strokeText("line_colorVal: "+line_colorVal, xpos, ypos);
-		ypos += 15;
-		gc.strokeText("is attacked: "+(mask.gotHurt?"true":"false"), xpos, ypos);
-		if (c.getSplitTimer() != c.getBody().getSplitTimerBase()){
-			ypos += 15;
-			gc.strokeText("splitTimer: "+String.valueOf(Math.round(c.getSplitTimer())), xpos, ypos);
+		//Selected Panel
+		Canvas can = sci.getBodyCanvas();
+		double bodyCW = can.getWidth()/2.0;
+		double bodyCH = can.getHeight()/2.0;
+		GraphicsContext gcBody = can.getGraphicsContext2D();
+		//BODY
+		double zoom = can.getWidth()/(Body.MAX_RADIUS+1);
+		gcBody.setFill(Color.WHITE);
+		gcBody.fillRect(0, 0, can.getWidth(), can.getHeight());
+		gcBody.setLineWidth(2);
+		int line_colorVal = (int)Math.round(255.0 - 255.0/c.getLineColorDivider());
+		Color age_color = Color.rgb(line_colorVal, line_colorVal, line_colorVal);
+		gcBody.setFill(b.getColor());
+		gcBody.setStroke(age_color);
+		double xStart = bodyCW-b.getRadius()*zoom/2.0;
+		double yStart = bodyCH-b.getRadius()*zoom/2.0;
+		gcBody.fillOval(xStart, yStart, b.getRadius()*zoom, b.getRadius()*zoom);
+		gcBody.strokeOval(xStart, yStart, b.getRadius()*zoom, b.getRadius()*zoom);
+		gcBody.setLineWidth(1);
+		// MOUTH
+		if (c.eats()) {
+			gcBody.setFill(age_color);
+			double length = b.getRadius();
+			double angle = b.getRotationAngle()-CREATURE_MOUTH_ANGLE/2.0;
+			gcBody.fillArc(xStart, yStart, b.getRadius()*zoom, length*zoom, -angle, -CREATURE_MOUTH_ANGLE, ArcType.ROUND);
 		}
-		ypos += 15;
-		if (c.getParentId() == -1) {
-			gc.strokeText("parent: creator", xpos, ypos);
-		} else {
-			gc.strokeText("parent: "+c.getParentId(), xpos, ypos);
-		}
-		for (int i = 0; i < c.getChildrenIdList().size(); i++) {
-			ypos += 15;
-			gc.strokeText("child "+(i+1)+": "+c.getChildrenIdList().get(i), xpos, ypos);
-		}
-		int[] f = world.getPlantGrid().getNoFieldsW();
-		for (int i = 0; i < 9; i++) {
-			ypos += 15;
-			gc.strokeText(i+": "+f[i], xpos, ypos);
-		}
-		
-		//gc.strokeText(b.+b.getRotationAngle(), World.SIZE*Z+3, 15);
-		//gc.strokeText(String.valueOf(b.getRotationAngle()), b.getXCoordinate()*Z, b.getYCoordinate()*Z);
-		
-		
+		gcBody.setStroke(age_color);
+		double rotationRadians = Math.toRadians(b.getRotationAngle());
+		double length = b.getRadius();
+		// SPIKE+DIRECTION
+		if (c.attacks()) length *= Body.SPIKE_LENGTH_PERCENT;
+		gcBody.strokeLine(bodyCW, bodyCH, bodyCW+(Math.cos(rotationRadians)*length)*zoom/2.0, bodyCH+(Math.sin(rotationRadians)*length)*zoom/2.0);
 		/*			//PlantGrid-Test
 		double range = b.getRadius()+Plant.RADIUS;
 		Pair<Integer,Integer> upLeft = world.getPlantGridPosition(b.getXCoordinate()-range,b.getYCoordinate()-range);
@@ -333,7 +313,9 @@ public class WorldCanvas extends ResizableCanvas {
 			for (int h = upLeft.getY(); h <= downRight.getY(); h++) {
 				gc.strokeRect(w*PlantGrid.PLANTBOX_SIZE*Z, h*PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z, PlantGrid.PLANTBOX_SIZE*Z);
 			}
-		}*/
+		}
+		Pair<double[], Double> res = world.getRockSystem().getClosestPointTo(b);
+		gc.strokeLine(xWorldBound + b.getXCoordinate()*zoomD, yWorldBound + b.getYCoordinate()*zoomD, xWorldBound + res.getX()[0]*zoomD, yWorldBound + res.getX()[1]*zoomD);*/
 	}
 	
 	private void drawViewArc(GraphicsContext gc, Body b, double length, double angle, double width, Color col) {
@@ -354,5 +336,4 @@ public class WorldCanvas extends ResizableCanvas {
 		gc.fillOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
 		gc.strokeOval(xWorldBound+(circle.getXCoordinate()-circle.getRadius())*zoomD, yWorldBound+(circle.getYCoordinate()-circle.getRadius())*zoomD, circle.getRadius()*2*zoomD, circle.getRadius()*2*zoomD);
 	}
-
 }

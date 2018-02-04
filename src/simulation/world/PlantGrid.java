@@ -3,13 +3,16 @@ package simulation.world;
 import java.util.Random;
 
 import pdf.util.Pair;
+import simulation.world.environment.RockSystem;
 
 public class PlantGrid {
 	private final Random rnd;
 	
 	public class PlantBox {
+		public static final int DEAD_TIMER_BASE = 3000;
 		private final Pair<Double,Double> upperLeftCorner;
 		private double growth;
+		private int stillDeadTime;
 		private Plant plant;
 
 		public PlantBox(double upperLeftX, double upperLeftY) {
@@ -32,6 +35,10 @@ public class PlantGrid {
 			}	
 		}
 		
+		public int getStillDeadTime() {
+			return stillDeadTime;
+		}
+		
 		public boolean checkGrowth() {
 			if (this.growth < 0) {
 				growPlant();
@@ -42,7 +49,12 @@ public class PlantGrid {
 		}
 		
 		public void initTimer() {
+			this.stillDeadTime = DEAD_TIMER_BASE;
 			this.growth = Plant.BASE_GROW_TIME;
+		}
+		
+		public void lowerStillDeadTimer() {
+			stillDeadTime--;
 		}
 
 		public void deletePlant(){
@@ -60,7 +72,7 @@ public class PlantGrid {
 		}
 
 	}
-	public static final int AXIS_PLANTBOX_AMOUNT = 40;
+	public static final int AXIS_PLANTBOX_AMOUNT = 50;
 	public final static double PLANTBOX_SIZE = World.SIZE/AXIS_PLANTBOX_AMOUNT;
 	private PlantBox[][] grid;
 	private int[] noFieldsW;
@@ -110,7 +122,7 @@ public class PlantGrid {
 		return noFieldsW;
 	}
 
-	public void calculateGrowth(){
+	public void calculateGrowth(RockSystem rockSys){
 		for (int i = 0; i < 9; i++) {
 			noFieldsW[i] = 0;
 		}
@@ -118,9 +130,13 @@ public class PlantGrid {
 		for (int i = 0; i < grid.length; i++){
 			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
-					int neighbors = numberOfNeighbors(i, k);
-					noFieldsW[neighbors]++;
-					grid[i][k].growTimer(neighbors);
+					if (grid[i][k].getStillDeadTime()>0) {
+						grid[i][k].lowerStillDeadTimer();
+					} else {
+						int neighbors = numberOfNeighbors(i, k);
+						noFieldsW[neighbors]++;
+						grid[i][k].growTimer(neighbors);
+					}
 				} else {
 					grid[i][k].getPlant().addDieTimer(-1);
 				}
@@ -129,7 +145,13 @@ public class PlantGrid {
 		for (int i = 0; i < grid.length; i++){
 			for (int k = 0; k < grid[i].length; k++){
 				if (grid[i][k].getPlant() == null){
-					if (grid[i][k].checkGrowth()) numberOfLivingPlants++;
+					if (grid[i][k].checkGrowth()) {
+						if (rockSys.checkInBounds(grid[i][k].getPlant())) {
+							grid[i][k].deletePlant();
+						} else {
+							numberOfLivingPlants++;
+						}
+					}
 				} else {
 					if (grid[i][k].getPlant().plantDead()) {
 						grid[i][k].deletePlant();

@@ -11,6 +11,7 @@ import gui.WorldWindowCtrl;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import simulation.world.World;
+import statistic.StatisticManager;
 
 public class WOGLSimulation {
 	private World world;
@@ -28,8 +29,9 @@ public class WOGLSimulation {
 		world = new World(seed);
 		world.initialize();
 		initialize(windowCtrl);
+		control.getWorldCanvas().initZoomDragValues();
 	}
-	
+
 	public World getWorld() {
 		return world;
 	}
@@ -42,6 +44,7 @@ public class WOGLSimulation {
 		world = new World();
 		world.initialize();
 		initialize(windowCtrl);
+		control.getWorldCanvas().initZoomDragValues();
 	}
 	
 	public boolean isRunning() {
@@ -52,6 +55,7 @@ public class WOGLSimulation {
 		stopSimulation();
 		world = new World(seed);
 		world.initialize();
+		control.getWorldCanvas().initZoomDragValues();
 		startSimulation();
 	}
 	
@@ -59,13 +63,14 @@ public class WOGLSimulation {
 		stopSimulation();
 		world = new World();
 		world.initialize();
+		control.getWorldCanvas().initZoomDragValues();
 		startSimulation();
 	}
 	
 	public void startSimulation() {
 		if (!fastForward) {
 			simTask = new SimulationTask(world, control, fpsTask);
-			ses.scheduleAtFixedRate(simTask, 0, 30, TimeUnit.MILLISECONDS);
+			ses.scheduleAtFixedRate(simTask, 0, 10, TimeUnit.MILLISECONDS);
 		}
 		running = true;
 	}
@@ -88,7 +93,6 @@ public class WOGLSimulation {
 		try {
 			ses.awaitTermination(1, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ses = Executors.newScheduledThreadPool(1);
@@ -97,7 +101,7 @@ public class WOGLSimulation {
 	public void toggleFastForwardSimulation() {
 		if (!fastForward) {
 			stopExeService();
-			ffTask = new FastForwardTask(world, fpsTask);
+			ffTask = new FastForwardTask(world, control, fpsTask);
 			ffThread = new Thread(ffTask);
 			ffThread.start();
 			fastForward = true;
@@ -107,7 +111,7 @@ public class WOGLSimulation {
 				
 				ffThread.join();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
+
 				e.printStackTrace();
 			}
 			control.getWorldCanvas().draw();
@@ -127,7 +131,7 @@ public class WOGLSimulation {
 		fpsTask = new FPSTask(control);
 		fpsTimer = new Timer();
 		fpsTimer.scheduleAtFixedRate(fpsTask, 0, 1000);
-		ffTask = new FastForwardTask(world, fpsTask);
+		ffTask = new FastForwardTask(world, control, fpsTask);
 		this.control = control;
 		ses = Executors.newScheduledThreadPool(1);
 		running = false;
