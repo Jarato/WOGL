@@ -7,16 +7,12 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
-import pdf.ai.dna.DNA;
 import pdf.simulation.CollisionCircle;
-import pdf.simulation.Point2D;
 import pdf.util.Pair;
-import pdf.util.UtilMethods;
 import simulation.world.Plant;
 import simulation.world.PlantGrid.PlantBox;
 import simulation.world.World;
 import simulation.world.creature.Body;
-import simulation.world.creature.Brain;
 import simulation.world.creature.Brain.InputMask;
 import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
@@ -238,6 +234,13 @@ public class WorldCanvas extends ResizableCanvas {
 		
 		InputMask mask = c.getBrain().getInputMask();
 		if (sci.isShowPlantView()) {
+			for (int e = 0; e < mask.eyesInput.length; e++) {
+				double length = mask.eyesInput[e].getX()+b.getRadius();
+				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
+				drawViewArc(gc,b,length,angle, b.getSightAreaWidth(), mask.eyesInput[e].getY());
+			}
+		}
+/*		if (sci.isShowPlantView()) {
 			for (int e = 0; e < mask.eyesInputPlant.length; e++) {
 				double length = mask.eyesInputPlant[e].getX()+b.getRadius();
 				double angle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e+1);
@@ -268,7 +271,7 @@ public class WorldCanvas extends ResizableCanvas {
 				double angle = b.getRotationAngle()-Brain.COLLISION_DETECTION_AREA_ANGLE/2.0+Brain.COLLISION_DETECTION_AREA_ANGLE*(e+1);
 				drawViewArc(gc,b,length,angle, Brain.COLLISION_DETECTION_AREA_ANGLE, Color.hsb(0, 0, 1-mask.collision[e]));
 			}
-		}
+		}*/
 		drawCreatureBody(gc, c);
 		gc.setLineWidth(2);
 		gc.setStroke(Color.RED);

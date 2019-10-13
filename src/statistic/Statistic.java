@@ -2,7 +2,6 @@ package statistic;
 
 import java.util.ArrayList;
 
-import simulation.world.World;
 import statistic.Datapack.DATATYPE;
 
 /**
@@ -71,7 +70,6 @@ public class Statistic {
 	}
 	
 	public String toTable() {
-		
 		return StatisticManager.StatisticToTable(this);
 	}
 

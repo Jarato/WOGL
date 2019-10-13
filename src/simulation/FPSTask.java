@@ -2,8 +2,8 @@ package simulation;
 
 import java.util.TimerTask;
 
-import javafx.application.Platform;
 import gui.WorldWindowCtrl;
+import javafx.application.Platform;
 
 public class FPSTask extends TimerTask{
 	private volatile int frames = 0;

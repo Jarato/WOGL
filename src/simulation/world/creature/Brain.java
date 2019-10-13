@@ -9,11 +9,11 @@ import simulation.world.World;
 
 public class Brain extends IOIActivationNet {
 	//CONSTS
-	public static final int NUMBER_OF_SIGHT_AREAS = 7;
+	public static final int NUMBER_OF_SIGHT_AREAS = 11;
 	public static final double SIGHT_RANGE = 400;
 	public static final int NUMBER_OF_COLLISION_DETECTION_AREAS = 4;
 	public static final double COLLISION_DETECTION_AREA_ANGLE = 360.0/NUMBER_OF_COLLISION_DETECTION_AREAS;
-	public static final int NUMBER_OF_INPUTS = 3*4*NUMBER_OF_SIGHT_AREAS+NUMBER_OF_COLLISION_DETECTION_AREAS+4;
+	public static final int NUMBER_OF_INPUTS = 4*NUMBER_OF_SIGHT_AREAS+NUMBER_OF_COLLISION_DETECTION_AREAS+4;
 	//    3 (view-kind: creature, plant, rock) * 4 (information: r,g,b + distance) *NUMBER_OF_SIGHT_AREAS + NUMBER_OF_COLLISION_DETECTION_AREAS + 4 (stomach, life, hurt, velocity)
 	public static final int NUMBER_OF_INTERCELLS = 20;
 	public static final int NUMBER_OF_OUTPUTS = 9;
@@ -23,9 +23,7 @@ public class Brain extends IOIActivationNet {
     	 * X: distance<br>
     	 * Y: color
     	 */
-    	public final Pair<Double, Color>[] eyesInputPlant = new Pair[NUMBER_OF_SIGHT_AREAS];
-    	public final Pair<Double, Color>[] eyesInputCreature = new Pair[NUMBER_OF_SIGHT_AREAS];
-    	public final Pair<Double, Color>[] eyesInputWall = new Pair[NUMBER_OF_SIGHT_AREAS];
+    	public final Pair<Double, Color>[] eyesInput = new Pair[NUMBER_OF_SIGHT_AREAS];
     	public double[] collision = new double[NUMBER_OF_COLLISION_DETECTION_AREAS];
         public boolean gotHurt = false;
         public double stomachPercent = 1.0;
@@ -33,26 +31,14 @@ public class Brain extends IOIActivationNet {
         public double movementSpeed = 0;
         
         private InputMask() {
-        	for (int i = 0; i < eyesInputPlant.length; i++) {
-        		eyesInputPlant[i] = new Pair<Double, Color>(0.0,Color.WHITE);
-        	}
-        	for (int i = 0; i < eyesInputCreature.length; i++) {
-        		eyesInputCreature[i] = new Pair<Double, Color>(0.0,Color.WHITE);
-        	}
-        	for (int i = 0; i < eyesInputPlant.length; i++) {
-        		eyesInputWall[i] = new Pair<Double, Color>(0.0,Color.WHITE);
+        	for (int i = 0; i < eyesInput.length; i++) {
+        		eyesInput[i] = new Pair<Double, Color>(0.0,Color.WHITE);
         	}
         }
         
         public void resetEyesInput() {
-        	for (int i = 0; i < eyesInputPlant.length; i++) {
-        		eyesInputPlant[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
-        	}
-        	for (int i = 0; i < eyesInputCreature.length; i++) {
-        		eyesInputCreature[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
-        	}
-        	for (int i = 0; i < eyesInputPlant.length; i++) {
-        		eyesInputWall[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
+        	for (int i = 0; i < eyesInput.length; i++) {
+        		eyesInput[i].set(SIGHT_RANGE,World.NOTHING_COLOR);
         	}
         }
         
@@ -77,11 +63,11 @@ public class Brain extends IOIActivationNet {
 		setInputValue(pos, temp*temp);
 		pos++;
 		Color seenC = eyeInput.getY();
-        setInputValue(pos, 1.0-seenC.getHue());
+        setInputValue(pos, 1.0-seenC.getRed());
         pos++;
-        setInputValue(pos, 1.0-seenC.getSaturation());
+        setInputValue(pos, 1.0-seenC.getGreen());
         pos++;
-        setInputValue(pos, 1.0-seenC.getBrightness());
+        setInputValue(pos, 1.0-seenC.getBlue());
         pos++;
 		
 		return pos;
@@ -89,17 +75,9 @@ public class Brain extends IOIActivationNet {
 
 	public void applyInputMask() {
 		int pos = 0;
-		for (int i = 0; i < inputMask.eyesInputPlant.length; i++) {
+		for (int i = 0; i < inputMask.eyesInput.length; i++) {
 			// PLANTS
-			pos = setEyeInput(pos,inputMask.eyesInputPlant[i]);
-		}
-		for (int i = 0; i < inputMask.eyesInputCreature.length; i++) {
-			// CREATURES
-			pos = setEyeInput(pos,inputMask.eyesInputCreature[i]);		
-		}
-		for (int i = 0; i < inputMask.eyesInputWall.length; i++) {
-			// WALLS
-			pos = setEyeInput(pos,inputMask.eyesInputWall[i]);
+			pos = setEyeInput(pos,inputMask.eyesInput[i]);
 		}
 		for (int i = 0; i < inputMask.collision.length; i++) {
 			// COLLISION
@@ -107,10 +85,10 @@ public class Brain extends IOIActivationNet {
 			pos++;
 		}
 		// OTHER
-	    setInputValue(pos, 1.0-inputMask.stomachPercent);
-	    setInputValue(pos+1, 1.0-inputMask.lifePercent);
-	    setInputValue(pos+2, (inputMask.gotHurt?1.0:0.0));
-	    setInputValue(pos+3, inputMask.movementSpeed);
+	    setInputValue(pos, 1.0-inputMask.stomachPercent); //STOMACH
+	    setInputValue(pos+1, 1.0-inputMask.lifePercent);  //LIFE
+	    setInputValue(pos+2, (inputMask.gotHurt?1.0:0.0)); //GOT HURT
+	    setInputValue(pos+3, 1);		//CONSTANT
 	}
 
 

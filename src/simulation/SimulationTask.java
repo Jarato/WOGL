@@ -3,8 +3,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import javafx.application.Platform;
 import gui.WorldWindowCtrl;
+import javafx.application.Platform;
 import simulation.world.World;
 
 public class SimulationTask implements Runnable{

@@ -8,8 +8,8 @@ public class Cadaver extends CollisionCircle{
 	public static final double MASS_DECAY_PERCENT = 0.001;
 	public static final double MASS_DECAY_STATIC = 0.1;
 	public static final double SATURATION_DECAY_PER_STEP = 0.01;
-	public static final double DIGESTION_VALUE = 25;
-	public static final double EATEN_PER_BITE = 50;
+	public static final double DIGESTION_VALUE = 10;
+	public static final double EATEN_PER_BITE = 10;
 	public static final double COLLISION_HARDNESS = 1.0/3.0;
 	// PRIVATE
 	private static final double WALKOVER_SLOW_MIN = 0.1;
@@ -45,7 +45,7 @@ public class Cadaver extends CollisionCircle{
 		mass -= decay;
 		decay_age++;
 		double color_decay = 1+decay_age*SATURATION_DECAY_PER_STEP;
-		color = Color.hsb(initC.getHue(), initC.getSaturation()/color_decay, initC.getBrightness());
+		color = Color.hsb(initC.getHue(), initC.getSaturation()/color_decay, 1-(1-initC.getBrightness())/color_decay);
 	}
 	
 	public double takeMass(double value) {

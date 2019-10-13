@@ -14,12 +14,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double MIN_RADIUS = 3.0;
 	public static final double MAX_RADIUS = 15.0;
 	public static final double SIGHTANGLE_MIN = 40;
-	public static final double SIGHTANGLE_MAX = 300;
-	public static final double STOMACH_LIFE_MIN_PERCENT = 0.2;
+	public static final double SIGHTANGLE_MAX = 320;
+	public static final double STOMACH_LIFE_MIN_PERCENT = 0.25;
 	public static final double VORE_CUTOFF = 0.95;
 	public static final double VORE_PURE_EFF = 1.1;
-	public static final double OVER_EATING_BUFFER = 0.1;
+	public static final double OVER_EATING_BUFFER = 0.12;
 	public static final double OVER_EATING_DMG = 0.4;
+	//OTHER
+	public static final double BASE_LIFE_LOSS_PERCENT = 0.2;
 	//CONSTS - MOVEMENT
 	public static final double MOVE_BREAK_PERCENT = 0.98;
 	public static final double MOVE_ACCELERATION_BASE = 0.01;
@@ -27,8 +29,11 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double ROTATE_ACCELERATION_BASE = 2;
 	public static final double SPIKE_LENGTH_PERCENT = 1.5;
 	//CONSTS - ACTIONS
-	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.3;
-	public static final double SPLIT_TIMER_RADIUS_FACTOR = 8;
+	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.4;
+	public static final double SPLIT_TIMER_RADIUS_FACTOR = 10;
+	public static final int SPLIT_TIMER_BASE = 150;
+	public static final double ATTACK_DMG_RADIUS_FACTOR = 2.5;
+	public static final double ATTACK_DMG_BASE = 3;
 	
 	public static final double COLLISION_HARDNESS = 2.0/3.0;
 	//ATTRIBUTES
@@ -52,6 +57,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     private double moveBreakValue;
     private double carnivore_eff;
     private double herbivore_eff;
+    private double attack_dmg;
     //ENERGY LOSS
     private double energyLossBase;
     private double energyLossAcc;
@@ -59,6 +65,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     private double energyLossAttack;
     private double energyLossHeal;
 	//Other
+    private double lifeLossBase;
     private double healAmount_base;
     private double slowPercent;
     //ACTIVE
@@ -89,6 +96,14 @@ public class Body extends CollisionCircle implements Evolutionizable{
     
     public void setRotationAngle(double rotValue) {
     	rotationAngle = rotValue;
+    }
+    
+    public double getLifeLossBase() {
+    	return lifeLossBase;
+    }
+    
+    public double getAttackDmg() {
+    	return attack_dmg;
     }
     
     public double calculateAngleToRotation(Pair<Double,Double> toPoint) {
@@ -273,7 +288,8 @@ public class Body extends CollisionCircle implements Evolutionizable{
     @Override
     public void compoundDNA() {
         //Color
-        this.setColor(new Color(dna.getNormedGene(0, 0.0,1.0), dna.getNormedGene(1, 0.0,1.0), dna.getNormedGene(2, 0.0,1.0), 1.0)); 
+        //this.setColor(Color.hsb(dna.getNormedGene(0, 0.0,360.0), dna.getNormedGene(1, 0.5,1.0), dna.getNormedGene(2, 0.0,1.0), 1.0)); 
+        this.setColor(new Color(dna.getNormedGene(0, 0.0,1.0), dna.getNormedGene(1, 0.5,1.0), dna.getNormedGene(2, 0.0,1.0), 1.0));
         //SightAngle
         sightAngle = this.dna.getNormedGene(3, SIGHTANGLE_MIN, SIGHTANGLE_MAX);
         sightAreaWidth = sightAngle/Brain.NUMBER_OF_SIGHT_AREAS;
@@ -283,15 +299,17 @@ public class Body extends CollisionCircle implements Evolutionizable{
         rotationAcceleration = 5.0/t;
         moveAcceleration = 0.1/t;//0.09/t+0.0004;
         moveBreakValue = 0.895 + this.radius/150.0;
-        splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR);
+        splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR)+SPLIT_TIMER_BASE;
+        attack_dmg = this.radius*ATTACK_DMG_RADIUS_FACTOR+ATTACK_DMG_BASE;
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.006 + 0.0005; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
-        energyLossAcc = baseline *0.005 + 0.001;
-        energyLossRot = baseline *0.002;
-        energyLossAttack = baseline * 0.5;
-        energyLossHeal = baseline * 0.005;
-        healAmount_base = baseline * 0.08+0.002;
+        energyLossBase = baseline*0.001 + 0.0001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.001 + 0.0001;
+        energyLossRot = baseline *0.001;
+        energyLossAttack = baseline * 1;
+        energyLossHeal = baseline * 0.01;
+        healAmount_base = baseline * 0.1+ 0.01;
+        lifeLossBase = baseline * BASE_LIFE_LOSS_PERCENT;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
         this.stomach.setY(stomachPercent*stomachLifeValue);

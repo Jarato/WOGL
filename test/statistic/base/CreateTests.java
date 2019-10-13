@@ -1,14 +1,11 @@
 package statistic.base;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.junit.Test;
 
 import simulation.world.World;
+import statistic.Datapack.DATATYPE;
 import statistic.Statistic;
 import statistic.StatisticManager;
-import statistic.Datapack.DATATYPE;
 
 public class CreateTests {
 

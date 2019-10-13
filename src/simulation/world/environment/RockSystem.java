@@ -2,8 +2,6 @@ package simulation.world.environment;
 
 import java.util.Random;
 
-import delaunay_triangulation.Delaunay_Triangulation;
-import pdf.simulation.CollisionCircle;
 import pdf.simulation.Point2D;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
@@ -30,7 +28,7 @@ public class RockSystem {
 		y[2] = 1.0;
 		x[3] = 0.3;
 		y[3] = 1.0;
-		rocks[0].setPosition_Size(new Pair<Double,Double>(1200.0,0.0), new Pair<Double,Double>(1800.0,1480.0));
+		rocks[0].setPosition_Size(new Pair<Double,Double>(1200.0,0.0), new Pair<Double,Double>(1800.0,1485.0));
 		rocks[0].calculateWorldPointPosition();
 		rocks[1] = new Rock(4);
 		x = rocks[1].getPoints().getX();
@@ -43,7 +41,7 @@ public class RockSystem {
 		y[2] = 1.0;
 		x[3] = 0.35;
 		y[3] = 1.0;
-		rocks[1].setPosition_Size(new Pair<Double,Double>(1200.0,1520.0), new Pair<Double,Double>(1800.0,3000.0));
+		rocks[1].setPosition_Size(new Pair<Double,Double>(1200.0,1515.0), new Pair<Double,Double>(1800.0,3000.0));
 		rocks[1].calculateWorldPointPosition();
 		
 		

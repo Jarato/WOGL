@@ -1,17 +1,12 @@
 package simulation;
 
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import gui.WorldWindowCtrl;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import simulation.world.World;
-import statistic.StatisticManager;
 
 public class WOGLSimulation {
 	private World world;

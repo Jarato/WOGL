@@ -2,7 +2,6 @@ package simulation.world.environment;
 
 import javafx.scene.paint.Color;
 import pdf.util.Pair;
-import simulation.world.World;
 
 public class Rock {
 	public static final double COLLISION_HARDNESS = 1.0;

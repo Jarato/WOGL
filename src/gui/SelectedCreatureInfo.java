@@ -1,11 +1,7 @@
 package gui;
 
-import java.util.ArrayList;
-
 import gui.resizable.RessourceCanvas;
 import javafx.scene.canvas.Canvas;
-import pdf.ai.dna.DNA;
-import pdf.util.Pair;
 import simulation.world.creature.Creature;
 
 public class SelectedCreatureInfo {

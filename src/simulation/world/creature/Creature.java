@@ -3,7 +3,6 @@ package simulation.world.creature;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javafx.scene.paint.Color;
 import pdf.ai.dna.DNA;
 import pdf.ai.dna.EvolutionMethods;
 import pdf.ai.dna.Evolutionizable;
@@ -18,13 +17,13 @@ import simulation.world.environment.RockSystem;
 
 public class Creature implements Evolutionizable{
 	public static final int SPLIT_TIMER_GOBACK = 2;
-	public static final int ACTION_COOLDOWN_BASE = 50;
-	public static final double ATTACK_DMG = 25;
+	public static final int ACTION_COOLDOWN_BASE = 100;
 	public static final double MUTATION_RATE = 0.05;
 	public static final double MUTATION_STRENGTH = 0.1;
-	public static final double ENERGY_GAIN_ATTACK = 5;
+	public static final double ENERGY_GAIN_ATTACK = 10;
 	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 150;
+	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 140;
+	public static final int STARTAGE_OF_DECAY_BASE = 1000;
 	
 	// FIXED
 	private final Body body;
@@ -71,6 +70,8 @@ public class Creature implements Evolutionizable{
         childrenId = new ArrayList<Integer>();
         this.dna = new DNA(getNumberOfNeededGenes());
         this.dna.setRandom(rnd);
+        this.dna.setGeneValue(brain.getNumberOfNeededGenes()+6, 0);
+        this.dna.setGeneValue(brain.getNumberOfNeededGenes()+5, 0);
         compoundDNA();
         initDecayValues();
         initTimer();
@@ -92,7 +93,7 @@ public class Creature implements Evolutionizable{
     private void initDecayValues() {
     	age_digestionDivider = 1;
     	age_splitTimerDivider = 1;
-    	age_healParam = 0;
+    	age_healParam = 1;
     	age_moveAccDivider = 1;
     	age_rotateAccDivider = 1;
     	age_LineColorDivider = 1;
@@ -125,7 +126,7 @@ public class Creature implements Evolutionizable{
     			double overDecayTime = age-startage_of_decay;
         		age_digestionDivider = 1 + overDecayTime/20000.0;
         		age_splitTimerDivider = 1 + overDecayTime/10000.0;
-        		age_healParam = overDecayTime/10000.0;
+        		age_healParam = 1 + overDecayTime/1000.0;
         		age_moveAccDivider = 1 + overDecayTime/6000.0;
         		age_rotateAccDivider = 1 + overDecayTime/6000.0;
         		age_LineColorDivider = 1 + overDecayTime/15000.0;
@@ -174,7 +175,7 @@ public class Creature implements Evolutionizable{
     	if (this.id == -1) {
     		this.id = newId;
     	} else {
-    		System.out.println("Die ID ("+this.id+") has already been set. Creature-id "+newId+" couldn't be set");
+    		System.out.println("The ID ("+this.id+") has already been set. Creature-id "+newId+" couldn't be set");
     	}
     }
 
@@ -209,7 +210,7 @@ public class Creature implements Evolutionizable{
         int split= brain.getNumberOfNeededGenes();
         brain.compoundDNA(this.dna.getSequence(0, split));
         body.compoundDNA(this.dna.getSequence(split, body.getNumberOfNeededGenes()));
-        startage_of_decay = (int)(Math.pow(body.getRadius(), 2)*STARTAGE_OF_DECAY_RADIUS_FACTOR);
+        startage_of_decay = (int)(Math.pow(body.getRadius(), 2)*STARTAGE_OF_DECAY_RADIUS_FACTOR+STARTAGE_OF_DECAY_BASE);
     }
 
     public void workBrain(World theWorld) {
@@ -247,8 +248,8 @@ public class Creature implements Evolutionizable{
                     int whichEye = getViewArea(this.body.angleTo(grid[i][j].getPlant()));
                     if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(grid[i][j].getPlant());
-                        if (mask.eyesInputPlant[whichEye].getX() > distance) {
-                        	mask.eyesInputPlant[whichEye].set(distance, Plant.COLOR);
+                        if (mask.eyesInput[whichEye].getX() > distance) {
+                        	mask.eyesInput[whichEye].set(distance, Plant.COLOR);
                         }
                     }
                 }
@@ -262,8 +263,8 @@ public class Creature implements Evolutionizable{
                     int whichEye = getViewArea(this.body.angleTo(crt.body));
                     if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                         double distance = this.body.edgeDistanceTo(crt.body);
-                        if (mask.eyesInputCreature[whichEye].getX() > distance) {
-                        	mask.eyesInputCreature[whichEye].set(distance, crt.body.getColor());
+                        if (mask.eyesInput[whichEye].getX() > distance) {
+                        	mask.eyesInput[whichEye].set(distance, crt.body.getColor());
                         }
                     }
                 }
@@ -276,15 +277,15 @@ public class Creature implements Evolutionizable{
                 int whichEye = getViewArea(this.body.angleTo(cad));
                 if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
                     double distance = this.body.edgeDistanceTo(cad);
-                    if (mask.eyesInputCreature[whichEye].getX() > distance) {
-                    	mask.eyesInputCreature[whichEye].set(distance, cad.getColor());
+                    if (mask.eyesInput[whichEye].getX() > distance) {
+                    	mask.eyesInput[whichEye].set(distance, cad.getColor());
                     }
                 }
             }
         }
         //Seeing walls/rocks
         double angleBase = this.body.getRotationAngle()-(body.getSightAngle()/2.0)+(body.getSightAreaWidth()/2.0); //Base, the middle of the 8
-        for (int i = 0; i < brain.getInputMask().eyesInputWall.length; i++) {
+        for (int i = 0; i < brain.getInputMask().eyesInput.length; i++) {
             double angleRadians = Math.toRadians(UtilMethods.rotate360(angleBase+i*body.getSightAreaWidth()));
             Pair<Double,Double> vector = new Pair<Double,Double>(Math.cos(angleRadians), Math.sin(angleRadians));
             //Seeing world-bounds
@@ -314,8 +315,8 @@ public class Creature implements Evolutionizable{
             }
           
             
-            if (mask.eyesInputWall[i].getX() > distance) {
-            	mask.eyesInputWall[i].set(distance, Rock.COLOR);
+            if (mask.eyesInput[i].getX() > distance) {
+            	mask.eyesInput[i].set(distance, Rock.COLOR);
             }
             //Seeing rocks
             RockSystem rockSys = theWorld.getRockSystem();
@@ -325,8 +326,8 @@ public class Creature implements Evolutionizable{
         
             Pair<double[],Double> res = rockSys.getClosestLineIntersec(bodyP, visionLine);
             double rockDist = res.getY()-body.getRadius();
-            if (mask.eyesInputWall[i].getX() > rockDist) {
-            	mask.eyesInputWall[i].set(rockDist, Rock.COLOR);
+            if (mask.eyesInput[i].getX() > rockDist) {
+            	mask.eyesInput[i].set(rockDist, Rock.COLOR);
             }
         }
     }
@@ -337,7 +338,7 @@ public class Creature implements Evolutionizable{
     }
     
     private int getCollisionArea(double angle) {
-    	int res = (int) Math.floor(((angle-(body.getRotationAngle()-brain.COLLISION_DETECTION_AREA_ANGLE/2.0) + 360)%360)/Brain.COLLISION_DETECTION_AREA_ANGLE);
+    	int res = (int) Math.floor(((angle-(body.getRotationAngle()-Brain.COLLISION_DETECTION_AREA_ANGLE/2.0) + 360)%360)/Brain.COLLISION_DETECTION_AREA_ANGLE);
     	return res;
     }
     
@@ -379,17 +380,16 @@ public class Creature implements Evolutionizable{
     	attackingActive = (interpretedOutput[4] == 1?true:false);
     	splittingActive = (interpretedOutput[5] == 1?true:false);
     	//ENERGY & LIFE CHANGE
-    	if (body.getStomach().getX() == 0) {
-    		body.changeLife(-this.body.getHealAmountBase()*(age_healParam+5));
-    	}
     	body.changeStomachContent(-body.getEnergyLossBase());
+    	body.changeLife(-body.getLifeLossBase());
     	if (interpretedOutput[0] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
     	if (interpretedOutput[1] > 0) body.changeStomachContent(-body.getEnergyLossAcc());
     	if (interpretedOutput[2] > 0) body.changeStomachContent(-body.getEnergyLossRot()); 	
     	if (body.getStomach().getX() > 0) { //automatic healing
-    		body.changeStomachContent(-this.body.getEnergyLossHeal());
+    		if (body.getLife().getX() < body.getLife().getY()) body.changeStomachContent(-this.body.getEnergyLossHeal());
     		double stomach_percent = this.body.getStomach().getX() / this.body.getStomach().getY();
-    		body.changeLife(this.body.getHealAmountBase()*(Math.sqrt(stomach_percent)/(age_healParam+1)+(age_healParam*stomach_percent - age_healParam)));
+    		body.changeLife((body.getHealAmountBase()+body.getLifeLossBase())*Math.sqrt(stomach_percent)/(age_healParam*age_healParam));
+    		//body.changeLife(this.body.getHealAmountBase()*(Math.sqrt(stomach_percent)/(age_healParam+1)+(age_healParam*stomach_percent - age_healParam)));
     	}
     	body.checkLifeBounds();
     	body.checkStomachBounds();
@@ -402,8 +402,8 @@ public class Creature implements Evolutionizable{
     		eatCooldownTimer--;
     	}
     	//if (body.getSpeed() > Body.ABLE_TO_EAT_SPEEDTHRESHOLD) eatingActive = false;
-    	if (body.getLife().getX() < body.getLife().getY()*0.75) splittingActive = false;
-    	if (body.getStomach().getX() < body.getStomach().getY()*0.5) splittingActive = false;
+    	if (body.getLife().getX() < body.getLife().getY()*0.8) splittingActive = false;
+    	if (body.getStomach().getX() < body.getStomach().getY()*0.6) splittingActive = false;
     	if (body.getStomach().getX() == 0) {
     		attackingActive = false;
     	}

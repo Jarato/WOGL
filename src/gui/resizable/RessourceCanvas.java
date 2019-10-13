@@ -32,6 +32,8 @@ public class RessourceCanvas extends ResizableCanvas {
 			gc.fillRect(0,lifeRectStartY, getWidth()/2,getHeight());
 			gc.setFill(Color.CORNFLOWERBLUE);
 			gc.fillRect(getWidth()/2, stomachRectStartY, getWidth(), getHeight());
+			gc.strokeText((int)Math.round(b.getLife().getX())+"/"+(int)Math.round(b.getLife().getY()), 1, getHeight()/2);
+			gc.strokeText((int)Math.round(b.getStomach().getX())+"/"+(int)Math.round(b.getStomach().getY()), getWidth()/2+1, getHeight()/2);
 		}
 	}	
 

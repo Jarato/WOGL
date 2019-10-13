@@ -3,10 +3,11 @@ package gui;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import gui.resizable.RessourceCanvas;
+import gui.resizable.WorldCanvas;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -18,11 +19,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import pdf.util.UtilMethods;
-import gui.resizable.ResizableCanvas;
-import gui.resizable.RessourceCanvas;
-import gui.resizable.WorldCanvas;
 import simulation.WOGLSimulation;
 import simulation.world.creature.Body;
 import simulation.world.creature.Creature;
@@ -86,6 +83,7 @@ public class WorldWindowCtrl extends Control {
 	private WorldCanvas wCanvas;
 	private WOGLSimulation simulation;
 	private SelectedCreatureInfo selCreInf;
+	private GuiControl guiControl;
 
 	@FXML
 	private void onStartStopButtonClick() {
@@ -119,7 +117,11 @@ public class WorldWindowCtrl extends Control {
 	
 	@FXML
 	private void onStatisticButtonClick() {
-		
+		if (guiControl.isStatisticWindowVisible()) {
+			guiControl.hideStatisticWindow();
+		} else {
+			guiControl.showStatisticWindow();
+		}
 	}
 
 	@FXML
@@ -132,6 +134,7 @@ public class WorldWindowCtrl extends Control {
 		selCreInf.setShowCreatureView(creatureViewToggle.isSelected());
 		selCreInf.setShowWallView(wallViewToggle.isSelected());
 		selCreInf.setShowCollision(collisionToggle.isSelected());
+		wCanvas.draw();
 	}
 	
 	@FXML
@@ -164,6 +167,10 @@ public class WorldWindowCtrl extends Control {
 	
 	public void setWOGLSimulation(WOGLSimulation woglSim) {
 		simulation = woglSim;
+	}
+	
+	public void setGuiControl(GuiControl gcontrol) {
+		guiControl = gcontrol;
 	}
 	
 	private void initWorldCanvas() {

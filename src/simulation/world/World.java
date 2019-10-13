@@ -12,15 +12,15 @@ import simulation.world.creature.Cadaver;
 import simulation.world.creature.Creature;
 import simulation.world.environment.Rock;
 import simulation.world.environment.RockSystem;
+import statistic.Datapack.DATATYPE;
 import statistic.Statistic;
 import statistic.StatisticManager;
-import statistic.Datapack.DATATYPE;
 
 public class World {
 	//CONSTS
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final double SIZE = 3000;
-	public static final int NUMBER_OF_STARTING_CREATURES = 50;
+	public static final int NUMBER_OF_STARTING_CREATURES = 100;
 	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
 	public static final int STEP_PER_STAT_UPDATE = 100;
 	//ATTRIBUTES
@@ -283,9 +283,8 @@ public class World {
 							double distance = UtilMethods.point2DLength(UtilMethods.point2DSubtraction(attackedVector, closestPointOnSpike));
 							if (distance < attacked.getBody().getRadius()) {
 								attacked.getBrain().getInputMask().gotHurt = true;
-								attacked.getBody().changeLife(-Creature.ATTACK_DMG);
+								attacked.getBody().changeLife(-attackerB.getAttackDmg());
 								creatures.get(i).digest(Creature.ENERGY_GAIN_ATTACK, 1);
-								attackerB.changeStomachContent(Creature.ENERGY_GAIN_ATTACK);
 							}
 						}
 					}

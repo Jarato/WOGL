@@ -1,0 +1,8 @@
+WOGL - Evolution
+
+Alle DNA-basierten Objekte werden mit minimaler DNA erschaffen
+Das bedeutet für Kreaturen:
+- Keine Unterscheidung zwischen Pflanzen/Fleischfresser (das Gen wird auf 45-55% generiert)
+- Keinen Stachel
+- Keine Trennung der Life/Stomach - Maxvalues (d.h. das Gen wird auf 45-55% generiert)
+- Spaltung/Teilung der Kreaturen basiert am Anfang nicht auf Entscheidung, sondern auf bestimmten durch die DNA festgelegten Regeln (Life/Stomach%, Timer, Movement)
