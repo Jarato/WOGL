@@ -24,7 +24,9 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double BASE_LIFE_LOSS_PERCENT = 0.2;
 	//CONSTS - MOVEMENT
 	public static final double MOVE_BREAK_PERCENT = 0.98;
-	public static final double MOVE_ACCELERATION_BASE = 0.01;
+	public static final double MOVE_ACCELERATION_BASE = 0.09;
+	public static final double MOVE_ACC_SIDEWAYS_PERC = 0.75;
+	public static final double MOVE_ACC_BACKWARDS_PERC = 0.25;
 	public static final double ROTATE_BREAK_PERCENT = 0.8;
 	public static final double ROTATE_ACCELERATION_BASE = 2;
 	public static final double SPIKE_LENGTH_PERCENT = 1.5;
@@ -297,18 +299,18 @@ public class Body extends CollisionCircle implements Evolutionizable{
         setRadius(this.dna.getNormedGene(4, MIN_RADIUS, MAX_RADIUS));
         double t = (this.radius/3.0)*(this.radius/3.0); 
         rotationAcceleration = 5.0/t;
-        moveAcceleration = 0.1/t;//0.09/t+0.0004;
+        moveAcceleration = MOVE_ACCELERATION_BASE/t;
         moveBreakValue = 0.895 + this.radius/150.0;
         splitTimerBase = (int)Math.round(this.radius*this.radius * SPLIT_TIMER_RADIUS_FACTOR)+SPLIT_TIMER_BASE;
         attack_dmg = this.radius*ATTACK_DMG_RADIUS_FACTOR+ATTACK_DMG_BASE;
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.001 + 0.0001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
-        energyLossAcc = baseline *0.001 + 0.0001;
-        energyLossRot = baseline *0.001;
+        energyLossBase = baseline*0.0003 + 0.0000001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.0016;
+        energyLossRot = baseline *0.0001;
         energyLossAttack = baseline * 1;
-        energyLossHeal = baseline * 0.01;
-        healAmount_base = baseline * 0.1+ 0.01;
+        energyLossHeal = baseline * 0.005;
+        healAmount_base = baseline * 0.05+ 0.002;
         lifeLossBase = baseline * BASE_LIFE_LOSS_PERCENT;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);

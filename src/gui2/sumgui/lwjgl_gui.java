@@ -1,4 +1,4 @@
-package gui2;
+package gui2.sumgui;
 
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
@@ -15,8 +15,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+
+import gui2.sumgui.ViewControl;
 import simulation.world.World;
-import gui2.ViewControl;
 
 public class lwjgl_gui {
 	public static boolean paused;
@@ -27,6 +28,8 @@ public class lwjgl_gui {
 	 * interesting world-seeds
 	 * 6145641740961572606 - Orange, Blue & Green is strongest
 	 * 3842267045312722390 - small yellow-ish
+	 * 4952857334931922050 - long survivor green/orange/brown
+	 * 3600810020386370760 - green/blue/pink
 	 */
 	
 	
@@ -35,7 +38,7 @@ public class lwjgl_gui {
 		paused = false;
 		fastforward = false;
 		glClearColor(0.41f, 0.41f, 0.41f, 1);
-		world = new World();
+		world = new World(); // PUT IN SEEDS HERE
 		world.initialize();
 		DrawWorld.setWorld(world);
 		ViewControl.init(world);

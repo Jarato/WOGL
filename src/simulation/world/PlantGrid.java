@@ -9,7 +9,7 @@ public class PlantGrid {
 	private final Random rnd;
 	
 	public class PlantBox {
-		public static final int DEAD_TIMER_BASE = 5000;
+		public static final int DEAD_TIMER_BASE = 500;
 		private final Pair<Double,Double> upperLeftCorner;
 		private double growth;
 		private int stillDeadTime;

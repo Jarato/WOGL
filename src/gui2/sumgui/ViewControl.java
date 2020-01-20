@@ -1,4 +1,4 @@
-package gui2;
+package gui2.sumgui;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;

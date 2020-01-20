@@ -22,8 +22,8 @@ public class Creature implements Evolutionizable{
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_GAIN_ATTACK = 10;
 	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 140;
-	public static final int STARTAGE_OF_DECAY_BASE = 1000;
+	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 130;
+	public static final int STARTAGE_OF_DECAY_BASE = 2000;
 	
 	// FIXED
 	private final Body body;
@@ -347,7 +347,6 @@ public class Creature implements Evolutionizable{
     	InputMask im = brain.getInputMask();
     	im.collision[areaIndex] = Math.max(im.collision[areaIndex], hardness);
     }
-
     public void workBody(World theWorld) {
     	int[] interpretedOutput = this.brain.interpretOutput();
     	//MOVE
@@ -357,13 +356,13 @@ public class Creature implements Evolutionizable{
     	switch(interpretedOutput[0]) {
     		case 1: body.accelerateAngle(body.getRotationAngle(), moveAcc);
     			break;
-    		case 2:body.accelerateAngle(body.getRotationAngle()+180.0, moveAcc);
+    		case 2:body.accelerateAngle(body.getRotationAngle()+180.0, moveAcc*Body.MOVE_ACC_BACKWARDS_PERC);
     			break;
     	}
     	switch(interpretedOutput[1]) {
-		case 1: body.accelerateAngle(body.getRotationAngle()+90.0, moveAcc);
+		case 1: body.accelerateAngle(body.getRotationAngle()+90.0, moveAcc*Body.MOVE_ACC_SIDEWAYS_PERC);
 			break;
-		case 2:body.accelerateAngle(body.getRotationAngle()+270.0, moveAcc);
+		case 2:body.accelerateAngle(body.getRotationAngle()+270.0, moveAcc*Body.MOVE_ACC_SIDEWAYS_PERC);
 			break;
     	}
     	//ROTATE

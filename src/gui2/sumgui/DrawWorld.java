@@ -1,4 +1,4 @@
-package gui2;
+package gui2.sumgui;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_FAN;
 import static org.lwjgl.opengl.GL11.GL_LINES;
@@ -156,12 +156,12 @@ public class DrawWorld {
 	
 	public static void draw() {
 		drawBackground();
-		drawCadavers(world.getCadavers());
-		drawPlantGrid(world.getPlantGrid());
 		Creature selectedCreature = ViewControl.getSelectedCreature();
 		if (selectedCreature != null) {
 			drawSpecificCreatureInfo(selectedCreature);
 		}
+		drawCadavers(world.getCadavers());
+		drawPlantGrid(world.getPlantGrid());
 		drawCreatures(world.getCreatures());
 		drawRocks(world.getRockSystem().getRocks());
 	}

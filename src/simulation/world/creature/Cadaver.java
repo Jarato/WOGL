@@ -5,11 +5,11 @@ import pdf.simulation.CollisionCircle;
 
 public class Cadaver extends CollisionCircle{
 	public static final double RADIUS_MASS_MULTIPLIER = 30;
-	public static final double MASS_DECAY_PERCENT = 0.001;
-	public static final double MASS_DECAY_STATIC = 0.1;
-	public static final double SATURATION_DECAY_PER_STEP = 0.01;
+	public static final double MASS_DECAY_PERCENT = 0.0001;
+	public static final double MASS_DECAY_STATIC = 0.2;
+	public static final double SATURATION_DECAY_PER_STEP = 0.001;
 	public static final double DIGESTION_VALUE = 10;
-	public static final double EATEN_PER_BITE = 10;
+	public static final double EATEN_PER_BITE = 20;
 	public static final double COLLISION_HARDNESS = 1.0/3.0;
 	// PRIVATE
 	private static final double WALKOVER_SLOW_MIN = 0.1;

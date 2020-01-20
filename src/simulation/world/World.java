@@ -21,7 +21,8 @@ public class World {
 	public static final Color NOTHING_COLOR = Color.WHITE;
 	public static final double SIZE = 3000;
 	public static final int NUMBER_OF_STARTING_CREATURES = 100;
-	public static final int NUMBER_OF_STARTING_PLANTS = 1500;
+	public static final int NUMBER_OF_STARTING_PLANTS = 1000;
+	// number of steps between two statistic value
 	public static final int STEP_PER_STAT_UPDATE = 100;
 	//ATTRIBUTES
 	private final RockSystem rockSys;

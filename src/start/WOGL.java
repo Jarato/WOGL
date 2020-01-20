@@ -4,6 +4,7 @@ import java.io.IOException;
 import gui.GuiControl;
 import gui.StatisticWindowCtrl;
 import gui.WorldWindowCtrl;
+import gui2.ControlWindowCtrl;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,8 +15,9 @@ import simulation.WOGLSimulation;
 public class WOGL extends Application{
 	
 	private WOGLSimulation simulation;
-	private WorldWindowCtrl control;
-	private Stage statStage;
+	private ControlWindowCtrl control;
+	private Stage controlStage;
+	//private Stage statStage;
 	
 	public static void main(String[] args) {
 		//angle: 184.98035719800836	rotation: 308.67898113218735
@@ -31,27 +33,28 @@ public class WOGL extends Application{
 		Application.launch(args);
 	}
 	
-	public WorldWindowCtrl getWorldWindowCtrl() {
+	public ControlWindowCtrl getWorldWindowCtrl() {
 		return control;
 	}
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		GuiControl guiControl = new GuiControl();
-		guiInitialize(stage);		
-		initStatWindow();
-		guiControl.setStatStage(statStage);
-		guiControl.setMainStage(stage);
+		//GuiControl guiControl = new GuiControl();
+		controlStage = stage;
+		guiInitialize();		
+		//initStatWindow();
+		//guiControl.setStatStage(statStage);
+		//guiControl.setMainStage(stage);
 		
 		
 		//long seed = 1853386138547355417l;
-		simulation = new WOGLSimulation(control);
-		simulation.startSimulation();
-		control.setWOGLSimulation(simulation);
-		control.setGuiControl(guiControl);
+		//simulation = new WOGLSimulation(control);
+		//simulation.startSimulation();
+		//control.setWOGLSimulation(simulation);
+		//control.setGuiControl(guiControl);
 	}
 	
-	private void initStatWindow() {
+	/*private void initStatWindow() {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("gui/fxml/StatisticWindow.fxml"));
 		try {
 			Parent root = (Parent) loader.load();
@@ -67,27 +70,29 @@ public class WOGL extends Application{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
-	public void guiInitialize(Stage stage) {
+	public void guiInitialize() {
 		try {
 
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/fxml/WorldWindow.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/gui/fxml/ControlWindow.fxml"));
 			Parent root;
 
 			root = (Parent) loader.load();
-			control = (WorldWindowCtrl) loader.getController();
+			control = (ControlWindowCtrl) loader.getController();
 			if (control == null) System.out.println("Control-Class is null");
-			control.initGuiNodes();
 	
 			Scene scene = new Scene(root);
 
-			stage.setMinWidth(300);
-			stage.setMinHeight(300);
-			stage.setTitle("WOGL alpha");
-			stage.setScene(scene);
-			stage.show();
-			stage.setOnCloseRequest(e -> close());
+			controlStage.setMinWidth(450);
+			controlStage.setMinHeight(180);
+			controlStage.setMaxWidth(450);
+			controlStage.setMaxHeight(180);
+			controlStage.setResizable(false);
+			controlStage.setTitle("WOGL alpha");
+			controlStage.setScene(scene);
+			controlStage.show();
+			controlStage.setOnCloseRequest(e -> close());
 		} catch (IOException e) {
 			System.out.println("Fehler beim Laden der fxml-Datei!");
 			e.printStackTrace();
@@ -98,8 +103,9 @@ public class WOGL extends Application{
 	}
 	
 	private void close() {
-		simulation.terminateSimulation();
-		statStage.close();
+		//simulation.terminateSimulation();
+		controlStage.close();
+		//statStage.close();
 	}
 
 }

@@ -6,10 +6,10 @@ import pdf.simulation.CollisionCircle;
 public class Plant extends CollisionCircle {
 	public static final Color COLOR = Color.rgb(83, 153, 32);
 	public static final double RADIUS = 3.0;
-	public static final double EATEN_VALUE = 25;
-	public static final int BASE_GROW_TIME = 14000;
-	public static final int BASE_DIE_TIME = 25000;
-	public static final int GROWTIMER_NO_NEIGHBOR_UPDATE = 10;
+	public static final double EATEN_VALUE = 30;
+	public static final int BASE_GROW_TIME = 30000;
+	public static final int BASE_DIE_TIME = 30000;
+	public static final int GROWTIMER_NO_NEIGHBOR_UPDATE = 5;
 	public static final double COLLISION_HARDNESS = 1.0/3.0;
 	
 	private double dieTimer;
