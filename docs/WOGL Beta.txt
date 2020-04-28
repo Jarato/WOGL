@@ -1,0 +1,9 @@
+GUI
+01: 
+
+
+Rock-System
+01: [ ] Install OpenSimplexNoise-Library
+02: [ ] OpenSimplexNoise Tutorial durcharbeiten
+03: [ ] Noise Image erstellen
+04: [ ] TestNoiseImage verwenden

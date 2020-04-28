@@ -5,8 +5,9 @@ import java.util.Random;
 import org.junit.Test;
 
 import pdf.ai.dna.DNA;
-import simulation.world.World;
-import simulation.world.creature.Brain.InputMask;
+import simulation.World;
+import simulation.creature.Creature;
+import simulation.creature.Brain.InputMask;
 
 public class Creature_Test {
 

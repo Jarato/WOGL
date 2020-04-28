@@ -2,7 +2,7 @@ package statistic.base;
 
 import org.junit.Test;
 
-import simulation.world.World;
+import simulation.World;
 import statistic.Datapack.DATATYPE;
 import statistic.Statistic;
 import statistic.StatisticManager;

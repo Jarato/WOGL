@@ -10,6 +10,7 @@ import org.junit.Test;
 //import static org.junit.Assert.assertTrue;
 
 import pdf.ai.dna.DNA;
+import simulation.creature.Body;
 
 public class Body_Test {
 	
