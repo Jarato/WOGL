@@ -22,39 +22,6 @@ public class RockGenerator {
 	private long seed;
 	private OpenSimplexNoise osn;
 	
-	/*private void main(String[] args)
-		throws IOException {
-		Random rnd = new Random();
-		for (int i = 0; i < 20; i++) {
-			long seed = rnd.nextLong();//
-			BufferedImage image = generateBinaryNoiseMap(seed, WIDTH, HEIGHT, FEATURE_SIZE, THRESHOLD);
-			BufferedImage edge = edgeDetectionOnMap(image);
-			BufferedImage edgeCopy = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-			edgeCopy.setData(edge.getData());
-			//ImageIO.write(image, "png", new File("noiseMap"+FEATURE_SIZE+"_"+THRESHOLD+"_"+seed+".png"));
-			//ImageIO.write(edge, "png", new File("edgeMap"+FEATURE_SIZE+"_"+THRESHOLD+"_"+seed+"_edge.png"));
-			ArrayList<LinkedList<int[]>> polys = generatePolygons(edge);
-			ImageIO.write(markPolygonNodes(edgeCopy, polys), "png", new File("markedMap"+FEATURE_SIZE+"_"+THRESHOLD+"_"+seed+"_edge.png"));
-			int k = 1;
-			for (LinkedList<int[]> polygon : polys) {
-				System.out.println("\nRock "+k);
-				k++;
-				for (int[] point : polygon) {
-					System.out.println(point[0]+", "+point[1]);
-				}
-			}
-		}
-	}*/
-	
-	/*private BufferedImage markPolygonNodes(BufferedImage map, ArrayList<LinkedList<int[]>> polygons) {
-	for (LinkedList<int[]> polygon : polygons) {
-		for (int[] point : polygon) {
-			map.setRGB(point[0], point[1], 0xFF0000);
-		}
-	}
-	return map;
-	}*/
-	
 	public void setSeed(long newSeed) {
 		seed = newSeed;
 		System.out.println("RockSystem-Seed: "+seed);

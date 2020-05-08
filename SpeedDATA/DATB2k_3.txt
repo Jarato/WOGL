@@ -1,0 +1,23 @@
+Speed - Analyser - Results:
+Draw:	0.9585207396301849
+Step:	19.22838580709645
+Step.Attacking:	0.021989005497251374
+Step.Cadavers:	0.026986506746626688
+Step.Collision:	4.043478260869565
+Step.Collision/creature.Cadavers:	3.7407572123877255E-5
+Step.Collision/creature.Creatures:	0.002024165291592025
+Step.Collision/creature.Plants:	5.153932159289755E-4
+Step.Collision/creature.RockSystem:	0.03070746031680057
+Step.Collision/creature.WorldBounds:	3.7407572123877255E-5
+Step.InOut:	14.88455772113943
+Step.InOut/creature.Body:	8.520649065638093E-4
+Step.InOut/creature.Brain:	0.12275137992950721
+Step.InOut/creature.Brain.Input:	0.08571772960031922
+Step.InOut/creature.Brain.Input.SeeCadavers:	1.4547449624260157E-4
+Step.InOut/creature.Brain.Input.SeeCreatures:	0.005158109995344816
+Step.InOut/creature.Brain.Input.SeePlants:	0.05003907029327658
+Step.InOut/creature.Brain.Input.SeeWallsRocks:	0.028712509144111192
+Step.InOut/creature.Brain.Net:	0.03682998603444836
+Step.Move:	0.04397801099450275
+Step.PlantGrowth:	0.19540229885057472
+

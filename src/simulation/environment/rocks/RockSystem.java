@@ -20,7 +20,7 @@ public class RockSystem {
 		rockgenerator.setSeed(seed);
 	}
 	
-	public void createTestRock() {
+	public void generateRocks() {
 		ArrayList<LinkedList<int[]>> polyRocks = rockgenerator.generateRocks();
 		rocks = new Rock[polyRocks.size()];
 		int k = 0;
@@ -133,6 +133,28 @@ public class RockSystem {
 		return new Pair<double[],Double>(closestPoint, minDist);
 	}
 	
+	public Pair<double[], Double> getClosestPointOnLineTo(double[] objectPos, double[] lineStart, double[] lineEnd) {
+		double[] vecObj = objectPos;
+		double[] vecFirst = lineStart;
+		double[] vecSecond = lineEnd;
+		double[] vecFTS = new double[] {vecSecond[0]-vecFirst[0], vecSecond[1] - vecFirst[1]};
+		double[] vecFTO = new double[] {vecObj[0]-vecFirst[0], vecObj[1]-vecFirst[1]};
+		double vecFTS_len_sq = vecFTS[0]*vecFTS[0] + vecFTS[1]*vecFTS[1];
+		double dotP = vecFTS[0]*vecFTO[0] + vecFTS[1]*vecFTO[1];
+		double res = dotP/vecFTS_len_sq;
+		double[] currentPoint = new double[2];
+		if (res < 0) {
+			currentPoint = vecFirst;
+		} else if (res > 1) {
+			currentPoint = vecSecond;
+		} else {
+			currentPoint[0] = vecFirst[0] + res * vecFTS[0];
+			currentPoint[1] = vecFirst[1] + res * vecFTS[1];
+		}
+		double dist = UtilMethods.vectorLength(UtilMethods.vectorSubtraction(vecObj, currentPoint));
+		return new Pair<double[],Double>(currentPoint, dist);
+	}
+	
 	private double[] intersection(double[] p0, double[] p1, double[] p2, double[] p3) {
 		    double[] s10 = new double[] {p1[0] - p0[0], p1[1] - p0[1]};
 		    double[] s32 = new double[] {p3[0] - p2[0], p3[1] - p2[1]};
@@ -179,6 +201,48 @@ public class RockSystem {
 						min_dist = distance;
 						min_dist_pos = res;
 					}
+				}
+			}
+		}
+		return new Pair<double[], Double>(min_dist_pos, min_dist);
+	}
+	
+	public Pair<Pair<double[],double[]>, Double> getClosestIntersectingRockSection(double[] firstP, double[] secondP) {
+		double min_dist = Double.MAX_VALUE;
+		Pair<double[],double[]> closestRockSection = null;
+		
+		for (int i = 0; i < rocks.length; i++) {
+			Rock rock = rocks[i];
+			double[] xWP = rock.getWorldPoints().getX();
+			double[] yWP = rock.getWorldPoints().getY();
+			int N = rock.getNumberOfPoints();
+			for (int n = 0; n < N; n++) {
+				double[] vecBase = new double[] {xWP[n],yWP[n]};
+				double[] vecTo = new double[] {xWP[(n+1)%N], yWP[(n+1)%N]};
+				
+				double[] res = intersection(firstP, secondP, vecBase, vecTo);// intersectionpoint
+				if (res != null) {
+					double distance = UtilMethods.vectorLength(UtilMethods.vectorSubtraction(res, firstP));
+					if (distance < min_dist) {
+						min_dist = distance;
+						closestRockSection = new Pair<double[], double[]>(vecBase, vecTo);
+					}
+				}
+			}
+		}
+		return new Pair<Pair<double[], double[]>, Double>(closestRockSection, min_dist);
+	}
+	
+	public Pair<double[], Double> getClosestLineIntersecToLines(double[] firstP, double[] secondP, ArrayList<Pair<double[], double[]>> toLines){
+		double min_dist = Double.MAX_VALUE;
+		double[] min_dist_pos = new double[2];
+		for (Pair<double[], double[]> line : toLines) {
+			double[] res = intersection(firstP, secondP, line.getX(), line.getY());// intersectionpoint
+			if (res != null) {
+				double distance = UtilMethods.vectorLength(UtilMethods.vectorSubtraction(res, firstP));
+				if (distance < min_dist) {
+					min_dist = distance;
+					min_dist_pos = res;
 				}
 			}
 		}

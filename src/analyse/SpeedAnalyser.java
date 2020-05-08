@@ -11,6 +11,10 @@ public class SpeedAnalyser
 
 	public SpeedAnalyser()
 	{
+		clearSpeedData();
+	}
+	
+	public void clearSpeedData() {
 		speedData = new HashMap<String, Pair<Integer, Double>>();
 	}
 

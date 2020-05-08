@@ -2,8 +2,10 @@ package simulation.creature;
 
 import javafx.scene.paint.Color;
 import pdf.simulation.CollisionCircle;
+import pdf.util.Pair;
+import simulation.optimization.GridAble;
 
-public class Cadaver extends CollisionCircle{
+public class Cadaver extends CollisionCircle implements GridAble{
 	public static final double RADIUS_MASS_MULTIPLIER = 30;
 	public static final double MASS_DECAY_PERCENT = 0.0001;
 	public static final double MASS_DECAY_STATIC = 0.2;
@@ -56,6 +58,18 @@ public class Cadaver extends CollisionCircle{
 	
 	public double calculateSlow(double bodyRadius) {
 		return SLOWF_SLOPE * this.radius/bodyRadius + SLOWF_OFFSET;
+	}
+
+	@Override
+	public Pair<Integer, Integer> getGridPosition() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setGridPosition(Pair<Integer, Integer> pos) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	

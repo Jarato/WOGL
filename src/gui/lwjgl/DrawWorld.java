@@ -1,15 +1,20 @@
 package gui.lwjgl;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLE_FAN;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_LINES;
 import static org.lwjgl.opengl.GL11.glBegin;
 import static org.lwjgl.opengl.GL11.glColor3d;
+import static org.lwjgl.opengl.GL11.glColor4d;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glEnd;
 import static org.lwjgl.opengl.GL11.glPopMatrix;
 import static org.lwjgl.opengl.GL11.glPushMatrix;
 import static org.lwjgl.opengl.GL11.glTranslated;
 import static org.lwjgl.opengl.GL11.glVertex2f;
 import static org.lwjgl.opengl.GL11.glVertex2d;
+import static org.lwjgl.opengl.GL11.GL_ONE;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,8 +69,10 @@ public class DrawWorld {
 			double length = eyesInput[e].getX()+b.getRadius();
 			double startAngle = b.getRotationAngle()-b.getSightAngle()/2.0+b.getSightAreaWidth()*(e);
 			Color seenColor = eyesInput[e].getY();
-			glColor3d(seenColor.getRed(), seenColor.getGreen(), seenColor.getBlue());
+			glColor4d(seenColor.getRed(), seenColor.getGreen(), seenColor.getBlue(),c.getBrain().transformEyeInputRangeIntoActivation(eyesInput[e].getX()));//c.getBrain().transformEyeInputRangeIntoActivation(eyesInput[e].getX())
+			//glColor3d(seenColor.getRed(), seenColor.getGreen(), seenColor.getBlue());
 			glBegin(GL_TRIANGLE_FAN);
+			
 			glVertex2d(0, 0);
 			for (int i = 0; i < 8; i++) {
 				double angle = startAngle+i*b.getSightAreaWidth()/7;
@@ -76,6 +83,10 @@ public class DrawWorld {
 			glEnd();
 		}
 		glPopMatrix();
+		/*ArrayList<Plant> plants = world.getObjectGrid().getViewAbleObjects(world.getObjectGrid().calculateGridPosition(c.getBody().getXCoordinate(), c.getBody().getYCoordinate())).plants;
+		for (Plant plant : plants) {
+			drawFilledCircle(plant.getXCoordinate(), plant.getYCoordinate(), plant.getRadius(), Color.RED);
+		}*/
 	}
 	
 	private static void drawCadavers(ArrayList<Cadaver> cadavers) {
@@ -162,18 +173,18 @@ public class DrawWorld {
 	
 	public static void draw() {
 		drawBackground();
+		drawCadavers(world.getCadavers());
+		drawPlantGrid(world.getPlantGrid());
 		Creature selectedCreature = ViewControl.getSelectedCreature();
 		if (selectedCreature != null) {
 			drawSpecificCreatureInfo(selectedCreature);
 		}
-		drawCadavers(world.getCadavers());
-		drawPlantGrid(world.getPlantGrid());
 		drawCreatures(world.getCreatures());
 		drawRocks(world.getRockSystem().getRocks());
 	}
 	
 	public static void drawBackground() {
-		glColor3d(1, 1, 1);
+		glColor3d(255/255.0, 252/255.0, 242/255.0);
 		glBegin(GL_TRIANGLE_FAN);
 		glVertex2d(0, 0);
 		glVertex2d(World.SIZE, 0);

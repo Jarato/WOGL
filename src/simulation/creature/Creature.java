@@ -15,16 +15,18 @@ import simulation.PlantGrid.PlantBox;
 import simulation.creature.Brain.InputMask;
 import simulation.environment.rocks.Rock;
 import simulation.environment.rocks.RockSystem;
+import simulation.optimization.ObjectGrid.ObjectCell;
+import simulation.optimization.ObjectGrid.ViewAbleObjects;
 
 public class Creature implements Evolutionizable{
-	public static final int SPLIT_TIMER_GOBACK = 2;
+	public static final int SPLIT_TIMER_GOBACK = 1;
 	public static final int ACTION_COOLDOWN_BASE = 100;
 	public static final double MUTATION_RATE = 0.05;   
 	public static final double MUTATION_STRENGTH = 0.1;
 	public static final double ENERGY_GAIN_ATTACK = 5;
 	//public static final double LIFE_LOSS_NO_ENERGY = 0.2;
-	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 130;
-	public static final int STARTAGE_OF_DECAY_BASE = 2000;
+	public static final int STARTAGE_OF_DECAY_RADIUS_FACTOR = 140;
+	public static final int STARTAGE_OF_DECAY_BASE = 2500;
 	
 	// FIXED
 	private final Body body;
@@ -50,9 +52,8 @@ public class Creature implements Evolutionizable{
     private double splitTimer;
     private int eatCooldownTimer;
     private int attackCooldownTimer;
-   
     private ArrayList<Integer> childrenId;
-
+    
     /*		DEATH SYSTEM
     digestion efficiency	down	#
     split timing			up		#
@@ -248,8 +249,11 @@ public class Creature implements Evolutionizable{
         //Setting everything to "seeing nothing"
     	mask.resetEyesInput();
         //Seeing plants
+    	Pair<Integer,Integer> objectGridPosition = theWorld.getObjectGrid().calculateGridPosition(this.body.getXCoordinate(), this.body.getYCoordinate());
+    	ViewAbleObjects viewObjs = theWorld.getObjectGrid().getViewAbleObjects(objectGridPosition);
+    	
     	long timestamp = System.currentTimeMillis();
-        PlantBox[][] grid = theWorld.getPlantGrid().getGrid();
+        /*PlantBox[][] grid = theWorld.getPlantGrid().getGrid();
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
                 if (grid[i][j].getPlant() != null && this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE+body.getRadius()+grid[i][j].getPlant().getRadius())) {
@@ -262,7 +266,16 @@ public class Creature implements Evolutionizable{
                     }
                 }
             }
-        }
+        }*/
+    	for (Plant plant : viewObjs.plants) {
+    		int whichEye = getViewArea(this.body.angleTo(plant));
+            if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
+                double distance = this.body.edgeDistanceTo(plant);
+                if (mask.eyesInput[whichEye].getX() > distance) {
+                	mask.eyesInput[whichEye].set(distance, Plant.COLOR);
+                }
+            }
+    	}
         long second = System.currentTimeMillis()-timestamp;
 		AnalyseStrg.getSpeedAnalyser().addData("Step.InOut/creature.Brain.Input.SeePlants", second);
         //Seeing other creatures
@@ -299,8 +312,11 @@ public class Creature implements Evolutionizable{
         }
         second = System.currentTimeMillis()-timestamp;
 		AnalyseStrg.getSpeedAnalyser().addData("Step.InOut/creature.Brain.Input.SeeCadavers", second);
-        //Seeing walls/rocks
+        //Seeing walls/rocks 
+		
 		timestamp = System.currentTimeMillis();
+		// NEW SYSTEM
+		ArrayList<Pair<double[], double[]>> possiblyViewableRocks = viewObjs.rockLines;
         double angleBase = this.body.getRotationAngle()-(body.getSightAngle()/2.0)+(body.getSightAreaWidth()/2.0); //Base, the middle of the 8
         for (int i = 0; i < brain.getInputMask().eyesInput.length; i++) {
             double angleRadians = Math.toRadians(UtilMethods.rotate360(angleBase+i*body.getSightAreaWidth()));
@@ -335,13 +351,17 @@ public class Creature implements Evolutionizable{
             if (mask.eyesInput[i].getX() > distance) {
             	mask.eyesInput[i].set(distance, Rock.COLOR);
             }
-            //Seeing rocks
+            //Seeing Rocks
             RockSystem rockSys = theWorld.getRockSystem();
             double[] bodyP = new double[] {body.getXCoordinate(), body.getYCoordinate()};
             double[] visionLine = new double[] {vector.getX(), vector.getY()};
             visionLine = UtilMethods.vectorAddition(bodyP, UtilMethods.vectorSkalar(visionLine, Brain.SIGHT_RANGE+body.getRadius()));
-        
-            Pair<double[],Double> res = rockSys.getClosestLineIntersec(bodyP, visionLine);
+            
+            //OLD SYSTEM
+            //Pair<double[],Double> res = rockSys.getClosestLineIntersec(bodyP, visionLine);
+            //NEW SYSTEM
+            Pair<double[],Double> res = rockSys.getClosestLineIntersecToLines(bodyP, visionLine, possiblyViewableRocks);
+            // ###
             double rockDist = res.getY()-body.getRadius();
             if (mask.eyesInput[i].getX() > rockDist) {
             	mask.eyesInput[i].set(rockDist, Rock.COLOR);

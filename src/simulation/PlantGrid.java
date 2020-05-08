@@ -43,7 +43,6 @@ public class PlantGrid {
 		public boolean checkGrowth() {
 			if (this.growth < 0) {
 				growPlant();
-				
 				this.growth = Plant.BASE_GROW_TIME;
 				return true;
 			} else return false;
@@ -63,6 +62,8 @@ public class PlantGrid {
 		}
 
 		public void deletePlant(boolean gotDestroyed){
+			// remove plant out of ObjectGrid
+			world.getObjectGrid().updatePlant(this.plant, false);
 			this.plant = null;
 			initTimer(gotDestroyed);
 		}
@@ -72,8 +73,13 @@ public class PlantGrid {
 		}
 
 		public void growPlant() {
+			if (this.plant != null) {
+				world.getObjectGrid().updatePlant(this.plant, false);
+			}
 			this.plant = new Plant(Plant.RADIUS, upperLeftCorner.getX()+rnd.nextDouble()*PLANTBOX_SIZE, upperLeftCorner.getY()+rnd.nextDouble()*PLANTBOX_SIZE);
+			world.getObjectGrid().updatePlant(this.plant, true);
 			plant.setDieTimer(Plant.BASE_DIE_TIME);
+			//update viewable plants in objectgrid		
 		}
 
 	}
@@ -82,9 +88,11 @@ public class PlantGrid {
 	private PlantBox[][] grid;
 	private int[] noFieldsW;
 	private int numberOfLivingPlants;
+	private World world;
 
-	public PlantGrid(Random newRnd){
+	public PlantGrid(Random newRnd, World theWorld){
 		noFieldsW = new int[9];
+		world = theWorld;
 		rnd = newRnd;
 		grid = new PlantBox[AXIS_PLANTBOX_AMOUNT][];
 		for (int i = 0; i < grid.length; i++){

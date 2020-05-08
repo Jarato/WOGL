@@ -20,13 +20,17 @@ public abstract class AnalyseStrg
 	{
 		return speedAnalyser;
 	}
+	
+	public static void writeFile() {
+		writeFile("DATA");
+	}
 
-	public static void writeFile()
+	public static void writeFile(String filename)
 	{
 		//SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_'at'_HH_mm_ss");
 		//Date current = new Date();
 
-		File dataFile = new File("DATA.txt");// formatter.format(current) + ".txt");
+		File dataFile = new File(filename+".txt");// formatter.format(current) + ".txt");
 		try
 		{
 			dataFile.createNewFile();

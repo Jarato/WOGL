@@ -13,6 +13,7 @@ import simulation.creature.Cadaver;
 import simulation.creature.Creature;
 import simulation.environment.rocks.Rock;
 import simulation.environment.rocks.RockSystem;
+import simulation.optimization.ObjectGrid;
 import statistic.Datapack.DATATYPE;
 import statistic.Statistic;
 import statistic.StatisticManager;
@@ -31,6 +32,7 @@ public class World {
 	private final HashSet<Creature> newCreatures;
 	private final ArrayList<Cadaver> cadavers;
 	private final PlantGrid plantGrid;
+	private final ObjectGrid objectGrid;
 	private final Random randomizer;
 	private final long worldSeed;
 	private final Statistic creature_count_stat;
@@ -39,30 +41,15 @@ public class World {
 	private int maxGen;
 	private long step;
 	
-	public World() {
-		worldSeed = new Random().nextLong();
-		newCreatures = new HashSet<Creature>();
-		randomizer = new Random(worldSeed);
-		creatures = new ArrayList<Creature>();
-		plantGrid = new PlantGrid(randomizer);
-		cadavers = new ArrayList<Cadaver>();
-		rockSys = new RockSystem(randomizer.nextLong());
-		maxGen = 0;
-		step = 0;
-		creature_count_stat = StatisticManager.createStatistic("creature count");
-		plant_count_stat = StatisticManager.createStatistic("plant count");
-		creature_count_stat.addDataByMethod(this, "getNumberOfCreatures", DATATYPE.INTEGER);
-		plant_count_stat.addDataByMethod(plantGrid, "getNumberOfLivingPlants", DATATYPE.INTEGER);
-	}
-
 	public World(long seed, long rockseed) {
 		worldSeed = seed;
 		newCreatures = new HashSet<Creature>();
 		randomizer = new Random(worldSeed);
 		creatures = new ArrayList<Creature>();
-		plantGrid = new PlantGrid(randomizer);
+		plantGrid = new PlantGrid(randomizer, this);
 		cadavers = new ArrayList<Cadaver>();
 		rockSys = new RockSystem(rockseed);
+		objectGrid = new ObjectGrid(this);
 		maxGen = 0;
 		step = 0;
 		creature_count_stat = StatisticManager.createStatistic("creature count");
@@ -71,25 +58,18 @@ public class World {
 		plant_count_stat.addDataByMethod(plantGrid, "getNumberOfLivingPlants", DATATYPE.INTEGER);
 	}
 	
+	public World() {
+		this((new Random()).nextLong(),(new Random()).nextLong());
+	}
+	
 	public World(long seed) {
-		worldSeed = seed;
-		newCreatures = new HashSet<Creature>();
-		randomizer = new Random(worldSeed);
-		creatures = new ArrayList<Creature>();
-		plantGrid = new PlantGrid(randomizer);
-		cadavers = new ArrayList<Cadaver>();
-		rockSys = new RockSystem(randomizer.nextLong());
-		maxGen = 0;
-		step = 0;
-		creature_count_stat = StatisticManager.createStatistic("creature count");
-		plant_count_stat = StatisticManager.createStatistic("plant count");
-		creature_count_stat.addDataByMethod(this, "getNumberOfCreatures", DATATYPE.INTEGER);
-		plant_count_stat.addDataByMethod(plantGrid, "getNumberOfLivingPlants", DATATYPE.INTEGER);
+		this(seed, (new Random(seed)).nextLong());
 	}
 	
 	public void initialize() {		
 		nextId = 0;
-		rockSys.createTestRock();
+		rockSys.generateRocks();
+		objectGrid.insertRocksIntoGrid(rockSys);
 		for (int i = 0; i < NUMBER_OF_STARTING_CREATURES; i++) {
 			Pair<Double,Double> rndPos = getRandomWorldPosition(Body.MAX_RADIUS);
 			Creature c = new Creature(getNextId(),rndPos.getX(), rndPos.getY(), randomizer);
@@ -103,7 +83,7 @@ public class World {
 		}
 		for (int i = 0; i < NUMBER_OF_STARTING_PLANTS; i++) {
 			Pair<Integer,Integer> rndPos = plantGrid.getRandomGridPosition();
-			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();
+			plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].growPlant();	
 			Plant p = plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].getPlant();
 			if (rockSys.checkInBounds(p)) {
 				plantGrid.getGrid()[rndPos.getX()][rndPos.getY()].deletePlant(true);
@@ -113,6 +93,10 @@ public class World {
 		}
 		plantGrid.initNumberOfLivingPlants();
 		System.out.println("Start-Seed: "+worldSeed);
+	}
+	
+	public ObjectGrid getObjectGrid() {
+		return objectGrid;
 	}
 	
 	public void gatherWorldStepStats() {
@@ -374,10 +358,10 @@ public class World {
 		AnalyseStrg.getSpeedAnalyser().addData("Step.InOut", second2);
 		creatures.addAll(newCreatures);
 		step++;
-		if (step%STEP_PER_STAT_UPDATE == 0) {
-			creature_count_stat.observe();
-			plant_count_stat.observe();
-		}
+		//if (step%STEP_PER_STAT_UPDATE == 0) {
+		//	creature_count_stat.observe();
+		//	plant_count_stat.observe();
+		//}
 	}
 	
 	

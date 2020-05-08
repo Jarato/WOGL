@@ -77,6 +77,7 @@ public class ViewControl {
 	
 	public static void init(World world) {
 		ViewControl.world = world;
+		selectedCreature = null;
 	}
 	
 	private static void restrictViewToWorld() {

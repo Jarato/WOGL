@@ -6,8 +6,9 @@ import pdf.ai.dna.Evolutionizable;
 import pdf.simulation.CollisionCircle;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
+import simulation.optimization.GridAble;
 
-public class Body extends CollisionCircle implements Evolutionizable{
+public class Body extends CollisionCircle implements Evolutionizable, GridAble{
 	//CONSTS - GENE
 	public static final int NUMBER_OF_GENES = 7;
 	//CONSTS - MINMAX
@@ -19,7 +20,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double VORE_CUTOFF = 0.95;
 	public static final double VORE_PURE_EFF = 1.1;
 	public static final double OVER_EATING_BUFFER = 0.12;
-	public static final double OVER_EATING_DMG = 0.3;
+	public static final double OVER_EATING_DMG = 0.1;
 	//OTHER
 	public static final double BASE_LIFE_LOSS_PERCENT = 0.2;
 	//CONSTS - MOVEMENT
@@ -34,7 +35,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
 	public static final double ABLE_TO_EAT_SPEEDTHRESHOLD = 0.6;
 	public static final double SPLIT_TIMER_RADIUS_FACTOR = 10;
 	public static final int SPLIT_TIMER_BASE = 50;
-	public static final double ATTACK_DMG_RADIUS_FACTOR = 2.5;
+	public static final double ATTACK_DMG_RADIUS_FACTOR = 2;
 	public static final double ATTACK_DMG_BASE = 3;
 	
 	public static final double COLLISION_HARDNESS = 2.0/3.0;
@@ -70,6 +71,7 @@ public class Body extends CollisionCircle implements Evolutionizable{
     private double lifeLossBase;
     private double healAmount_base;
     private double slowPercent;
+    private Pair<Integer,Integer> gridPosition;
     //ACTIVE
 	private double rotationAngle;
     private double rotationVelocity;
@@ -305,12 +307,12 @@ public class Body extends CollisionCircle implements Evolutionizable{
         attack_dmg = this.radius*ATTACK_DMG_RADIUS_FACTOR+ATTACK_DMG_BASE;
         double stomachLifeValue = this.radius*this.radius*2.5 + 100;
         double baseline = stomachLifeValue/1000.0;
-        energyLossBase = baseline*0.00003; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
-        energyLossAcc = baseline *0.00015;
-        energyLossRot = baseline *0.00001;
-        energyLossAttack = baseline * 1;
-        energyLossHeal = baseline * 0.005;
-        healAmount_base = baseline * 0.08+ 0.01;
+        energyLossBase = baseline*0.0000001; // bigger too good: higher 1st - lower second ### smaller too good: lower 1st - higher second
+        energyLossAcc = baseline *0.0000004;
+        energyLossRot = baseline *0.00000001;
+        energyLossAttack = baseline * 0.5;
+        energyLossHeal = baseline * 0.004;
+        healAmount_base = baseline * 0.12;
         lifeLossBase = baseline * BASE_LIFE_LOSS_PERCENT;
         //Stomach/Life-Portion
         double stomachPercent = this.dna.getNormedGene(5, STOMACH_LIFE_MIN_PERCENT, 1-STOMACH_LIFE_MIN_PERCENT);
@@ -329,5 +331,15 @@ public class Body extends CollisionCircle implements Evolutionizable{
         }
         
     }
+
+	@Override
+	public Pair<Integer, Integer> getGridPosition() {
+		return gridPosition;
+	}
+
+	@Override
+	public void setGridPosition(Pair<Integer, Integer> pos) {
+		this.gridPosition = pos;
+	}
 
 }

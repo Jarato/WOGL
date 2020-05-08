@@ -1,5 +1,6 @@
 package simulation.environment.rocks;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.paint.Color;
@@ -8,7 +9,7 @@ import simulation.environment.EarCut;
 
 public class Rock {
 	public static final double COLLISION_HARDNESS = 1.0;
-	public static final Color COLOR = Color.DIMGREY;
+	public static final Color COLOR = Color.rgb(36, 36, 35);;
 	private Pair<Double,Double> topLeftBound;
 	private Pair<Double,Double> bottomRightBound;
 	private double[] xPoints;
@@ -50,6 +51,17 @@ public class Rock {
 	
 	public Pair<double[],double[]> getPoints(){
 		return new Pair<double[],double[]>(xPoints,yPoints);
+	}
+	
+	public ArrayList<Pair<double[],double[]>> calculateWorldRockLines() {
+		ArrayList<Pair<double[], double[]>> res = new ArrayList<Pair<double[], double[]>>();
+		int N = xPoints.length;
+		for (int i = 0; i < N; i++) {
+			double[] first = new double[] {world_xPoints[i], world_yPoints[i]};
+			double[] second = new double[] {world_xPoints[(i+1)%N], world_yPoints[(i+1)%N]};
+			res.add(new Pair<double[], double[]>(first, second));
+		}
+		return res;
 	}
 	
 	public void calculateWorldPointPosition() {

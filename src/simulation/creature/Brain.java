@@ -1,14 +1,12 @@
 package simulation.creature;
 
 import javafx.scene.paint.Color;
-import pdf.ai.nnetwork.IOIActivationNet;
 //import pdf.ai.nnetwork.cell.activationfunction.ReLU;
-import pdf.ai.nnetwork.cell.activationfunction.Tanh;
 import pdf.util.Pair;
 import pdf.util.UtilMethods;
 import simulation.World;
 
-public class Brain extends IOIActivationNet {
+public class Brain extends IOINetwork {
 	//CONSTS
 	public static final int NUMBER_OF_SIGHT_AREAS = 9;
 	public static final double SIGHT_RANGE = 400;
@@ -56,12 +54,17 @@ public class Brain extends IOIActivationNet {
 	}
 
 	public Brain(int numberOfInputCells, int numberOfInterCells, int numberOfOutputCells) {
-		super(numberOfInputCells, numberOfInterCells, numberOfOutputCells, new Tanh());
+		super(numberOfInputCells, numberOfInterCells, numberOfOutputCells);
+	}
+	
+	public double transformEyeInputRangeIntoActivation(double input) {
+		return -1.0/SIGHT_RANGE * input + 1;
+		//return Math.log(SIGHT_RANGE/(input+1))*0.166834544833271+0.000416913215098139;
 	}
 	
 	private int setEyeInput(int pos, Pair<Double, Color> eyeInput) {
-		double temp = (SIGHT_RANGE-eyeInput.getX())/SIGHT_RANGE;
-		setInputValue(pos, temp*temp);
+		//double temp = (SIGHT_RANGE-eyeInput.getX())/SIGHT_RANGE;
+		setInputValue(pos, transformEyeInputRangeIntoActivation(eyeInput.getX()));
 		pos++;
 		Color seenC = eyeInput.getY();
         setInputValue(pos, 1.0-seenC.getRed());
@@ -70,7 +73,6 @@ public class Brain extends IOIActivationNet {
         pos++;
         setInputValue(pos, 1.0-seenC.getBlue());
         pos++;
-		
 		return pos;
 	}
 
