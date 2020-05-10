@@ -41,7 +41,7 @@ public class lwjgl_gui {
 	
 	
 	public static void main(String[] args) {
-		simulation(1);
+		simulation();
 		System.exit(0);
 	}
 	
@@ -136,7 +136,7 @@ public class lwjgl_gui {
 			if (step % 1000 == 0) {
 				//System.out.println(DrawWorld.getNumberOfSavedCircleShapes());
 				DrawWorld.resetSavedCircleShapes();
-				AnalyseStrg.writeFile("RP3N_5k_"+number);
+				AnalyseStrg.writeFile("RP2sN_5k_"+number);
 				//System.out.println("Analysed!");
 			}
 			step++;

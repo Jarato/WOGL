@@ -253,20 +253,6 @@ public class Creature implements Evolutionizable{
     	ViewAbleObjects viewObjs = theWorld.getObjectGrid().getViewAbleObjects(objectGridPosition);
     	
     	long timestamp = System.currentTimeMillis();
-        /*PlantBox[][] grid = theWorld.getPlantGrid().getGrid();
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j].getPlant() != null && this.body.inRangeOf(grid[i][j].getPlant(), Brain.SIGHT_RANGE+body.getRadius()+grid[i][j].getPlant().getRadius())) {
-                    int whichEye = getViewArea(this.body.angleTo(grid[i][j].getPlant()));
-                    if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
-                        double distance = this.body.edgeDistanceTo(grid[i][j].getPlant());
-                        if (mask.eyesInput[whichEye].getX() > distance) {
-                        	mask.eyesInput[whichEye].set(distance, Plant.COLOR);
-                        }
-                    }
-                }
-            }
-        }*/
     	for (Plant plant : viewObjs.plants) {
     		int whichEye = getViewArea(this.body.angleTo(plant));
             if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
@@ -276,6 +262,22 @@ public class Creature implements Evolutionizable{
                 }
             }
     	}
+    	/*double[] eyesDistances = new double[Brain.NUMBER_OF_SIGHT_AREAS];
+    	for (int i = 0; i < eyesDistances.length; i++) {
+    		eyesDistances[i] = Brain.SIGHT_RANGE*Brain.SIGHT_RANGE;
+    	}
+    	for (Plant plant : viewObjs.plants) {
+    		int whichEye = getViewArea(this.body.angleTo(plant));
+            if (whichEye >= 0 && whichEye < Brain.NUMBER_OF_SIGHT_AREAS) {
+                double distanceSq = this.body.distanceSqTo(plant);
+                if (eyesDistances[whichEye] > distanceSq) {
+                	eyesDistances[whichEye] = distanceSq;
+                }
+            }
+    	}
+    	for (int i = 0; i < eyesDistances.length; i++) {
+    		mask.eyesInput[i].set(Math.sqrt(eyesDistances[i]) - this.body.getRadius() - Plant.RADIUS, Plant.COLOR);
+    	}*/
         long second = System.currentTimeMillis()-timestamp;
 		AnalyseStrg.getSpeedAnalyser().addData("Step.InOut/creature.Brain.Input.SeePlants", second);
         //Seeing other creatures
@@ -336,15 +338,15 @@ public class Creature implements Evolutionizable{
             }
             double distance;
             if (vector.getX() == 0) {
-                distance = distanceY;
+                distance = distanceY; // SQUARED DISTANCE CALCULATION OPTIMIZATION, was: distanceY
             } else if (vector.getY() == 0) {
-                distance = distanceX;
+                distance = distanceX; // SQUARED DISTANCE CALCULATION OPTIMIZATION, was: distanceX
             } else {
             	double tempYDistance = distanceX/vector.getX()*vector.getY();
 
             	double tempXDistance = distanceY/vector.getY()*vector.getX();
             	distance = Math.min(tempYDistance*tempYDistance+distanceX*distanceX, distanceY*distanceY+tempXDistance*tempXDistance);
-            	distance = Math.sqrt(distance) - body.getRadius();
+            	distance = Math.sqrt(distance) - body.getRadius(); // was: Math.sqrt(distance) - body.getRadius();
             }
           
             
